@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Sparkles, ShoppingBag, Zap, Star } from 'lucide-react';
+import logo from '../assets/firefly1.png';
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -110,7 +111,7 @@ const Hero = () => {
             >
               <div className="relative w-[300px] h-[300px] lg:w-[550px] lg:h-[550px] animate-float">
                 <div className="w-full h-full rounded-[4rem] overflow-hidden shadow-2xl border-8 border-white/20 rotate-3 transition-transform hover:rotate-0 duration-700">
-                  <img src="/src/assets/firefly1.png" alt="Bytecore's Mall Premium" className="w-full h-full object-cover" />
+                  <img src={logo} alt="Bytecore's Mall Premium" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center pb-12">
                      <span className="text-white text-4xl lg:text-5xl font-black tracking-tighter uppercase">Bytecore's Mall</span>
                   </div>

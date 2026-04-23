@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Truck, ShieldCheck, RotateCcw, Award, ChevronRight } from 'lucide-react';
+import { Truck, ShieldCheck, RotateCcw, Award, ChevronRight, Heart } from 'lucide-react';
+import logo from '../assets/firefly1.png';
 import Hero from '../components/Hero';
 import ProductGrid from '../components/ProductGrid';
 
@@ -111,6 +112,89 @@ const Home = ({ addToCart }) => {
           ))}
         </div>
       </section>
+      {/* Newsletter Section */}
+      <section className="w-full py-24 bg-red-500 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+        
+        <div className="max-w-[1920px] mx-auto px-6 lg:px-12 relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
+          <div className="max-w-2xl text-center lg:text-left">
+            <h2 className="text-4xl lg:text-6xl font-black text-white tracking-tighter mb-4">
+              Join the <span className="text-black/30">Bytecore's</span> Club
+            </h2>
+            <p className="text-xl text-white/80 font-bold">Subscribe to get exclusive early access to our May 1st launch deals!</p>
+          </div>
+          
+          <div className="w-full max-w-xl bg-white p-3 rounded-[2.5rem] shadow-2xl flex flex-col sm:flex-row gap-3">
+            <input 
+              type="email" 
+              placeholder="Enter your email address" 
+              className="flex-1 bg-transparent px-8 py-5 font-bold text-slate-900 outline-none placeholder:text-slate-400"
+            />
+            <button className="bg-red-500 hover:bg-black text-white px-10 py-5 rounded-2xl font-black transition-all active:scale-95 whitespace-nowrap">
+              Notify Me
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Premium Footer */}
+      <footer className="w-full bg-white pt-24 pb-12 border-t border-slate-100">
+        <div className="max-w-[1920px] mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
+          <div className="space-y-8">
+            <div className="flex items-center gap-3">
+               <img src={logo} alt="Logo" className="w-12 h-12 rounded-xl object-cover" />
+               <span className="text-2xl font-black tracking-tighter uppercase">Bytecore's Mall</span>
+            </div>
+            <p className="text-lg text-slate-500 font-medium leading-relaxed">
+              Your ultimate destination for premium products at unbeatable prices. We believe in quality, style, and value for every customer.
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-xl font-black text-slate-900 mb-8 uppercase tracking-widest">Quick Links</h4>
+            <ul className="space-y-4 font-bold text-slate-500">
+              <li><a href="/products" className="hover:text-red-500 transition-colors">All Products</a></li>
+              <li><a href="/products/electronics" className="hover:text-red-500 transition-colors">Electronics</a></li>
+              <li><a href="/products/fashion" className="hover:text-red-500 transition-colors">Fashion</a></li>
+              <li><a href="/cart" className="hover:text-red-500 transition-colors">Shopping Cart</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xl font-black text-slate-900 mb-8 uppercase tracking-widest">Customer Care</h4>
+            <ul className="space-y-4 font-bold text-slate-500">
+              <li><a href="#" className="hover:text-red-500 transition-colors">Track Your Order</a></li>
+              <li><a href="#" className="hover:text-red-500 transition-colors">Return Policy</a></li>
+              <li><a href="#" className="hover:text-red-500 transition-colors">Shipping Info</a></li>
+              <li><a href="#" className="hover:text-red-500 transition-colors">Help Center</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-xl font-black text-slate-900 mb-8 uppercase tracking-widest">Connect</h4>
+            <div className="flex gap-4 mb-8">
+              {['FB', 'IG', 'TW', 'YT'].map(social => (
+                <div key={social} className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-black text-slate-900 hover:bg-red-500 hover:text-white transition-all cursor-pointer">
+                  {social}
+                </div>
+              ))}
+            </div>
+            <p className="text-sm font-bold text-slate-400">© 2026 Bytecore's Mall. All Rights Reserved.</p>
+          </div>
+        </div>
+        
+        <div className="max-w-[1920px] mx-auto px-6 lg:px-12 pt-12 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
+           <div className="flex items-center gap-2 text-slate-400 font-bold">
+             <Heart size={16} className="text-red-400 fill-red-400" />
+             <span>Made with love for our customers</span>
+           </div>
+           <div className="flex gap-8 text-sm font-black text-slate-400 uppercase tracking-widest">
+             <a href="#">Privacy Policy</a>
+             <a href="#">Terms of Service</a>
+           </div>
+        </div>
+      </footer>
     </div>
   );
 };

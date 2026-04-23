@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { account } from '../appwrite/config';
 import { ShoppingCart, User as UserIcon, LogOut, Menu, X, Settings } from 'lucide-react';
+import logo from '../assets/firefly1.png';
 
 const Navbar = ({ user, cartCount }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,7 +34,7 @@ const Navbar = ({ user, cartCount }) => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110 overflow-hidden rounded-xl shadow-md">
-            <img src="/src/assets/firefly1.png" alt="Bytecore's Mall Logo" className="w-full h-full object-cover" />
+            <img src={logo} alt="Bytecore's Mall Logo" className="w-full h-full object-cover" />
           </div>
           <span className="text-2xl font-black tracking-tighter text-slate-900 uppercase">
             <span className="text-red-500">Bytecore's</span> Mall
