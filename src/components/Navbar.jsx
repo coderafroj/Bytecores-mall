@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { account } from '../appwrite/config';
 import { ShoppingCart, User as UserIcon, LogOut, Menu, X, Settings, Search } from 'lucide-react';
 import logo from '../assets/firefly1.png';
@@ -33,31 +34,41 @@ const Navbar = ({ user, cartCount }) => {
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110 overflow-hidden rounded-xl shadow-md">
+          <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110 overflow-hidden rounded-xl shadow-md border-2 border-white/20">
             <img src={logo} alt="Bytecore's Mall Logo" className="w-full h-full object-cover" />
           </div>
-          <span className="text-2xl font-black tracking-tighter text-slate-900 uppercase">
+          <span className={`text-2xl font-black tracking-tighter uppercase transition-colors duration-500 ${isScrolled ? 'text-slate-900' : 'text-white'}`}>
             <span className="text-red-500">Bytecore's</span> Mall
           </span>
         </Link>
 
         {/* Desktop Links */}
         <div className="hidden lg:flex items-center gap-10">
-          <Link to="/" className="text-lg font-black text-slate-500 hover:text-red-500 transition-colors uppercase tracking-tight">Home</Link>
-          <Link to="/products" className="text-lg font-black text-slate-500 hover:text-red-500 transition-colors uppercase tracking-tight">Shop</Link>
-          <Link to="/products/electronics" className="text-lg font-black text-slate-500 hover:text-red-500 transition-colors uppercase tracking-tight">Electronics</Link>
-          <Link to="/products/fashion" className="text-lg font-black text-slate-500 hover:text-red-500 transition-colors uppercase tracking-tight">Fashion</Link>
-          <Link to="/contact" className="text-lg font-black text-slate-500 hover:text-red-500 transition-colors uppercase tracking-tight">Contact</Link>
+          {[
+            { label: 'Home', path: '/' },
+            { label: 'Shop', path: '/products' },
+            { label: 'Electronics', path: '/products/electronics' },
+            { label: 'Fashion', path: '/products/fashion' },
+            { label: 'Contact', path: '/contact' }
+          ].map((link) => (
+            <Link 
+              key={link.path} 
+              to={link.path} 
+              className={`text-lg font-black transition-all duration-500 uppercase tracking-tight hover:text-red-500 ${isScrolled ? 'text-slate-500' : 'text-white/80'}`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-4 lg:gap-8">
-          <button className="hidden sm:flex items-center text-slate-900 hover:text-red-500 transition-colors">
+          <button className={`hidden sm:flex items-center transition-colors duration-500 hover:text-red-500 ${isScrolled ? 'text-slate-900' : 'text-white'}`}>
             <Search size={24} strokeWidth={2.5} />
           </button>
           
           <Link to="/cart" className="relative group p-2">
-            <ShoppingCart size={28} strokeWidth={2.5} className="text-slate-900 group-hover:text-red-500 transition-colors" />
+            <ShoppingCart size={28} strokeWidth={2.5} className={`transition-colors duration-500 group-hover:text-red-500 ${isScrolled ? 'text-slate-900' : 'text-white'}`} />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-full shadow-lg shadow-red-500/30 animate-bounce">
                 {cartCount}
@@ -68,20 +79,20 @@ const Navbar = ({ user, cartCount }) => {
           {user ? (
             <div className="flex items-center gap-4 lg:gap-6 border-l border-slate-200 pl-6 lg:pl-8">
               <Link to={user?.labels?.includes('admin') ? '/admin' : '/profile'} className="flex items-center gap-3 group">
-                <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black group-hover:bg-red-500 transition-colors">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black transition-all duration-500 group-hover:bg-red-500 ${isScrolled ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}`}>
                   {user.name[0]}
                 </div>
                 <div className="hidden xl:block">
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Welcome</p>
-                  <p className="text-sm font-black text-slate-900 leading-none">{user.name.split(' ')[0]}</p>
+                  <p className={`text-[10px] font-black uppercase tracking-widest leading-none mb-1 transition-colors duration-500 ${isScrolled ? 'text-slate-400' : 'text-white/60'}`}>Welcome</p>
+                  <p className={`text-sm font-black leading-none transition-colors duration-500 ${isScrolled ? 'text-slate-900' : 'text-white'}`}>{user.name.split(' ')[0]}</p>
                 </div>
               </Link>
-              <button onClick={handleLogout} className="w-10 h-10 bg-slate-100 text-slate-900 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm">
+              <button onClick={handleLogout} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm hover:bg-red-500 hover:text-white ${isScrolled ? 'bg-slate-100 text-slate-900' : 'bg-white/10 text-white'}`}>
                 <LogOut size={20} strokeWidth={2.5} />
               </button>
             </div>
           ) : (
-            <Link to="/login" className="bg-slate-900 hover:bg-red-500 text-white px-8 py-3.5 rounded-2xl font-black transition-all shadow-xl shadow-slate-900/10 hover:shadow-red-500/20 active:scale-95">
+            <Link to="/login" className={`px-8 py-3.5 rounded-2xl font-black transition-all shadow-xl active:scale-95 ${isScrolled ? 'bg-slate-900 text-white hover:bg-red-500' : 'bg-white text-slate-900 hover:bg-red-500 hover:text-white'}`}>
               Login
             </Link>
           )}
