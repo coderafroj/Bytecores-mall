@@ -10,6 +10,7 @@ import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import AdminPanel from './pages/AdminPanel';
 import OrderSuccess from './pages/OrderSuccess';
+import Contact from './pages/Contact';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -111,6 +112,7 @@ function App() {
             <Checkout cart={cart} clearCart={clearCart} user={user} />
           } />
           <Route path="/order-success" element={<OrderSuccess />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/admin" element={
             user?.labels?.includes('admin') ? (

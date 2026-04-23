@@ -112,6 +112,40 @@ const Home = ({ addToCart }) => {
           ))}
         </div>
       </section>
+      {/* FAQ Section */}
+      <section className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 py-24">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tighter mb-4">
+            Got <span className="text-red-500">Questions?</span>
+          </h2>
+          <p className="text-xl text-slate-500 font-medium">Everything you need to know about shopping at Bytecore's Mall.</p>
+        </div>
+
+        <div className="max-w-4xl mx-auto space-y-6">
+          {[
+            { q: "What is the delivery time?", a: "Standard delivery takes 3-5 business days across India. Express shipping is available for select cities." },
+            { q: "Do you offer Cash on Delivery?", a: "Yes! We offer COD on all orders below ₹5000 to ensure a risk-free shopping experience." },
+            { q: "How can I return a product?", a: "We have a no-questions-asked 7-day return policy. Simply head to your profile or contact support." },
+            { q: "Are the products genuine?", a: "Absolutely. We source directly from brands and verified distributors to ensure 100% authenticity." }
+          ].map((faq, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 hover:border-red-200 transition-all group"
+            >
+              <h3 className="text-xl font-black text-slate-900 mb-3 flex items-center gap-4">
+                <span className="w-10 h-10 bg-white rounded-2xl flex items-center justify-center text-red-500 shadow-sm font-black">?</span>
+                {faq.q}
+              </h3>
+              <p className="text-lg text-slate-500 font-medium pl-14">{faq.a}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
       {/* Newsletter Section */}
       <section className="w-full py-24 bg-red-500 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
