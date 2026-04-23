@@ -53,7 +53,7 @@ const Login = ({ setUser }) => {
         <div className="p-12 lg:p-16">
           <div className="text-center mb-12">
             <div className="w-24 h-24 mx-auto mb-6 rounded-[2rem] overflow-hidden shadow-xl border-4 border-slate-50">
-               <img src="/src/assets/Firefly.jpg" alt="99Mall Logo" className="w-full h-full object-cover" />
+               <img src="/src/assets/firefly1.png" alt="Bytecore's Mall Logo" className="w-full h-full object-cover" />
             </div>
             <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4">BYTECORE'S MALL</h2>
             <p className="text-lg font-bold text-slate-500">

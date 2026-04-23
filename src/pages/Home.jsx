@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Truck, ShieldCheck, RotateCcw, Award, ChevronRight } from 'lucide-react';
 import Hero from '../components/Hero';
@@ -22,6 +23,13 @@ const Home = ({ addToCart }) => {
 
   return (
     <div className="w-full bg-white">
+      <Helmet>
+        <title>Bytecore's Mall | Best Online Shopping in India</title>
+        <meta name="description" content="Welcome to Bytecore's Mall - Your ultimate destination for premium electronics, fashion, and home essentials at unbeatable prices. Shop the latest trends today!" />
+        <meta name="keywords" content="online shopping, electronics, fashion, home decor, deals, bytecore's mall" />
+        <link rel="canonical" href="https://bytecores-mall.vercel.app/" />
+      </Helmet>
+      
       <Hero />
       
       {/* Featured Products */}

@@ -33,7 +33,7 @@ const Navbar = ({ user, cartCount }) => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <div className="w-12 h-12 transition-transform duration-300 group-hover:scale-110 overflow-hidden rounded-xl shadow-md">
-            <img src="/src/assets/Firefly.jpg" alt="99Mall Logo" className="w-full h-full object-cover" />
+            <img src="/src/assets/firefly1.png" alt="Bytecore's Mall Logo" className="w-full h-full object-cover" />
           </div>
           <span className="text-2xl font-black tracking-tighter text-slate-900 uppercase">
             <span className="text-red-500">Bytecore's</span> Mall

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bytecores-mall.vercel.app/sitemap.xml
