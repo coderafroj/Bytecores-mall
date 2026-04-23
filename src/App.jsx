@@ -10,7 +10,6 @@ import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import AdminPanel from './pages/AdminPanel';
 import OrderSuccess from './pages/OrderSuccess';
-import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -34,7 +33,7 @@ function App() {
   };
 
   const loadCart = () => {
-    const savedCart = localStorage.getItem('99mall-cart');
+    const savedCart = localStorage.getItem('bytecore-mall-cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
@@ -55,7 +54,7 @@ function App() {
         newCart = [...prevCart, { ...product, quantity }];
       }
       
-      localStorage.setItem('99mall-cart', JSON.stringify(newCart));
+      localStorage.setItem('bytecore-mall-cart', JSON.stringify(newCart));
       return newCart;
     });
   };
@@ -65,7 +64,7 @@ function App() {
       const newCart = prevCart.map(item =>
         item.$id === productId ? { ...item, quantity } : item
       );
-      localStorage.setItem('99mall-cart', JSON.stringify(newCart));
+      localStorage.setItem('bytecore-mall-cart', JSON.stringify(newCart));
       return newCart;
     });
   };
@@ -73,20 +72,21 @@ function App() {
   const removeFromCart = (productId) => {
     setCart(prevCart => {
       const newCart = prevCart.filter(item => item.$id !== productId);
-      localStorage.setItem('99mall-cart', JSON.stringify(newCart));
+      localStorage.setItem('bytecore-mall-cart', JSON.stringify(newCart));
       return newCart;
     });
   };
 
   const clearCart = () => {
     setCart([]);
-    localStorage.removeItem('99mall-cart');
+    localStorage.removeItem('bytecore-mall-cart');
   };
 
   if (loading) {
     return (
-      <div className="loading-screen">
-        <div className="loader"></div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white z-[9999]">
+        <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase animate-pulse">Bytecore's Mall</h2>
       </div>
     );
   }
