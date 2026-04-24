@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import logo from '../assets/firefly1.png';
 
@@ -75,17 +76,27 @@ const ProfileLaunch = () => {
         <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_60%)]"></div>
         
-        <div className="relative animate-[cinematicZoom_4s_ease-out_forwards] flex flex-col items-center justify-center z-10 w-full px-4">
-          <div className="overflow-hidden pb-2">
-            <h1 className="text-6xl md:text-9xl font-black text-white tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center opacity-0 animate-[elegantReveal_1.5s_cubic-bezier(0.2,0.8,0.2,1)_0.2s_forwards]">
-              COMING
-            </h1>
-          </div>
-          <div className="overflow-hidden">
-            <h1 className="text-6xl md:text-9xl font-black text-white/95 tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center ml-6 md:ml-16 opacity-0 animate-[elegantReveal_1.5s_cubic-bezier(0.2,0.8,0.2,1)_0.5s_forwards]">
-              SOON
-            </h1>
-          </div>
+        <div 
+          className="relative animate-[cinematicZoom_4s_ease-out_forwards] flex flex-col items-center justify-center z-10 w-full px-4"
+          style={{ perspective: "1000px" }}
+        >
+          <motion.div 
+            initial={{ rotateX: 20, rotateY: -10, opacity: 0 }}
+            animate={{ rotateX: 0, rotateY: 0, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="flex flex-col items-center"
+          >
+            <div className="overflow-hidden pb-2">
+              <h1 className="text-6xl md:text-9xl font-black text-white tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center animate-[elegantReveal_1.5s_cubic-bezier(0.2,0.8,0.2,1)_0.2s_forwards]">
+                A NEW ERA
+              </h1>
+            </div>
+            <div className="overflow-hidden">
+              <h1 className="text-6xl md:text-9xl font-black text-white/95 tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center ml-6 md:ml-16 animate-[elegantReveal_1.5s_cubic-bezier(0.2,0.8,0.2,1)_0.5s_forwards]">
+                BEGINS
+              </h1>
+            </div>
+          </motion.div>
           
           {/* Elegant thick white line */}
           <div className="w-24 md:w-40 h-[6px] bg-white rounded-full mt-10 shadow-[0_5px_15px_rgba(0,0,0,0.5)] opacity-0 animate-[scalePop_1.5s_cubic-bezier(0.2,0.8,0.2,1)_0.8s_forwards]"></div>
@@ -239,17 +250,25 @@ const ProfileLaunch = () => {
             </div>
 
             {/* Cinematic Text Overlay - Matching Coming Soon */}
-            <div className="overflow-hidden pb-2">
-              <h2 className="text-6xl md:text-9xl font-black text-white tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center animate-[slideRightFade_1s_cubic-bezier(0.2,0.8,0.2,1)_0.4s_both]">
-                AVAILABLE
-              </h2>
-            </div>
-            
-            <div className="overflow-hidden">
-              <h2 className="text-6xl md:text-9xl font-black text-white/95 tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center ml-6 md:ml-16 animate-[slideLeftFade_1s_cubic-bezier(0.2,0.8,0.2,1)_0.6s_both]">
-                SOON
-              </h2>
-            </div>
+            <motion.div 
+              initial={{ rotateX: -20, opacity: 0 }}
+              animate={{ rotateX: 0, opacity: 1 }}
+              transition={{ delay: 0.4, duration: 1 }}
+              className="flex flex-col items-center"
+              style={{ perspective: "1000px" }}
+            >
+              <div className="overflow-hidden pb-2">
+                <h2 className="text-6xl md:text-9xl font-black text-white tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center animate-[slideRightFade_1s_cubic-bezier(0.2,0.8,0.2,1)_0.4s_both]">
+                  GRAND
+                </h2>
+              </div>
+              
+              <div className="overflow-hidden">
+                <h2 className="text-6xl md:text-9xl font-black text-white/95 tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center ml-6 md:ml-16 animate-[slideLeftFade_1s_cubic-bezier(0.2,0.8,0.2,1)_0.6s_both]">
+                  OPENING
+                </h2>
+              </div>
+            </motion.div>
 
             {/* In Nariyawal Creative Design */}
             <div className="mt-10 flex items-center gap-6 animate-[fadeUp_1s_ease-out_1.2s_both]">
@@ -260,8 +279,8 @@ const ProfileLaunch = () => {
                <div className="h-[4px] w-12 md:w-24 bg-white rounded-full shadow-[0_5px_10px_rgba(0,0,0,0.3)]"></div>
             </div>
             
-            <p className="mt-14 text-white uppercase tracking-[0.4em] text-xs md:text-sm animate-[fadeUp_1s_ease-out_1.8s_both] border border-white/30 px-8 py-3 rounded-full bg-white/10 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.5)] font-bold">
-              Get ready for the ultimate experience
+            <p className="mt-14 text-white uppercase tracking-[0.4em] text-xs md:text-sm animate-[fadeUp_1s_ease-out_1.8s_both] border border-white/30 px-8 py-3 rounded-full bg-white/10 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.5)] font-black">
+              LIVE ON MAY 1ST • STAY TUNED
             </p>
           </div>
         </div>
