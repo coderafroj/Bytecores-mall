@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { account } from './appwrite/config';
 import Navbar from './components/Navbar';
@@ -11,6 +11,13 @@ import Login from './pages/Login';
 import AdminPanel from './pages/AdminPanel';
 import OrderSuccess from './pages/OrderSuccess';
 import Contact from './pages/Contact';
+import ProfileLaunch from './pages/ProfileLaunch';
+
+const LayoutNavbar = ({ user, cartCount }) => {
+  const location = useLocation();
+  if (location.pathname === '/profile-launch') return null;
+  return <Navbar user={user} cartCount={cartCount} />;
+};
 
 function App() {
   const [user, setUser] = useState(null);
@@ -95,7 +102,7 @@ function App() {
   return (
     <Router>
       <div className="app">
-        <Navbar user={user} cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
+        <LayoutNavbar user={user} cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
         <Routes>
           <Route path="/" element={<Home addToCart={addToCart} />} />
           <Route path="/products" element={<Products addToCart={addToCart} />} />
@@ -121,6 +128,7 @@ function App() {
               <Navigate to="/login" />
             )
           } />
+          <Route path="/profile-launch" element={<ProfileLaunch />} />
         </Routes>
       </div>
     </Router>
