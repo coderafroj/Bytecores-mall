@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { ChevronRight, ShieldCheck, RotateCcw, Shield, Tag, HeadphonesIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import HeroBanner from '../components/HeroBanner';
+import Hero3D from '../components/Hero3D';
 import ProductGrid from '../components/ProductGrid';
 
 // Fallback high quality emojis to simulate the 3D icons from the mockup
@@ -36,7 +36,7 @@ const Home = ({ addToCart }) => {
       </Helmet>
       
       {/* Hero Section */}
-      <HeroBanner />
+      <Hero3D />
 
       {/* Categories Strip */}
       <section className="relative z-20 max-w-[1400px] mx-auto px-4 lg:px-8 -mt-8 mb-12">
