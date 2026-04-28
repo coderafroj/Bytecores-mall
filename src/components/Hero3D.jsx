@@ -158,13 +158,13 @@ export default function Hero3D() {
       <motion.div 
         animate={{ x: mousePos.x * -40, y: mousePos.y * -40 }}
         transition={{ type: "spring", damping: 25, stiffness: 120 }}
-        className="absolute top-1/4 left-1/4 w-[400px] h-[400px] lg:w-[600px] lg:h-[600px] rounded-full blur-[100px] lg:blur-[150px] pointer-events-none z-0"
+        className="absolute top-1/4 left-1/4 w-[400px] h-[400px] lg:w-[600px] lg:h-[600px] rounded-full blur-[60px] lg:blur-[80px] pointer-events-none z-0"
         style={{ background: currentSlide.glow, opacity: 0.4 }}
       />
       <motion.div 
         animate={{ x: mousePos.x * 30, y: mousePos.y * 30 }}
         transition={{ type: "spring", damping: 25, stiffness: 120 }}
-        className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] lg:w-[500px] lg:h-[500px] rounded-full blur-[80px] lg:blur-[130px] pointer-events-none z-0"
+        className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] lg:w-[500px] lg:h-[500px] rounded-full blur-[50px] lg:blur-[60px] pointer-events-none z-0"
         style={{ background: currentSlide.glow, opacity: 0.3 }}
       />
 
@@ -190,7 +190,7 @@ export default function Hero3D() {
                 {currentSlide.title}
               </div>
               
-              <h1 className="font-black text-7xl md:text-8xl lg:text-[110px] leading-[0.85] tracking-tighter text-slate-900 mb-4 uppercase drop-shadow-sm">
+              <h1 className="font-black text-5xl md:text-8xl lg:text-[110px] leading-[0.85] tracking-tighter text-slate-900 mb-4 uppercase drop-shadow-sm">
                 {currentSlide.titleLine1} <br/>
                 <span style={{ color: currentSlide.color }} className="relative">
                   {currentSlide.titleLine2}

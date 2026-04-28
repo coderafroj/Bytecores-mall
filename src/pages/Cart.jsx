@@ -98,44 +98,57 @@ const Cart = ({ cart, updateQuantity, removeFromCart }) => {
 
           {/* Order Summary Sidebar */}
           <aside className="lg:sticky lg:top-32 h-fit">
-            <div className="bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100 space-y-8">
-              <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Order Summary</h2>
+            <div className="bg-slate-900 p-10 rounded-[3rem] shadow-2xl shadow-slate-300 space-y-8 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/20 rounded-full blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
               
-              <div className="space-y-4">
-                <div className="flex justify-between text-lg font-bold text-slate-500">
-                  <span>Subtotal</span>
-                  <span className="text-slate-900">₹{subtotal}</span>
+              <h2 className="text-3xl font-black text-white tracking-tighter relative z-10">Order Summary</h2>
+              
+              <div className="space-y-6 relative z-10">
+                <div className="flex justify-between text-lg font-bold text-slate-400">
+                  <span>Cart Items ({cart.length})</span>
+                  <span className="text-white">₹{subtotal}</span>
                 </div>
                 
-                <div className="flex justify-between text-lg font-bold text-slate-500">
-                  <span>Shipping Cost</span>
-                  <span className={shipping === 0 ? 'text-emerald-500' : 'text-slate-900'}>
+                <div className="flex justify-between text-lg font-bold text-slate-400">
+                  <span>Shipping & Handling</span>
+                  <span className={shipping === 0 ? 'text-emerald-400' : 'text-white'}>
                     {shipping === 0 ? 'FREE' : `₹${shipping}`}
                   </span>
                 </div>
+
+                <div className="flex justify-between text-lg font-bold text-slate-400">
+                  <span>Tax (GST 18%)</span>
+                  <span className="text-white">Included</span>
+                </div>
               </div>
               
-              <div className="pt-8 border-t-2 border-dashed border-slate-100 flex justify-between items-end">
+              <div className="pt-8 border-t border-white/10 flex justify-between items-end relative z-10">
                 <div>
-                  <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Total Amount</p>
-                  <span className="text-5xl font-black text-slate-900 tracking-tighter">₹{total}</span>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Estimated Total</p>
+                  <span className="text-5xl font-black text-white tracking-tighter leading-none">₹{total}</span>
                 </div>
               </div>
 
-              <button 
-                className="w-full bg-red-500 hover:bg-red-600 text-white font-black text-xl py-6 rounded-3xl transition-all shadow-xl shadow-red-500/30 flex items-center justify-center gap-4 active:scale-95"
-                onClick={() => navigate('/checkout')}
-              >
-                Checkout Now
-                <ArrowRight size={24} strokeWidth={3} />
-              </button>
+              <div className="space-y-4 relative z-10">
+                <button 
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-black text-xl py-6 rounded-3xl transition-all shadow-xl shadow-red-900/40 flex items-center justify-center gap-4 active:scale-95 group/btn"
+                  onClick={() => navigate('/checkout')}
+                >
+                  Confirm Order
+                  <ArrowRight size={24} strokeWidth={3} className="group-hover/btn:translate-x-2 transition-transform" />
+                </button>
+                
+                <p className="text-[10px] text-center text-slate-500 font-bold uppercase tracking-wider">Secure 256-bit SSL encrypted checkout</p>
+              </div>
               
-              <div className="flex items-center gap-3 bg-blue-50 p-6 rounded-2xl text-blue-700">
-                <Truck size={24} />
-                <p className="text-sm font-bold leading-tight">
+              <div className="flex items-center gap-4 bg-white/5 p-6 rounded-[2rem] text-slate-300 border border-white/5 relative z-10">
+                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+                  <Truck size={24} className="text-red-500" />
+                </div>
+                <p className="text-xs font-bold leading-relaxed">
                   {shipping === 0 
-                    ? "Great! Your order qualifies for free delivery." 
-                    : `Add items worth ₹${999 - subtotal} more for free delivery.`}
+                    ? "Your order qualifies for Priority Delivery." 
+                    : `Shop for ₹${999 - subtotal} more to unlock Free Express Shipping.`}
                 </p>
               </div>
             </div>

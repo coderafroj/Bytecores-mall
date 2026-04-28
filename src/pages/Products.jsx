@@ -37,9 +37,28 @@ const Products = ({ addToCart }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="w-full min-h-screen bg-slate-50 pt-32 pb-12"
+      className="w-full min-h-screen bg-slate-50 pt-20 lg:pt-32 pb-12"
     >
-      <div className="max-w-[1920px] mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-12">
+      {/* Mobile Category Horizontal Scroll */}
+      <div className="lg:hidden px-4 mb-6">
+        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryChange(cat.id)}
+              className={`whitespace-nowrap px-6 py-3 rounded-full font-black text-xs uppercase tracking-widest transition-all ${
+                activeCategory === cat.id 
+                ? 'bg-red-600 text-white shadow-lg' 
+                : 'bg-white text-slate-600 border border-slate-100'
+              }`}
+            >
+              {cat.icon} {cat.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-[1920px] mx-auto px-4 lg:px-12 grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-12">
         {/* Filters Sidebar */}
         <aside className="hidden lg:block">
           <div className="sticky top-32 bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">

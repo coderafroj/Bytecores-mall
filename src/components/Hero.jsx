@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Sparkles, ShoppingBag, Zap, Star } from 'lucide-react';
-import logo from '../assets/firefly1.png';
+import logo from '../assets/bytecoreMall.jpg';
 
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);

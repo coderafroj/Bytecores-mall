@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { account } from '../appwrite/config';
 import { ShoppingCart, LogOut, Menu, X, Search, User as UserIcon, ChevronRight } from 'lucide-react';
+import logo from '../assets/bytecoreMall.jpg';
 
 const Navbar = ({ user, cartCount }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -64,11 +65,11 @@ const Navbar = ({ user, cartCount }) => {
       </div>
 
       {/* Main Navbar */}
-      <nav className="w-full bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 font-['Segoe_UI',Arial,sans-serif]">
+      <nav className="w-full bg-white border-b border-slate-100 sticky top-0 z-[5000] shadow-sm">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between">
           
           {/* LEFT: Categories Button (3D Animated) */}
-          <div className="flex items-center flex-1 z-20">
+          <div className="hidden lg:flex items-center flex-1 relative z-[5001]">
             <motion.button 
               whileHover={{ scale: 1.05, rotateY: 10 }}
               whileTap={{ scale: 0.95 }}
@@ -98,7 +99,7 @@ const Navbar = ({ user, cartCount }) => {
                   whileHover={{ rotateY: 20, rotateX: 10 }}
                   className="absolute bottom-0 left-0 w-full h-[85%] bg-gradient-to-br from-red-600 to-red-800 rounded-b-xl rounded-t-sm logo-3d-shadow flex items-center justify-center transform-gpu"
                 >
-                  <span className="font-['Barlow_Condensed',sans-serif] font-black text-2xl lg:text-3xl text-white leading-none -ml-0.5">B</span>
+                  <img src={logo} alt="Logo" className="w-full h-full object-contain p-1.5" />
                 </motion.div>
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[18px] h-[10px] lg:w-[22px] lg:h-[14px] border-[3px] border-slate-900 border-b-0 rounded-t-full z-[-1]"></div>
                 <div className="absolute top-[15%] -right-2 bg-yellow-400 text-black text-[9px] lg:text-[11px] font-black px-1.5 py-0.5 rounded shadow-sm rotate-12 z-10 font-['Barlow_Condensed',sans-serif] border border-black/10">
@@ -136,52 +137,25 @@ const Navbar = ({ user, cartCount }) => {
                       autoFocus
                       type="text" 
                       placeholder="Search items..." 
-                      className="w-full bg-slate-100 border-2 border-slate-200 rounded-full px-5 py-2 text-sm outline-none focus:border-red-600 transition-all font-medium"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              <motion.button 
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className={`flex flex-col items-center gap-1 cursor-pointer p-2 rounded-full transition-all ${isSearchOpen ? 'text-red-600 bg-red-50' : 'text-slate-700 hover:text-red-600'}`}
-              >
-                {isSearchOpen ? <X size={22} strokeWidth={2.5} /> : <Search size={22} strokeWidth={2.5} />}
-                {!isSearchOpen && <span className="text-[10px] font-black uppercase hidden sm:block">Search</span>}
-              </motion.button>
-            </div>
-
-            {/* Account */}
-            {user ? (
-              <Link to={user?.labels?.includes('admin') ? '/admin' : '/profile'} className="flex flex-col items-center gap-1 cursor-pointer text-slate-700 hover:text-red-600 transition-colors">
-                <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black bg-slate-900 text-white shadow-md border-2 border-white">
-                  {user.name[0].toUpperCase()}
-                </div>
-                <span className="text-[10px] font-black uppercase hidden sm:block">Profile</span>
-              </Link>
-            ) : (
-              <Link to="/login" className="flex flex-col items-center gap-1 cursor-pointer text-slate-700 hover:text-red-600 transition-colors">
-                <UserIcon size={22} strokeWidth={2.5} />
-                <span className="text-[10px] font-black uppercase hidden sm:block">Account</span>
-              </Link>
-            )}
-
-            {/* Cart */}
-            <Link to="/cart" className="flex flex-col items-center gap-1 cursor-pointer text-slate-700 hover:text-red-600 transition-colors relative">
-              <div className="relative">
-                <ShoppingCart size={22} strokeWidth={2.5} />
+            <Link to="/cart" className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all">
+              <div className="relative p-2 rounded-full group-hover:bg-red-50 transition-all">
+                <ShoppingBag size={24} />
                 {cartCount > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }} animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-md"
-                  >
+                  <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-bounce">
                     {cartCount}
-                  </motion.span>
+                  </span>
                 )}
               </div>
-              <span className="text-[10px] font-black uppercase hidden sm:block">Cart</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">Cart</span>
             </Link>
+          </div>
+          
+          {/* Mobile Right Action (Simplified) */}
+          <div className="lg:hidden flex items-center">
+             <Link to="/cart" className="relative p-2">
+                <ShoppingCart size={24} />
+                {cartCount > 0 && <span className="absolute top-0 right-0 bg-red-600 text-[10px] text-white w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>}
+             </Link>
           </div>
 
         </div>
@@ -196,7 +170,7 @@ const Navbar = ({ user, cartCount }) => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[55]"
+                className="fixed inset-0 bg-black/60 z-[1001]"
               />
               
               <motion.div
@@ -204,11 +178,13 @@ const Navbar = ({ user, cartCount }) => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: '-100%', opacity: 0 }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed top-0 left-0 h-full w-[300px] bg-white z-[60] shadow-2xl overflow-hidden flex flex-col perspective-[1000px]"
+                className="fixed top-0 left-0 h-full w-[300px] bg-white z-[1002] shadow-2xl overflow-hidden flex flex-col perspective-[1000px]"
               >
                 <div className="p-6 bg-slate-900 text-white flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center font-black">B</div>
+                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-slate-200">
+                      <img src={logo} alt="Logo" className="w-full h-full object-contain p-1" />
+                    </div>
                     <span className="font-['Barlow_Condensed',sans-serif] font-black text-xl tracking-wider">CATEGORIES</span>
                   </div>
                   <button onClick={() => setIsMobileMenuOpen(false)} className="text-white/70 hover:text-white">

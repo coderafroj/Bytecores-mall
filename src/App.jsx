@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { useState, useEffect } from 'react';
 import { account } from './appwrite/config';
 import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -130,6 +131,8 @@ function App() {
           } />
           <Route path="/profile-launch" element={<ProfileLaunch />} />
         </Routes>
+        <BottomNav cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
+        <div className="lg:hidden h-20" /> {/* Spacer for bottom nav */}
       </div>
     </Router>
   );

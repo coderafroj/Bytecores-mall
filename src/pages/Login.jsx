@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, LogIn, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
-import logo from '../assets/firefly1.png';
+import logo from '../assets/bytecoreMall.jpg';
 import { account } from '../appwrite/config';
 import { ID } from 'appwrite';
 

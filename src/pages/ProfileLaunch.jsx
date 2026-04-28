@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import logo from '../assets/firefly1.png';
+import logo from '../assets/bytecoreMall.jpg';
 
 const ProfileLaunch = () => {
   const [phase, setPhase] = useState(0); // 0: Cinematic Intro, 1: Profile Launch, 2: Cinematic Outro
@@ -116,12 +116,12 @@ const ProfileLaunch = () => {
         <div className={`absolute inset-0 z-[60] pointer-events-none flex items-center justify-center transition-opacity duration-1000 delay-700 ${ribbonCut ? 'opacity-0' : 'opacity-100'}`}>
           {/* Left Ribbon */}
           <div className={`absolute left-0 w-[50.5%] h-16 bg-gradient-to-r from-red-700 to-red-600 shadow-2xl border-y-[3px] border-red-800 transition-transform duration-1000 ease-[cubic-bezier(0.8,0,0.2,1)] flex justify-end items-center ${ribbonCut ? '-translate-x-full' : 'translate-x-0'}`}>
-             <div className="text-white font-black text-lg tracking-widest mr-[10px] drop-shadow-md">GRA</div>
+              <div className="text-white font-black text-lg tracking-widest mr-[10px] drop-shadow-md">AVAILA</div>
           </div>
           
           {/* Right Ribbon */}
           <div className={`absolute right-0 w-[50.5%] h-16 bg-gradient-to-l from-red-700 to-red-600 shadow-2xl border-y-[3px] border-red-800 transition-transform duration-1000 ease-[cubic-bezier(0.8,0,0.2,1)] flex justify-start items-center ${ribbonCut ? 'translate-x-full' : 'translate-x-0'}`}>
-             <div className="text-white font-black text-lg tracking-widest ml-[10px] drop-shadow-md z-20">ND</div>
+              <div className="text-white font-black text-lg tracking-widest ml-[10px] drop-shadow-md z-20">BLE</div>
           </div>
 
           {/* Realistic Animated Scissors */}
@@ -259,13 +259,13 @@ const ProfileLaunch = () => {
             >
               <div className="overflow-hidden pb-2">
                 <h2 className="text-6xl md:text-9xl font-black text-white tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center animate-[slideRightFade_1s_cubic-bezier(0.2,0.8,0.2,1)_0.4s_both]">
-                  GRAND
+                  AVAILABLE
                 </h2>
               </div>
               
               <div className="overflow-hidden">
                 <h2 className="text-6xl md:text-9xl font-black text-white/95 tracking-[0.15em] uppercase drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] leading-none text-center ml-6 md:ml-16 animate-[slideLeftFade_1s_cubic-bezier(0.2,0.8,0.2,1)_0.6s_both]">
-                  OPENING
+                  SOON
                 </h2>
               </div>
             </motion.div>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import firefly1 from '../assets/firefly1.png';
+import logo from '../assets/bytecoreMall.jpg';
 import { ShieldCheck, Truck, Gift, Award, ChevronRight } from 'lucide-react';
 
 export default function HeroBanner() {
@@ -65,8 +65,7 @@ export default function HeroBanner() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] bg-red-600 rounded-full z-0"></div>
             
             {/* The Main Image */}
-            <img 
-              src={firefly1} 
+              src={logo} 
               alt="Premium Products at ₹99" 
               className="relative z-10 w-full max-w-[650px] object-contain drop-shadow-2xl"
             />
