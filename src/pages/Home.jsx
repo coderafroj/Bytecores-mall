@@ -26,7 +26,11 @@ const TRUST = [
   { icon: <HeadphonesIcon size={28} />, t: "24/7 SUPPORT", s: "We're Here to Help" },
 ];
 
-const Home = ({ addToCart }) => {
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/cartSlice';
+
+const Home = () => {
+  const dispatch = useDispatch();
   return (
     <div className="w-full bg-[#f8f9fa] font-['Segoe_UI',Arial,sans-serif]">
       <Helmet>
@@ -162,7 +166,7 @@ const Home = ({ addToCart }) => {
                   <span className="text-[10px] text-slate-400 line-through">₹499</span>
                 </div>
                 <button 
-                  onClick={() => addToCart({ $id: `deal-${idx}`, name: item.name, price: item.price, category: item.cat, imageUrl: null })}
+                  onClick={() => dispatch(addToCart({ product: { $id: `deal-${idx}`, name: item.name, price: item.price, category: item.cat, imageUrl: null }, quantity: 1 }))}
                   className="mt-6 w-full py-3 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all hover:bg-red-600 shadow-lg"
                 >
                   Quick Add
@@ -190,7 +194,7 @@ const Home = ({ addToCart }) => {
           </Link>
         </div>
         
-        <ProductGrid addToCart={addToCart} limit={12} />
+        <ProductGrid limit={12} />
       </section>
 
       {/* WHY CHOOSE US - 3D EXPERIENCE */}
@@ -312,7 +316,7 @@ const Home = ({ addToCart }) => {
                   </div>
 
                   <button 
-                    onClick={() => addToCart({ $id: prod.id, name: prod.name, price: prod.price, category: prod.cat, imageUrl: prod.img })}
+                    onClick={() => dispatch(addToCart({ product: { $id: prod.id, name: prod.name, price: prod.price, category: prod.cat, imageUrl: prod.img }, quantity: 1 }))}
                     className="w-full py-5 bg-white text-black font-black uppercase tracking-widest rounded-2xl hover:bg-red-600 hover:text-white transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3"
                   >
                     <ShoppingCart size={18} strokeWidth={3} />

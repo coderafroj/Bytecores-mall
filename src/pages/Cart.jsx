@@ -1,9 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeFromCart, updateQuantity } from '../store/cartSlice';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck } from 'lucide-react';
 
-const Cart = ({ cart, updateQuantity, removeFromCart }) => {
+const Cart = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart.items);
+  
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 999 ? 0 : 99;
   const total = subtotal + shipping;
@@ -70,7 +75,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart }) => {
                     <div className="flex items-center bg-slate-50 rounded-2xl border-2 border-slate-100 overflow-hidden">
                       <button 
                         className="p-3 hover:bg-white text-slate-900 transition-colors disabled:opacity-30" 
-                        onClick={() => updateQuantity(item.$id, Math.max(1, item.quantity - 1))}
+                        onClick={() => dispatch(updateQuantity({ productId: item.$id, quantity: Math.max(1, item.quantity - 1) }))}
                         disabled={item.quantity <= 1}
                       >
                         <Minus size={20} strokeWidth={3} />
@@ -78,7 +83,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart }) => {
                       <span className="w-12 text-center font-black text-lg">{item.quantity}</span>
                       <button 
                         className="p-3 hover:bg-white text-slate-900 transition-colors" 
-                        onClick={() => updateQuantity(item.$id, item.quantity + 1)}
+                        onClick={() => dispatch(updateQuantity({ productId: item.$id, quantity: item.quantity + 1 }))}
                       >
                         <Plus size={20} strokeWidth={3} />
                       </button>
@@ -86,7 +91,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart }) => {
                     
                     <button 
                       className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                      onClick={() => removeFromCart(item.$id)}
+                      onClick={() => dispatch(removeFromCart(item.$id))}
                     >
                       <Trash2 size={24} />
                     </button>

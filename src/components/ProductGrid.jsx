@@ -1,34 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, ShoppingCart, ArrowRight } from 'lucide-react';
-import { databases, DATABASE_ID, PRODUCTS_COLLECTION_ID } from '../appwrite/config';
+import { Star, ShoppingCart, ArrowRight, PackageX } from 'lucide-react';
+import databaseService from '../appwrite/db';
 import { Query } from 'appwrite';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/cartSlice';
 
-const PROMO_PRODUCTS = [
-  { $id: 'p1', name: "Nekza 500ml Bottle", price: 49, originalPrice: 199, imageUrl: "https://99martonline.com/cdn/shop/files/WhatsAppImage2024-11-03at9.18.09PM.jpg?v=1731398151&width=533", category: "Essentials", discount: 75 },
-  { $id: 'p2', name: "Buddha Gamla Pot", price: 79, originalPrice: 299, imageUrl: "https://99martonline.com/cdn/shop/files/WhatsAppImage2024-11-03at9.08.48PM_2.jpg?v=1731491751&width=533", category: "Decor", discount: 70 },
-  { $id: 'p3', name: "Tokyo Multi Tiffin", price: 79, originalPrice: 349, imageUrl: "https://99martonline.com/cdn/shop/files/Screenshot-2024-11-12-13-38-38-156_com.whatsapp.w4b.jpg?v=1731398983&width=533", category: "Kitchen", discount: 77 },
-  { $id: 'p4', name: "Khawaish Basket", price: 49, originalPrice: 149, imageUrl: "https://99martonline.com/cdn/shop/files/Screenshot-2024-11-18-15-06-36-808_com.whatsapp.w4b.jpg?v=1731926520&width=533", category: "Home", discount: 67 },
-  { $id: 'p5', name: "Steel Sports Bottle", price: 79, originalPrice: 499, imageUrl: "https://99martonline.com/cdn/shop/files/WhatsAppImage2024-12-22at2.30.15PM_1.jpg?v=1734859235&width=533", category: "Gadgets", discount: 84 },
-  { $id: 'p6', name: "Navigo Smart Tiffin", price: 69, originalPrice: 249, imageUrl: "https://99martonline.com/cdn/shop/files/WhatsAppImage2024-12-23at3.35.17PM.jpg?v=1735031619&width=533", category: "Kitchen", discount: 72 },
-  { $id: 'p7', name: "Nexon Pro Bottle", price: 59, originalPrice: 199, imageUrl: "https://99martonline.com/cdn/shop/files/Screenshot-2024-11-12-13-26-38-830_com.whatsapp.w4b.jpg?v=1731398301&width=533", category: "Sports", discount: 70 },
-  { $id: 'p8', name: "RP Patla Stool", price: 89, originalPrice: 399, imageUrl: "https://99martonline.com/cdn/shop/files/WhatsAppImage2024-11-03at6.10.30PM.jpg?v=1730638462&width=533", category: "Home", discount: 77 },
-  { $id: 'p9', name: "Umbrella Classic", price: 99, originalPrice: 499, imageUrl: "https://99martonline.com/cdn/shop/files/WhatsApp_Image_2024-11-03_at_6.10.35_PM.jpg?v=1730638168&width=533", category: "Essentials", discount: 80 },
-  { $id: 'p10', name: "Royal Combo Set", price: 149, originalPrice: 999, imageUrl: "https://99martonline.com/cdn/shop/files/WhatsAppImage2024-12-22at2.30.13PM_2.jpg?v=1734858522&width=533", category: "Home", discount: 85 },
-  { $id: 'p11', name: "Square Flowerpot", price: 39, originalPrice: 149, imageUrl: "https://99martonline.com/cdn/shop/files/Screenshot-2024-11-18-15-06-16-834_com.whatsapp.w4b.jpg?v=1731925917&width=533", category: "Decor", discount: 73 },
-  { $id: 'p12', name: "Bottle Combo 4pc", price: 99, originalPrice: 599, imageUrl: "https://99martonline.com/cdn/shop/files/Screenshot-2024-11-18-15-04-35-993_com.whatsapp.w4b.jpg?v=1731923723&width=533", category: "Kitchen", discount: 83 },
-  { $id: 'p13', name: "7-Piece Breakfast Set", price: 99, originalPrice: 699, imageUrl: "https://m.media-amazon.com/images/I/61SUnz8M6nL._SL1500_.jpg", category: "Kitchen", discount: 85 },
-  { $id: 'p14', name: "Radha Krishna Idol", price: 149, originalPrice: 899, imageUrl: "https://m.media-amazon.com/images/I/71zV-i-l2pL._SL1500_.jpg", category: "Decor", discount: 83 },
-  { $id: 'p15', name: "Premium Coffee Set", price: 99, originalPrice: 599, imageUrl: "https://m.media-amazon.com/images/I/71R2Hl-N+KL._SL1500_.jpg", category: "Kitchen", discount: 83 },
-  { $id: 'p16', name: "Bartan Basket Pro", price: 79, originalPrice: 399, imageUrl: "https://m.media-amazon.com/images/I/61rS-y+mE+L._SL1500_.jpg", category: "Home", discount: 80 },
-  { $id: 'p17', name: "Stylish Kurti Collection", price: 149, originalPrice: 999, imageUrl: "https://m.media-amazon.com/images/I/71H2N7B7o-L._SL1500_.jpg", category: "Fashion", discount: 85 },
-  { $id: 'p18', name: "Ceramic Mug Set", price: 89, originalPrice: 499, imageUrl: "https://m.media-amazon.com/images/I/61G5m07F81L._SL1500_.jpg", category: "Kitchen", discount: 82 },
-  { $id: 'p19', name: "Couple Love Figurine", price: 99, originalPrice: 549, imageUrl: "https://m.media-amazon.com/images/I/71-0G5tZ50L._SL1500_.jpg", category: "Decor", discount: 82 },
-  { $id: 'p20', name: "Royal Serving Set", price: 199, originalPrice: 1299, imageUrl: "https://m.media-amazon.com/images/I/61Y0p1+U-DL._SL1500_.jpg", category: "Kitchen", discount: 84 },
-];
-
-const ProductGrid = ({ addToCart, category = null, limit = null }) => {
+const ProductGrid = ({ category = null, limit = null }) => {
+  const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -42,37 +22,23 @@ const ProductGrid = ({ addToCart, category = null, limit = null }) => {
       setLoading(true);
       const queries = [Query.orderDesc('$createdAt')];
       
-      if (category) {
+      if (category && category !== 'all') {
         queries.push(Query.equal('category', category));
       }
       
       if (limit) {
         queries.push(Query.limit(limit));
-      }
-
-      const response = await databases.listDocuments(
-        DATABASE_ID,
-        PRODUCTS_COLLECTION_ID,
-        queries
-      );
-      
-      let allProducts = [...response.documents];
-      
-      if (!category || category === 'all') {
-         allProducts = [...PROMO_PRODUCTS, ...allProducts];
       } else {
-         const filteredPromo = PROMO_PRODUCTS.filter(p => p.category.toLowerCase().includes(category.toLowerCase()));
-         allProducts = [...filteredPromo, ...allProducts];
+        queries.push(Query.limit(100));
       }
 
-      if (limit) {
-        allProducts = allProducts.slice(0, limit);
+      const response = await databaseService.getProducts(queries);
+      
+      if (response) {
+        setProducts(response.documents);
       }
-
-      setProducts(allProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
-      setProducts(PROMO_PRODUCTS.slice(0, limit || PROMO_PRODUCTS.length));
     } finally {
       setLoading(false);
     }
@@ -80,11 +46,11 @@ const ProductGrid = ({ addToCart, category = null, limit = null }) => {
 
   const handleAddToCart = (e, product) => {
     e.preventDefault();
-    addToCart(product);
+    dispatch(addToCart({ product, quantity: 1 }));
     
     const toast = document.createElement('div');
-    toast.className = 'fixed bottom-8 right-8 bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-2xl z-[9999] transition-all transform translate-y-0 opacity-100';
-    toast.textContent = 'Added to cart! 🛒';
+    toast.className = 'fixed bottom-8 right-8 bg-slate-900 text-white px-8 py-4 rounded-full font-black shadow-2xl z-[9999] transition-all transform translate-y-0 opacity-100 flex items-center gap-3 border border-white/10';
+    toast.innerHTML = `<span class="bg-red-500 w-8 h-8 rounded-full flex items-center justify-center text-xs">✓</span> Added to cart!`;
     document.body.appendChild(toast);
     
     setTimeout(() => {
@@ -96,7 +62,7 @@ const ProductGrid = ({ addToCart, category = null, limit = null }) => {
 
   const handleBuyNow = (e, product) => {
     e.preventDefault();
-    addToCart(product);
+    dispatch(addToCart({ product, quantity: 1 }));
     navigate('/checkout');
   };
 
@@ -106,6 +72,26 @@ const ProductGrid = ({ addToCart, category = null, limit = null }) => {
         {[...Array(limit || 12)].map((_, i) => (
           <div key={i} className="aspect-[3/4] bg-slate-100 animate-pulse rounded-[2.5rem]" />
         ))}
+      </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <div className="w-full py-24 flex flex-col items-center justify-center text-center px-4">
+        <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+          <PackageX size={48} />
+        </div>
+        <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-2">No Products Found</h3>
+        <p className="text-slate-500 font-bold max-w-md mx-auto">
+          We couldn't find any products in this category. Check back later or explore other sections!
+        </p>
+        <button 
+          onClick={() => navigate('/products')}
+          className="mt-8 bg-slate-950 text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-red-600 transition-all active:scale-95 shadow-xl"
+        >
+          Explore All Items
+        </button>
       </div>
     );
   }
@@ -131,13 +117,12 @@ const ProductGrid = ({ addToCart, category = null, limit = null }) => {
                   className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110"
                 />
                 
-                {product.discount && (
+                {product.originalPrice > product.price && (
                   <div className="absolute top-3 left-3 lg:top-5 lg:left-5 bg-red-600 text-white px-2 lg:px-3 py-1 rounded-full text-[8px] lg:text-[10px] font-black shadow-lg uppercase tracking-tighter z-10">
-                    -{product.discount}%
+                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
                   </div>
                 )}
                 
-                {/* Floating Add to Cart for Quick Action */}
                 <button 
                   onClick={(e) => handleAddToCart(e, product)}
                   className="absolute bottom-4 right-4 w-10 h-10 lg:w-12 lg:h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-red-600 hover:text-white z-20"
@@ -152,7 +137,7 @@ const ProductGrid = ({ addToCart, category = null, limit = null }) => {
                   <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-red-600">{product.category}</span>
                   <div className="flex items-center gap-0.5 text-amber-400">
                     <Star size={10} fill="currentColor" />
-                    <span className="text-[9px] font-bold text-slate-400">4.9</span>
+                    <span className="text-[9px] font-bold text-slate-400">{product.rating || '4.5'}</span>
                   </div>
                 </div>
                 
@@ -161,15 +146,16 @@ const ProductGrid = ({ addToCart, category = null, limit = null }) => {
                 </h3>
                 
                 <div className="flex flex-col mb-4">
-                  <span className="text-[10px] lg:text-xs font-bold text-slate-400 line-through leading-none mb-1">
-                    ₹{product.originalPrice || (product.price * 1.5).toFixed(0)}
-                  </span>
+                  {product.originalPrice > product.price && (
+                    <span className="text-[10px] lg:text-xs font-bold text-slate-400 line-through leading-none mb-1">
+                      ₹{product.originalPrice}
+                    </span>
+                  )}
                   <span className="text-xl lg:text-3xl font-black text-slate-900 tracking-tighter leading-none">
                     ₹{product.price}
                   </span>
                 </div>
 
-                {/* Buttons Container */}
                 <div className="mt-auto space-y-2">
                   <motion.button 
                     whileHover={{ scale: 1.02 }}

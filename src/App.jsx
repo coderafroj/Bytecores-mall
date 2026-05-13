@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { account } from './appwrite/config';
+import { useDispatch, useSelector } from 'react-redux';
+import authService from './appwrite/auth';
+import { login, logout } from './store/authSlice';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
@@ -21,75 +23,23 @@ const LayoutNavbar = ({ user, cartCount }) => {
 };
 
 function App() {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState([]);
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.userData);
+  const cartItems = useSelector((state) => state.cart.items);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
-    checkUser();
-    loadCart();
-  }, []);
-
-  const checkUser = async () => {
-    try {
-      const session = await account.get();
-      setUser(session);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadCart = () => {
-    const savedCart = localStorage.getItem('bytecore-mall-cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-  };
-
-  const addToCart = (product, quantity = 1) => {
-    setCart(prevCart => {
-      const existing = prevCart.find(item => item.$id === product.$id);
-      let newCart;
-      
-      if (existing) {
-        newCart = prevCart.map(item =>
-          item.$id === product.$id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        newCart = [...prevCart, { ...product, quantity }];
-      }
-      
-      localStorage.setItem('bytecore-mall-cart', JSON.stringify(newCart));
-      return newCart;
-    });
-  };
-
-  const updateCartQuantity = (productId, quantity) => {
-    setCart(prevCart => {
-      const newCart = prevCart.map(item =>
-        item.$id === productId ? { ...item, quantity } : item
-      );
-      localStorage.setItem('bytecore-mall-cart', JSON.stringify(newCart));
-      return newCart;
-    });
-  };
-
-  const removeFromCart = (productId) => {
-    setCart(prevCart => {
-      const newCart = prevCart.filter(item => item.$id !== productId);
-      localStorage.setItem('bytecore-mall-cart', JSON.stringify(newCart));
-      return newCart;
-    });
-  };
-
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem('bytecore-mall-cart');
-  };
+    authService.getCurrentUser()
+      .then((userData) => {
+        if (userData) {
+          dispatch(login(userData));
+        } else {
+          dispatch(logout());
+        }
+      })
+      .finally(() => setLoading(false));
+  }, [dispatch]);
 
   if (loading) {
     return (
@@ -103,25 +53,17 @@ function App() {
   return (
     <Router>
       <div className="app">
-        <LayoutNavbar user={user} cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
+        <LayoutNavbar user={user} cartCount={cartCount} />
         <Routes>
-          <Route path="/" element={<Home addToCart={addToCart} />} />
-          <Route path="/products" element={<Products addToCart={addToCart} />} />
-          <Route path="/products/:category" element={<Products addToCart={addToCart} />} />
-          <Route path="/product/:id" element={<ProductDetail addToCart={addToCart} />} />
-          <Route path="/cart" element={
-            <Cart 
-              cart={cart} 
-              updateQuantity={updateCartQuantity}
-              removeFromCart={removeFromCart}
-            />
-          } />
-          <Route path="/checkout" element={
-            <Checkout cart={cart} clearCart={clearCart} user={user} />
-          } />
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/products/:category" element={<Products />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/admin" element={
             user?.labels?.includes('admin') ? (
               <AdminPanel user={user} />
@@ -131,8 +73,8 @@ function App() {
           } />
           <Route path="/profile-launch" element={<ProfileLaunch />} />
         </Routes>
-        <BottomNav cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
-        <div className="lg:hidden h-20" /> {/* Spacer for bottom nav */}
+        <BottomNav cartCount={cartCount} />
+        <div className="lg:hidden h-20" />
       </div>
     </Router>
   );

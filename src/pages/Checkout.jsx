@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCart } from '../store/cartSlice';
 import { CreditCard, Truck, ShoppingBag, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
-import { databases, DATABASE_ID, ORDERS_COLLECTION_ID } from '../appwrite/config';
-import { ID } from 'appwrite';
+import databaseService from '../appwrite/db';
 
-const Checkout = ({ cart, clearCart, user }) => {
+const Checkout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart.items);
+  const user = useSelector((state) => state.auth.userData);
+  
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [formData, setFormData] = useState({
@@ -52,12 +57,11 @@ const Checkout = ({ cart, clearCart, user }) => {
         shipping,
         total,
         paymentMethod,
-        status: 'pending',
-        createdAt: new Date().toISOString()
+        status: 'pending'
       };
 
-      await databases.createDocument(DATABASE_ID, ORDERS_COLLECTION_ID, ID.unique(), orderData);
-      clearCart();
+      await databaseService.createOrder(orderData);
+      dispatch(clearCart());
       navigate('/order-success');
     } catch (error) {
       console.error('Error placing order:', error);

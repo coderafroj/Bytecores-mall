@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../store/cartSlice';
 import { ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Award, ChevronLeft } from 'lucide-react';
-import { databases, DATABASE_ID, PRODUCTS_COLLECTION_ID } from '../appwrite/config';
+import databaseService from '../appwrite/db';
 
-const ProductDetail = ({ addToCart }) => {
+const ProductDetail = () => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -17,11 +20,7 @@ const ProductDetail = ({ addToCart }) => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const response = await databases.getDocument(
-        DATABASE_ID,
-        PRODUCTS_COLLECTION_ID,
-        id
-      );
+      const response = await databaseService.getProduct(id);
       setProduct(response);
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -39,7 +38,7 @@ const ProductDetail = ({ addToCart }) => {
   };
 
   const onAddToCart = () => {
-    addToCart(product, quantity);
+    dispatch(addToCart({ product, quantity }));
     
     const toast = document.createElement('div');
     toast.className = 'fixed bottom-8 right-8 bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-2xl z-[9999] transition-all transform translate-y-0 opacity-100';

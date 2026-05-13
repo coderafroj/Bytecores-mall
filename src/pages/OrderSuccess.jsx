@@ -1,8 +1,17 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, ShoppingBag, ArrowRight, Heart } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { clearCart } from '../store/cartSlice';
+import { Check, ShoppingBag, Heart } from 'lucide-react';
 
 const OrderSuccess = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(clearCart());
+  }, [dispatch]);
+
   return (
     <div className="w-full min-h-screen bg-slate-950 flex items-center justify-center p-6 lg:p-12">
       <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-blue-500/20 blur-[150px] opacity-30" />
