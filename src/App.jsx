@@ -15,6 +15,7 @@ import AdminPanel from './pages/AdminPanel';
 import OrderSuccess from './pages/OrderSuccess';
 import Contact from './pages/Contact';
 import ProfileLaunch from './pages/ProfileLaunch';
+import Profile from './pages/Profile';
 
 const LayoutNavbar = ({ user, cartCount }) => {
   const location = useLocation();
@@ -34,8 +35,21 @@ function App() {
       .then((userData) => {
         if (userData) {
           dispatch(login(userData));
+          // Provide feedback if just logged in
+          if (!localStorage.getItem('welcome_toast')) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-24 right-6 bg-slate-900 text-white px-6 py-4 rounded-3xl font-black shadow-2xl z-[9999] flex items-center gap-3 border border-white/10 animate-float';
+            toast.innerHTML = `<div class="w-8 h-8 bg-red-600 rounded-xl flex items-center justify-center font-black">✓</div> Welcome back, ${userData.name.split(' ')[0]}!`;
+            document.body.appendChild(toast);
+            localStorage.setItem('welcome_toast', 'shown');
+            setTimeout(() => {
+              toast.style.opacity = '0';
+              setTimeout(() => toast.remove(), 500);
+            }, 3000);
+          }
         } else {
           dispatch(logout());
+          localStorage.removeItem('welcome_toast');
         }
       })
       .finally(() => setLoading(false));
@@ -44,8 +58,15 @@ function App() {
   if (loading) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-white z-[9999]">
-        <div className="w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <h2 className="text-2xl font-black text-slate-900 tracking-tighter uppercase animate-pulse">Bytecore's Mall</h2>
+        <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+            className="w-16 h-16 border-[6px] border-slate-100 border-t-red-500 rounded-full mb-6" 
+        />
+        <div className="flex flex-col items-center">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">Bytecore Mall</h2>
+            <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2 animate-pulse">Initializing Matrix...</span>
+        </div>
       </div>
     );
   }
@@ -72,6 +93,7 @@ function App() {
             )
           } />
           <Route path="/profile-launch" element={<ProfileLaunch />} />
+          <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
         </Routes>
         <BottomNav cartCount={cartCount} />
         <div className="lg:hidden h-20" />

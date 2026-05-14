@@ -1,250 +1,186 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Search, User, Menu, X, ShoppingCart } from 'lucide-react';
+import { 
+  ShoppingBag, User, Search, Menu, X, LogOut, 
+  Settings, Package, Shield, ChevronRight, Zap
+} from 'lucide-react';
+import { logout as authLogout } from '../store/authSlice';
+import authService from '../appwrite/auth';
 import logo from '../assets/bytecoreMall.png';
 
-const Navbar = ({ cartCount, user }) => {
+const Navbar = ({ cartCount }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const user = useSelector((state) => state.auth.userData);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleLogout = async () => {
+    await authService.logout();
+    dispatch(authLogout());
+    setShowProfileMenu(false);
+    navigate('/');
+  };
+
+  const navLinks = [
+    { label: 'Market', path: '/products' },
+    { label: 'Hot Deals', path: '/products/electronics' },
+    { label: 'Support', path: '/contact' },
+  ];
+
   return (
-    <>
-      {/* Top Bar - Desktop Only */}
-      <div className="hidden lg:block w-full bg-slate-900 text-white py-2 overflow-hidden">
-        <div className="max-w-[1400px] mx-auto px-8 flex justify-between items-center text-[10px] font-black tracking-[0.2em] uppercase">
-          <div className="flex gap-8">
-            <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div> Free Shipping Over ₹999</span>
-            <span>Easy Returns & Exchange</span>
-          </div>
-          <div className="flex gap-6 opacity-70">
-            <span>Track Order</span>
-            <span>Support</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navbar */}
-      <nav className={`w-full bg-white border-b border-slate-100 sticky top-0 z-[5000] shadow-sm transition-all duration-300 ${isScrolled ? 'py-2' : 'py-3 lg:py-4'}`}>
-        <div className="max-w-[1400px] mx-auto px-4 lg:px-8 flex items-center justify-between">
+    <nav className={`fixed top-0 left-0 right-0 z-[5000] transition-all duration-500 ${
+      isScrolled ? 'py-4' : 'py-6'
+    }`}>
+      <div className="max-w-[1920px] mx-auto px-6 lg:px-12">
+        <div className={`relative flex items-center justify-between bg-white rounded-[2rem] lg:rounded-[3rem] px-8 lg:px-12 h-20 lg:h-24 shadow-2xl transition-all duration-500 border border-white/20 ${
+          isScrolled ? 'bg-white/80 backdrop-blur-2xl' : 'bg-white'
+        }`}>
           
-          {/* LEFT: Categories Button (Desktop Only) */}
-          <div className="hidden lg:flex items-center flex-1 relative z-[5001]">
-            <motion.button 
-              whileHover={{ scale: 1.05, rotateY: 10 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="flex items-center gap-4 px-6 py-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:shadow-red-500/20 transition-all group"
-            >
-              <Menu size={20} className="group-hover:rotate-180 transition-transform duration-500" />
-              <span className="font-black text-xs uppercase tracking-widest">Explore Shop</span>
-            </motion.button>
+          {/* Logo Section */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-red-600 rounded-2xl flex items-center justify-center shadow-xl shadow-red-600/20 group-hover:rotate-12 transition-transform">
+                <Zap size={20} fill="white" className="text-white" />
+            </div>
+            <div className="flex flex-col">
+                <h1 className="text-xl lg:text-2xl font-black text-slate-950 tracking-tighter uppercase leading-none">Bytecore</h1>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">Mall Protocol</span>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-10">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.path} 
+                to={link.path} 
+                className={`text-xs font-black uppercase tracking-[0.2em] transition-all hover:text-red-600 ${
+                  location.pathname === link.path ? 'text-red-600' : 'text-slate-500'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
-          {/* CENTER: Logo (Responsive) */}
-          <motion.div 
-            whileHover={{ scale: 1.02 }}
-            className="flex-shrink-0 z-[5001]"
-          >
-            <Link to="/" className="flex items-center gap-3">
-              <div className="relative w-[45px] h-[45px] lg:w-[55px] lg:h-[55px] flex items-center justify-center">
-                <motion.div 
-                  className="absolute bottom-0 left-0 w-full h-[85%] bg-gradient-to-br from-red-600 to-red-800 rounded-b-xl rounded-t-sm logo-3d-shadow flex items-center justify-center transform-gpu"
-                >
-                  <img src={logo} alt="Logo" className="w-full h-full object-contain p-1.5" />
-                </motion.div>
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[18px] h-[10px] lg:w-[22px] lg:h-[14px] border-[3px] border-slate-900 border-b-0 rounded-t-full z-[-1]"></div>
-                <div className="absolute top-[15%] -right-2 bg-yellow-400 text-black text-[9px] lg:text-[11px] font-black px-1.5 py-0.5 rounded shadow-sm rotate-12 z-10 font-['Barlow_Condensed',sans-serif] border border-black/10">
-                  ₹99
-                </div>
-              </div>
-              
-              <div className="hidden sm:block">
-                <div className="font-['Barlow_Condensed',sans-serif] font-black text-2xl lg:text-3xl leading-none tracking-tight text-slate-900">
-                  BYTECORE'S
-                </div>
-                <div className="text-[10px] lg:text-[12px] tracking-[0.4em] text-red-600 font-black uppercase mt-0.5 flex items-center">
-                  <span className="h-[2px] bg-red-600 flex-1 mr-2 opacity-30"></span>
-                  MALL
-                  <span className="h-[2px] bg-red-600 flex-1 ml-2 opacity-30"></span>
-                </div>
-              </div>
+          {/* Actions Section */}
+          <div className="flex items-center gap-4 lg:gap-8">
+            <Link to="/products" className="p-3 lg:p-4 text-slate-400 hover:text-slate-950 transition-all hidden sm:flex">
+              <Search size={22} strokeWidth={2.5} />
             </Link>
-          </motion.div>
 
-            {/* RIGHT: Actions */}
-          <div className="flex items-center justify-end gap-3 lg:gap-6 flex-1 z-[5001]">
-            
-            {/* Desktop Only Icons */}
-            <div className="hidden lg:flex items-center gap-6">
+            <Link to="/cart" className="relative p-3 lg:p-4 text-slate-400 hover:text-slate-950 transition-all group">
+              <ShoppingBag size={22} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+              {cartCount > 0 && (
+                <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            <div className="h-8 w-px bg-slate-100 hidden sm:block"></div>
+
+            {/* Profile Logic */}
+            <div className="relative">
               {user ? (
-                <div className="relative group">
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }}
-                    className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all cursor-pointer"
-                  >
-                    <div className="relative p-0.5 rounded-full border-2 border-transparent group-hover:border-red-500 transition-all">
-                      <div className="w-9 h-9 bg-slate-900 rounded-full flex items-center justify-center font-black text-white text-xs shadow-lg overflow-hidden">
-                        {user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-[80px]">{user.name.split(' ')[0]}</span>
-                  </motion.button>
-
-                  {/* Dropdown Menu */}
-                  <div className="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                    <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden min-w-[240px] p-2">
-                      <div className="p-4 border-b border-slate-50 mb-2">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Authenticated as</p>
-                        <p className="font-black text-slate-900 truncate">{user.email}</p>
-                      </div>
-                      
-                      <Link to="/profile-launch" className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all text-slate-700 hover:text-red-600 group/item">
-                        <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-50 transition-colors">
-                          <User size={18} />
-                        </div>
-                        <span className="text-sm font-bold">My Account</span>
-                      </Link>
-                      
-                      <Link to="/admin" className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all text-slate-700 hover:text-red-600 group/item">
-                        <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-50 transition-colors">
-                          <ShoppingBag size={18} />
-                        </div>
-                        <span className="text-sm font-bold">Orders</span>
-                      </Link>
-
-                      {user?.labels?.includes('admin') && (
-                        <Link to="/admin" className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all text-slate-700 hover:text-red-600 group/item">
-                          <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-50 transition-colors">
-                            <Menu size={18} />
-                          </div>
-                          <span className="text-sm font-bold">Admin Panel</span>
-                        </Link>
-                      )}
-
-                      <button 
-                        onClick={async () => {
-                          const authService = (await import('../appwrite/auth')).default;
-                          const { logout } = (await import('../store/authSlice'));
-                          const dispatch = (await import('../store/store')).default.dispatch;
-                          await authService.logout();
-                          dispatch(logout());
-                        }}
-                        className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-red-50 transition-all text-slate-700 hover:text-red-600 group/item text-left"
-                      >
-                        <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-100 transition-colors">
-                          <X size={18} />
-                        </div>
-                        <span className="text-sm font-bold">Sign Out</span>
-                      </button>
-                    </div>
+                <button 
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="flex items-center gap-3 p-1.5 lg:p-2 bg-slate-50 rounded-2xl lg:rounded-[1.5rem] border border-slate-100 hover:bg-slate-100 transition-all"
+                >
+                  <div className="w-9 h-9 lg:w-11 lg:h-11 bg-slate-950 text-white rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-sm shadow-xl">
+                    {user.name?.[0].toUpperCase()}
                   </div>
-                </div>
+                  <div className="hidden lg:flex flex-col items-start pr-4">
+                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{user.name.split(' ')[0]}</span>
+                    <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest mt-0.5">Online</span>
+                  </div>
+                </button>
               ) : (
-                <Link to="/login" className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all">
-                  <div className="relative p-2 rounded-full group-hover:bg-red-50 transition-all">
-                    <User size={24} />
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest">Sign In</span>
+                <Link 
+                    to="/login" 
+                    className="flex items-center gap-3 px-6 lg:px-8 py-3 lg:py-4 bg-slate-950 text-white rounded-2xl lg:rounded-[1.5rem] font-black text-[10px] lg:text-xs uppercase tracking-widest hover:bg-red-600 transition-all active:scale-95 shadow-2xl shadow-slate-950/20"
+                >
+                  <User size={16} />
+                  Login
                 </Link>
               )}
-              
-              <Link to="/cart" className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all">
-                <div className="relative p-2 rounded-full group-hover:bg-red-50 transition-all">
-                  <ShoppingBag size={24} />
-                  {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-bounce">
-                      {cartCount}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-widest">Cart</span>
-              </Link>
-            </div>
-            
-            {/* Mobile Only Logo (Simplified) */}
-            <div className="lg:hidden flex items-center">
-               <Link to="/cart" className="relative p-2">
-                  <ShoppingCart size={24} />
-                  {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-red-600 text-[10px] text-white w-4 h-4 rounded-full flex items-center justify-center border border-white">
-                      {cartCount}
-                    </span>
-                  )}
-               </Link>
+
+              {/* Profile Dropdown */}
+              <AnimatePresence>
+                {showProfileMenu && (
+                  <>
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setShowProfileMenu(false)}
+                      className="fixed inset-0 z-[-1]"
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                      className="absolute right-0 mt-6 w-72 bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-slate-100 overflow-hidden py-4"
+                    >
+                      <div className="px-8 py-6 border-b border-slate-50">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Principal</p>
+                        <p className="font-black text-slate-900 uppercase truncate">{user.name}</p>
+                      </div>
+
+                      <div className="p-3 space-y-1">
+                        {[
+                          { icon: <User size={18} />, label: 'My Registry', path: '/profile' },
+                          { icon: <Package size={18} />, label: 'Orders', path: '/profile' },
+                          { icon: <Settings size={18} />, label: 'Settings', path: '/profile' },
+                          { icon: <Shield size={18} />, label: 'Admin Panel', path: '/admin', admin: true },
+                        ].map((item, i) => (
+                          (!item.admin || user?.labels?.includes('admin')) && (
+                            <Link 
+                                key={i} 
+                                to={item.path} 
+                                onClick={() => setShowProfileMenu(false)}
+                                className="flex items-center gap-4 p-4 rounded-[1.5rem] text-slate-600 font-black text-xs uppercase tracking-widest hover:bg-slate-50 hover:text-red-600 transition-all group"
+                            >
+                                <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
+                                    {item.icon}
+                                </div>
+                                {item.label}
+                                <ChevronRight size={14} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </Link>
+                          )
+                        ))}
+                      </div>
+
+                      <div className="px-3 pt-3 border-t border-slate-50">
+                        <button 
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-4 p-4 rounded-[1.5rem] text-red-500 font-black text-xs uppercase tracking-widest hover:bg-red-50 hover:shadow-inner transition-all"
+                        >
+                            <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center">
+                                <LogOut size={18} />
+                            </div>
+                            Sign Out
+                        </button>
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
           </div>
+
         </div>
-      </nav>
-
-      {/* Mobile Menu Drawer */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 z-[6000]"
-            />
-            
-            <motion.div 
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white z-[6001] shadow-2xl overflow-y-auto"
-            >
-              <div className="p-8">
-                <div className="flex items-center justify-between mb-12">
-                   <div className="font-black text-2xl tracking-tighter">CATEGORIES</div>
-                   <button onClick={() => setIsMobileMenuOpen(false)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-900">
-                      <X size={20} />
-                   </button>
-                </div>
-
-                <div className="space-y-6">
-                   {['ELECTRONICS', 'FASHION', 'HOME & DECOR', 'KITCHEN', 'BEST SELLERS', 'UNDER ₹99'].map((item) => (
-                     <Link 
-                       key={item} 
-                       to="/products" 
-                       onClick={() => setIsMobileMenuOpen(false)}
-                       className="block text-2xl font-black text-slate-900 hover:text-red-600 transition-all tracking-tighter"
-                     >
-                       {item}
-                     </Link>
-                   ))}
-                </div>
-
-                <div className="mt-12 pt-8 border-t border-slate-100">
-                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl mb-4">
-                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
-                         <User size={20} />
-                      </div>
-                      <div className="font-black text-sm">LOGIN / SIGNUP</div>
-                   </Link>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+      </div>
+    </nav>
   );
 };
 

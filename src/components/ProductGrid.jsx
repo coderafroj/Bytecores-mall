@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, ShoppingCart, ArrowRight, PackageX } from 'lucide-react';
+import { Star, ShoppingCart, ArrowRight, PackageX, Zap } from 'lucide-react';
 import databaseService from '../appwrite/db';
 import { Query } from 'appwrite';
 import { useDispatch } from 'react-redux';
@@ -49,8 +49,8 @@ const ProductGrid = ({ category = null, limit = null }) => {
     dispatch(addToCart({ product, quantity: 1 }));
     
     const toast = document.createElement('div');
-    toast.className = 'fixed bottom-8 right-8 bg-slate-900 text-white px-8 py-4 rounded-full font-black shadow-2xl z-[9999] transition-all transform translate-y-0 opacity-100 flex items-center gap-3 border border-white/10';
-    toast.innerHTML = `<span class="bg-red-500 w-8 h-8 rounded-full flex items-center justify-center text-xs">✓</span> Added to cart!`;
+    toast.className = 'fixed bottom-24 lg:bottom-12 right-6 lg:right-12 bg-slate-950 text-white px-6 py-4 rounded-3xl font-black shadow-2xl z-[9999] transition-all transform translate-y-0 opacity-100 flex items-center gap-4 border border-white/10 backdrop-blur-xl';
+    toast.innerHTML = `<div class="w-8 h-8 bg-red-600 rounded-xl flex items-center justify-center"><Zap size={14} fill="white" /></div> Added to cart!`;
     document.body.appendChild(toast);
     
     setTimeout(() => {
@@ -60,17 +60,11 @@ const ProductGrid = ({ category = null, limit = null }) => {
     }, 2000);
   };
 
-  const handleBuyNow = (e, product) => {
-    e.preventDefault();
-    dispatch(addToCart({ product, quantity: 1 }));
-    navigate('/checkout');
-  };
-
   if (loading) {
     return (
-      <div className="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-8 px-4 lg:px-8 py-12">
+      <div className="w-full grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-10 px-6 lg:px-12 py-12">
         {[...Array(limit || 12)].map((_, i) => (
-          <div key={i} className="aspect-[3/4] bg-slate-100 animate-pulse rounded-[2.5rem]" />
+          <div key={i} className="aspect-[4/5] bg-slate-100 animate-pulse rounded-[2rem] lg:rounded-[3rem]" />
         ))}
       </div>
     );
@@ -78,39 +72,37 @@ const ProductGrid = ({ category = null, limit = null }) => {
 
   if (products.length === 0) {
     return (
-      <div className="w-full py-24 flex flex-col items-center justify-center text-center px-4">
-        <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center text-slate-300 mb-6">
+      <div className="w-full py-32 flex flex-col items-center justify-center text-center px-6">
+        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-8">
           <PackageX size={48} />
         </div>
-        <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-2">No Products Found</h3>
-        <p className="text-slate-500 font-bold max-w-md mx-auto">
-          We couldn't find any products in this category. Check back later or explore other sections!
-        </p>
+        <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 uppercase">Registry Empty</h3>
+        <p className="text-slate-500 font-bold max-w-sm mx-auto">No objects found in this sector. Try exploring other coordinates.</p>
         <button 
           onClick={() => navigate('/products')}
-          className="mt-8 bg-slate-950 text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-red-600 transition-all active:scale-95 shadow-xl"
+          className="mt-10 bg-slate-950 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-red-600 transition-all active:scale-95 shadow-2xl"
         >
-          Explore All Items
+          Reset Filters
         </button>
       </div>
     );
   }
 
   return (
-    <div className="w-full px-4 lg:px-8 py-12">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-8">
+    <div className="w-full px-6 lg:px-12 py-12">
+      <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-10">
         {products.map((product, index) => (
           <motion.div
             key={product.$id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            transition={{ delay: (index % 6) * 0.05 }}
-            className="group relative bg-white rounded-[2rem] lg:rounded-[3rem] overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500 border border-slate-100 flex flex-col h-full"
+            transition={{ delay: (index % 6) * 0.05, duration: 0.5 }}
+            className="group relative bg-white rounded-[2rem] lg:rounded-[3.5rem] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.03)] hover:shadow-2xl hover:shadow-slate-200 transition-all duration-700 border border-slate-100 flex flex-col h-full"
           >
             <div className="flex flex-col h-full">
               {/* Image Section */}
-              <Link to={`/product/${product.$id}`} className="relative aspect-square overflow-hidden bg-[#fdfdfd] flex items-center justify-center p-4 lg:p-8">
+              <Link to={`/product/${product.$id}`} className="relative aspect-[4/5] overflow-hidden bg-slate-50/50 flex items-center justify-center p-6 lg:p-10">
                 <img 
                   src={product.imageUrl || '/placeholder.jpg'} 
                   alt={product.name}
@@ -118,54 +110,55 @@ const ProductGrid = ({ category = null, limit = null }) => {
                 />
                 
                 {product.originalPrice > product.price && (
-                  <div className="absolute top-3 left-3 lg:top-5 lg:left-5 bg-red-600 text-white px-2 lg:px-3 py-1 rounded-full text-[8px] lg:text-[10px] font-black shadow-lg uppercase tracking-tighter z-10">
-                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                  </div>
+                    <div className="absolute top-4 left-4 lg:top-8 lg:left-8 bg-red-600 text-white px-3 py-1 rounded-xl text-[9px] font-black shadow-2xl uppercase tracking-tighter z-10">
+                        -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                    </div>
                 )}
+                
+                <div className="absolute inset-0 bg-slate-950/20 opacity-0 group-hover:opacity-100 transition-opacity z-20 hidden lg:block" />
                 
                 <button 
                   onClick={(e) => handleAddToCart(e, product)}
-                  className="absolute bottom-4 right-4 w-10 h-10 lg:w-12 lg:h-12 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-red-600 hover:text-white z-20"
+                  className="absolute bottom-6 right-6 w-12 h-12 lg:w-16 lg:h-16 bg-white text-slate-950 rounded-[1.5rem] lg:rounded-[2rem] flex items-center justify-center shadow-2xl lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-500 hover:bg-red-600 hover:text-white z-30"
                 >
-                  <ShoppingCart size={18} strokeWidth={2.5} />
+                  <ShoppingCart size={22} strokeWidth={3} />
                 </button>
               </Link>
               
               {/* Info Section */}
-              <div className="p-4 lg:p-6 bg-white flex-1 flex flex-col">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-widest text-red-600">{product.category}</span>
-                  <div className="flex items-center gap-0.5 text-amber-400">
+              <div className="p-6 lg:p-10 bg-white flex-1 flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{product.category}</span>
+                  <div className="flex items-center gap-1 text-amber-400">
                     <Star size={10} fill="currentColor" />
-                    <span className="text-[9px] font-bold text-slate-400">{product.rating || '4.5'}</span>
+                    <span className="text-[10px] font-black text-slate-900">{product.rating || '4.5'}</span>
                   </div>
                 </div>
                 
-                <h3 className="text-sm lg:text-lg font-black text-slate-900 line-clamp-1 mb-2 tracking-tight group-hover:text-red-600 transition-colors">
+                <h3 className="text-sm lg:text-xl font-black text-slate-900 line-clamp-1 mb-4 tracking-tighter group-hover:text-red-600 transition-colors uppercase">
                   {product.name}
                 </h3>
                 
-                <div className="flex flex-col mb-4">
-                  {product.originalPrice > product.price && (
-                    <span className="text-[10px] lg:text-xs font-bold text-slate-400 line-through leading-none mb-1">
-                      ₹{product.originalPrice}
-                    </span>
-                  )}
-                  <span className="text-xl lg:text-3xl font-black text-slate-900 tracking-tighter leading-none">
-                    ₹{product.price}
-                  </span>
-                </div>
+                <div className="mt-auto">
+                    <div className="flex flex-col mb-6">
+                        {product.originalPrice > product.price && (
+                            <span className="text-[10px] font-bold text-slate-300 line-through mb-1">
+                                ₹{product.originalPrice}
+                            </span>
+                        )}
+                        <span className="text-2xl lg:text-4xl font-black text-slate-950 tracking-tighter leading-none">
+                            ₹{product.price}
+                        </span>
+                    </div>
 
-                <div className="mt-auto space-y-2">
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={(e) => handleBuyNow(e, product)}
-                    className="w-full py-4 bg-slate-900 text-white text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:bg-red-600 transition-all duration-300 flex items-center justify-center gap-3 group/buy"
-                  >
-                    <span>Buy Now</span>
-                    <ArrowRight size={14} className="group-hover/buy:translate-x-1 transition-transform" />
-                  </motion.button>
+                    <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={(e) => { e.preventDefault(); navigate(`/product/${product.$id}`); }}
+                        className="w-full py-4 lg:py-5 bg-slate-50 text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-950 hover:text-white transition-all duration-300 flex items-center justify-center gap-3 group/buy shadow-inner"
+                    >
+                        <span>Inspect</span>
+                        <ArrowRight size={14} className="group-hover/buy:translate-x-1 transition-transform" />
+                    </motion.button>
                 </div>
               </div>
             </div>
