@@ -86,17 +86,82 @@ const Navbar = ({ cartCount, user }) => {
             </Link>
           </motion.div>
 
-          {/* RIGHT: Actions */}
+            {/* RIGHT: Actions */}
           <div className="flex items-center justify-end gap-3 lg:gap-6 flex-1 z-[5001]">
             
             {/* Desktop Only Icons */}
             <div className="hidden lg:flex items-center gap-6">
-              <Link to="/login" className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all">
-                <div className="relative p-2 rounded-full group-hover:bg-red-50 transition-all">
-                  <User size={24} />
+              {user ? (
+                <div className="relative group">
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all cursor-pointer"
+                  >
+                    <div className="relative p-0.5 rounded-full border-2 border-transparent group-hover:border-red-500 transition-all">
+                      <div className="w-9 h-9 bg-slate-900 rounded-full flex items-center justify-center font-black text-white text-xs shadow-lg overflow-hidden">
+                        {user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-[80px]">{user.name.split(' ')[0]}</span>
+                  </motion.button>
+
+                  {/* Dropdown Menu */}
+                  <div className="absolute right-0 top-full pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    <div className="bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden min-w-[240px] p-2">
+                      <div className="p-4 border-b border-slate-50 mb-2">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Authenticated as</p>
+                        <p className="font-black text-slate-900 truncate">{user.email}</p>
+                      </div>
+                      
+                      <Link to="/profile-launch" className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all text-slate-700 hover:text-red-600 group/item">
+                        <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-50 transition-colors">
+                          <User size={18} />
+                        </div>
+                        <span className="text-sm font-bold">My Account</span>
+                      </Link>
+                      
+                      <Link to="/admin" className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all text-slate-700 hover:text-red-600 group/item">
+                        <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-50 transition-colors">
+                          <ShoppingBag size={18} />
+                        </div>
+                        <span className="text-sm font-bold">Orders</span>
+                      </Link>
+
+                      {user?.labels?.includes('admin') && (
+                        <Link to="/admin" className="flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all text-slate-700 hover:text-red-600 group/item">
+                          <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-50 transition-colors">
+                            <Menu size={18} />
+                          </div>
+                          <span className="text-sm font-bold">Admin Panel</span>
+                        </Link>
+                      )}
+
+                      <button 
+                        onClick={async () => {
+                          const authService = (await import('../appwrite/auth')).default;
+                          const { logout } = (await import('../store/authSlice'));
+                          const dispatch = (await import('../store/store')).default.dispatch;
+                          await authService.logout();
+                          dispatch(logout());
+                        }}
+                        className="w-full flex items-center gap-3 p-3 rounded-2xl hover:bg-red-50 transition-all text-slate-700 hover:text-red-600 group/item text-left"
+                      >
+                        <div className="p-2 bg-slate-100 rounded-xl group-hover/item:bg-red-100 transition-colors">
+                          <X size={18} />
+                        </div>
+                        <span className="text-sm font-bold">Sign Out</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest">Profile</span>
-              </Link>
+              ) : (
+                <Link to="/login" className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all">
+                  <div className="relative p-2 rounded-full group-hover:bg-red-50 transition-all">
+                    <User size={24} />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest">Sign In</span>
+                </Link>
+              )}
               
               <Link to="/cart" className="flex flex-col items-center gap-1 group text-slate-700 hover:text-red-600 transition-all">
                 <div className="relative p-2 rounded-full group-hover:bg-red-50 transition-all">

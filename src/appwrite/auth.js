@@ -1,14 +1,20 @@
-import { Client, Account, ID } from "appwrite";
+import { Client, Account, ID, Avatars } from "appwrite";
 
 export class AuthService {
     client = new Client();
     account;
+    avatars;
 
     constructor() {
         this.client
             .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
             .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID);
         this.account = new Account(this.client);
+        this.avatars = new Avatars(this.client);
+    }
+
+    getUserAvatar(name) {
+        return this.avatars.getInitials(name);
     }
 
     async createAccount({ email, password, name }) {

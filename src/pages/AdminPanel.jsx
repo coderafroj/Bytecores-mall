@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout as authLogout } from '../store/authSlice';
@@ -10,7 +10,8 @@ import {
   LogOut, Search, Filter, TrendingUp, 
   CheckCircle, Clock, Edit, Trash2, 
   Image as ImageIcon, DollarSign, Tag, Briefcase, ChevronRight, Upload,
-  X, Eye, FileText, Printer, Download, ExternalLink, RefreshCcw
+  X, Eye, FileText, Printer, Download, ExternalLink, RefreshCcw,
+  Settings, Shield, Activity, Bell, HelpCircle
 } from 'lucide-react';
 import { Query } from 'appwrite';
 
@@ -27,6 +28,7 @@ const AdminPanel = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const [formLoading, setFormLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -83,6 +85,24 @@ const AdminPanel = () => {
       setLoading(false);
     }
   };
+
+  const customers = useMemo(() => {
+    const uniqueUsers = {};
+    orders.forEach(order => {
+      if (!uniqueUsers[order.userEmail]) {
+        uniqueUsers[order.userEmail] = {
+          name: order.userName,
+          email: order.userEmail,
+          orders: 0,
+          totalSpent: 0,
+          lastOrder: order.$createdAt
+        };
+      }
+      uniqueUsers[order.userEmail].orders += 1;
+      uniqueUsers[order.userEmail].totalSpent += order.total;
+    });
+    return Object.values(uniqueUsers);
+  }, [orders]);
 
   const handleLogout = async () => {
     await authService.logout();
@@ -184,183 +204,215 @@ const AdminPanel = () => {
   };
 
   const sidebarItems = [
-    { id: 'dashboard', icon: <LayoutDashboard />, label: 'Analytics' },
+    { id: 'dashboard', icon: <LayoutDashboard />, label: 'Overview' },
     { id: 'products', icon: <Package />, label: 'Inventory' },
-    { id: 'orders', icon: <ShoppingCart />, label: 'Sales & Orders' },
-    { id: 'customers', icon: <Users />, label: 'User Base' }
+    { id: 'orders', icon: <ShoppingCart />, label: 'Orders' },
+    { id: 'customers', icon: <Users />, label: 'Customers' },
+    { id: 'system', icon: <Activity />, label: 'System Status' },
+    { id: 'settings', icon: <Settings />, label: 'Settings' }
   ];
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    p.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredOrders = orders.filter(o => 
+    o.userName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    o.userEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    o.$id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center bg-slate-950 gap-6">
-        <div className="relative">
-            <div className="w-24 h-24 border-4 border-red-500/20 rounded-full" />
-            <div className="w-24 h-24 border-4 border-red-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
-        </div>
-        <p className="text-red-500 font-black uppercase tracking-[0.3em] text-sm animate-pulse">Initializing Secure Admin Protocol</p>
+        <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+            className="w-20 h-20 border-[6px] border-red-500/10 border-t-red-500 rounded-full" 
+        />
+        <p className="text-red-500 font-black uppercase tracking-[0.4em] text-xs animate-pulse">Initializing Terminal Mall System</p>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
+    <div className="flex min-h-screen bg-[#FBFCFE] text-slate-900 font-sans selection:bg-red-500/10 selection:text-red-600">
       {/* Premium Sidebar */}
-      <aside className="w-80 bg-slate-950 text-white fixed h-screen overflow-y-auto hidden lg:flex flex-col border-r border-white/5 z-50">
-        <div className="p-8 border-b border-white/5">
-            <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/20">
-                    <Briefcase size={24} className="text-white" />
+      <aside className="w-[300px] bg-slate-950 text-white fixed h-screen hidden lg:flex flex-col border-r border-white/5 z-50">
+        <div className="p-10">
+            <div className="flex items-center gap-4 mb-12">
+                <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-600/40">
+                    <Shield size={24} className="text-white" />
                 </div>
                 <div>
-                    <h1 className="font-black text-xl tracking-tight">BYTECORE</h1>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Admin Dashboard</p>
+                    <h1 className="font-black text-2xl tracking-tighter uppercase leading-none">Bytecore</h1>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Admin OS v2.0</p>
                 </div>
             </div>
             
-            <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-4">
-                <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center font-black text-red-500 border border-white/10">
+            <div className="bg-white/5 p-5 rounded-3xl border border-white/5 flex items-center gap-4">
+                <div className="w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center font-black text-red-500 border border-white/10 shadow-inner">
                     {user?.name?.[0]}
                 </div>
                 <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{user?.name}</p>
-                    <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest">Administrator</p>
+                    <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                        Administrator
+                    </p>
                 </div>
             </div>
         </div>
 
-        <nav className="flex-1 p-6 space-y-2">
+        <nav className="flex-1 px-6 space-y-2">
           {sidebarItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 font-bold group ${
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 font-black group ${
                 activeTab === item.id 
-                  ? 'bg-red-500 text-white shadow-xl shadow-red-500/20' 
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-red-600 text-white shadow-2xl shadow-red-600/30' 
+                  : 'text-slate-500 hover:text-white hover:bg-white/5'
               }`}
             >
               <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'}`}>
                 {item.icon}
               </span>
-              <span className="text-sm tracking-tight">{item.label}</span>
-              {activeTab === item.id && <motion.div layoutId="activeTab" className="ml-auto w-1.5 h-1.5 bg-white rounded-full" />}
+              <span className="text-xs uppercase tracking-widest">{item.label}</span>
+              {activeTab === item.id && <motion.div layoutId="activeTab" className="ml-auto w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_white]" />}
             </button>
           ))}
         </nav>
 
-        <div className="p-8 border-t border-white/5">
+        <div className="p-10 border-t border-white/5">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 p-4 rounded-2xl text-red-400 font-black hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+            className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-500 font-black text-xs uppercase tracking-widest hover:text-red-500 hover:bg-red-500/10 transition-all"
           >
-            <LogOut size={20} /> Logout
+            <LogOut size={20} /> Sign Out
           </button>
         </div>
       </aside>
 
       {/* Main Container */}
-      <main className="flex-1 lg:ml-80 min-h-screen relative">
-        <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-6 flex items-center justify-between z-40">
+      <main className="flex-1 lg:ml-[300px] min-h-screen">
+        <header className="sticky top-0 bg-white/70 backdrop-blur-2xl border-b border-slate-100 px-12 py-8 flex items-center justify-between z-40">
             <div>
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
+                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    <span>Terminal</span>
+                    <ChevronRight size={10} />
+                    <span className="text-red-600">{activeTab}</span>
+                </div>
+                <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">
                     {sidebarItems.find(i => i.id === activeTab)?.label}
                 </h2>
-                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                    <span>Admin</span>
-                    <ChevronRight size={10} />
-                    <span className="text-red-500">{activeTab}</span>
-                </div>
             </div>
 
             <div className="flex items-center gap-4">
+                <div className="relative hidden md:block">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input 
+                        type="text" 
+                        placeholder="Master Search..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="bg-slate-100/50 border border-transparent focus:border-red-500/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-6 font-bold text-sm outline-none transition-all w-80" 
+                    />
+                </div>
                 <button 
                     onClick={fetchData}
-                    className="p-3 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-all flex items-center gap-2 text-xs font-bold"
+                    className="p-3.5 bg-slate-100 text-slate-900 rounded-2xl hover:bg-slate-200 transition-all flex items-center gap-2"
                 >
-                    <RefreshCcw size={16} /> Sync Data
+                    <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
                 </button>
                 <button 
                     onClick={() => { resetProductForm(); setShowAddForm(true); }}
-                    className="bg-slate-950 text-white font-black px-6 py-3 rounded-xl shadow-lg hover:shadow-slate-950/20 transition-all active:scale-95 flex items-center gap-2 text-sm"
+                    className="bg-slate-950 text-white font-black px-8 py-3.5 rounded-2xl shadow-2xl shadow-slate-950/20 hover:bg-red-600 hover:shadow-red-600/20 transition-all active:scale-95 flex items-center gap-3 text-xs uppercase tracking-widest"
                 >
-                    <Plus size={18} strokeWidth={3} /> Add Product
+                    <Plus size={18} strokeWidth={3} /> New Object
                 </button>
             </div>
         </header>
 
-        <div className="p-8 max-w-[1600px] mx-auto">
+        <div className="p-12 max-w-[1800px] mx-auto">
             {activeTab === 'dashboard' && (
-                <div className="space-y-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="space-y-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
-                            { label: 'Net Revenue', value: `₹${stats.totalSales.toLocaleString()}`, icon: <DollarSign size={24} />, color: 'bg-emerald-500', trend: '+12%', sub: 'vs last month' },
-                            { label: 'Active Orders', value: stats.totalOrders, icon: <ShoppingCart size={24} />, color: 'bg-blue-500', trend: '+5%', sub: 'completed' },
-                            { label: 'Total Products', value: stats.totalProducts, icon: <Package size={24} />, color: 'bg-violet-500', trend: 'Live', sub: 'in marketplace' },
-                            { label: 'Action Items', value: stats.pendingOrders, icon: <Clock size={24} />, color: 'bg-red-500', trend: 'Pending', sub: 'requires attention' }
+                            { label: 'Revenue', value: `₹${stats.totalSales.toLocaleString()}`, icon: <DollarSign size={24} />, color: 'text-emerald-600', bg: 'bg-emerald-500/10', trend: '+18.2%' },
+                            { label: 'Transactions', value: stats.totalOrders, icon: <ShoppingCart size={24} />, color: 'text-blue-600', bg: 'bg-blue-500/10', trend: '+5.4%' },
+                            { label: 'Products', value: stats.totalProducts, icon: <Package size={24} />, color: 'text-violet-600', bg: 'bg-violet-500/10', trend: 'Optimal' },
+                            { label: 'Pending', value: stats.pendingOrders, icon: <Clock size={24} />, color: 'text-red-600', bg: 'bg-red-500/10', trend: 'Attention' }
                         ].map((stat, i) => (
-                            <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 group hover:border-red-500/20 transition-all">
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className={`${stat.color} w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-current/20`}>
+                            <motion.div 
+                                key={i} 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="bg-white p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 group hover:border-red-500/20 transition-all"
+                            >
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className={`${stat.bg} ${stat.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner`}>
                                         {stat.icon}
                                     </div>
-                                    <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase tracking-widest">{stat.trend}</span>
+                                    <span className="text-[10px] font-black bg-slate-50 text-slate-500 px-3 py-1.5 rounded-full uppercase tracking-widest border border-slate-100">{stat.trend}</span>
                                 </div>
-                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                                <h4 className="text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</h4>
-                                <p className="text-[10px] font-bold text-slate-400 mt-2">{stat.sub}</p>
-                            </div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
+                                <h4 className="text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</h4>
+                            </motion.div>
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                        <div className="xl:col-span-2 bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="p-8 border-b border-slate-100 flex items-center justify-between">
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Recent Business Activity</h3>
-                                <button className="text-xs font-black text-red-500 uppercase tracking-widest hover:underline">Full Report</button>
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
+                        <div className="xl:col-span-2 bg-white rounded-[3rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 overflow-hidden">
+                            <div className="p-10 border-b border-slate-50 flex items-center justify-between">
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Recent Activity</h3>
+                                <button onClick={() => setActiveTab('orders')} className="text-[10px] font-black text-red-600 uppercase tracking-widest hover:underline">View All Records</button>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="bg-slate-50">
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Customer</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Amount</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Date</th>
-                                            <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]"></th>
+                                        <tr className="bg-slate-50/50">
+                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Principal</th>
+                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
+                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Credit</th>
+                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timestamp</th>
+                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
-                                        {orders.slice(0, 8).map((order) => (
-                                            <tr key={order.$id} className="hover:bg-slate-50/50 transition-colors group">
-                                                <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 bg-slate-900 rounded-full flex items-center justify-center font-black text-xs text-white uppercase">
+                                        {orders.slice(0, 5).map((order) => (
+                                            <tr key={order.$id} className="hover:bg-slate-50/80 transition-colors group">
+                                                <td className="px-10 py-8">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center font-black text-xs text-white uppercase shadow-lg">
                                                             {order.userName?.[0]}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className="font-bold text-sm text-slate-900 truncate">{order.userName}</p>
-                                                            <p className="text-[10px] text-slate-400 truncate">{order.userEmail}</p>
+                                                            <p className="font-black text-sm text-slate-900 truncate uppercase">{order.userName}</p>
+                                                            <p className="text-[10px] text-slate-400 truncate font-bold">{order.userEmail}</p>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-8 py-6">
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                                                        order.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 
-                                                        order.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'
+                                                <td className="px-10 py-8">
+                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                                                        order.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                                        order.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'
                                                     }`}>
                                                         {order.status}
                                                     </span>
                                                 </td>
-                                                <td className="px-8 py-6 font-black text-slate-900">₹{order.total}</td>
-                                                <td className="px-8 py-6 text-xs font-bold text-slate-400">
-                                                    {new Date(order.$createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                                                <td className="px-10 py-8 font-black text-slate-900">₹{order.total}</td>
+                                                <td className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase">
+                                                    {new Date(order.$createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                 </td>
-                                                <td className="px-8 py-6">
+                                                <td className="px-10 py-8">
                                                     <button 
                                                         onClick={() => setSelectedOrder(order)}
-                                                        className="p-2 bg-slate-100 text-slate-400 rounded-lg hover:bg-slate-950 hover:text-white transition-all"
+                                                        className="w-10 h-10 bg-slate-100 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center"
                                                     >
-                                                        <Eye size={14} />
+                                                        <Eye size={16} />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -370,31 +422,51 @@ const AdminPanel = () => {
                             </div>
                         </div>
 
-                        <div className="bg-slate-950 rounded-[2.5rem] p-8 text-white relative overflow-hidden flex flex-col justify-between">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-[80px] -mr-32 -mt-32" />
-                            <div className="relative z-10">
-                                <h3 className="text-2xl font-black tracking-tight mb-2">Inventory Health</h3>
-                                <p className="text-slate-500 text-sm font-bold">Quick check on your shop status.</p>
-                                
-                                <div className="mt-10 space-y-6">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-slate-400">Total Stock</span>
-                                        <span className="font-black">1,402 Units</span>
+                        <div className="space-y-8">
+                            <div className="bg-slate-950 rounded-[3rem] p-10 text-white relative overflow-hidden h-full flex flex-col justify-between shadow-2xl shadow-slate-950/40">
+                                <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/20 rounded-full blur-[100px] -mr-40 -mt-40" />
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
+                                            <Activity size={20} />
+                                        </div>
+                                        <h3 className="text-xl font-black uppercase tracking-tight">System Core</h3>
                                     </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-slate-400">Low Stock Items</span>
-                                        <span className="font-black text-red-500">12 Products</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm font-bold text-slate-400">Categories</span>
-                                        <span className="font-black text-emerald-500">8 Active</span>
+                                    
+                                    <div className="space-y-8 mt-10">
+                                        <div>
+                                            <div className="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">
+                                                <span>Server Payload</span>
+                                                <span className="text-emerald-500">Normal</span>
+                                            </div>
+                                            <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                                                <motion.div initial={{ width: 0 }} animate={{ width: '42%' }} className="h-full bg-emerald-500" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">
+                                                <span>API Latency</span>
+                                                <span className="text-blue-500">124ms</span>
+                                            </div>
+                                            <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                                                <motion.div initial={{ width: 0 }} animate={{ width: '68%' }} className="h-full bg-blue-500" />
+                                            </div>
+                                        </div>
+                                        <div className="pt-6 border-t border-white/5 space-y-4">
+                                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                                                <span className="text-slate-400">Database Sync</span>
+                                                <span className="text-emerald-500">Live</span>
+                                            </div>
+                                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                                                <span className="text-slate-400">Auto-Scaling</span>
+                                                <span className="text-slate-500">Enabled</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="relative z-10 pt-10 border-t border-white/10">
-                                <button className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2">
-                                    <FileText size={18} /> Download CSV Report
+                                <button className="relative z-10 w-full bg-white text-slate-950 font-black py-5 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 text-[11px] uppercase tracking-widest mt-12">
+                                    <Shield size={18} /> Terminal Security Protocol
                                 </button>
                             </div>
                         </div>
@@ -403,69 +475,209 @@ const AdminPanel = () => {
             )}
 
             {activeTab === 'products' && (
-                <div className="space-y-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex-1 max-w-xl">
-                            <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Search by name, category or ID..." 
-                                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-6 font-bold focus:border-red-500 outline-none transition-all shadow-sm" 
-                                />
-                            </div>
-                        </div>
-                        <div className="flex gap-3">
-                            <button className="px-6 py-4 bg-white border border-slate-200 rounded-2xl text-slate-500 hover:text-red-500 transition-all font-bold flex items-center gap-2 shadow-sm">
-                                <Filter size={18} /> Filter
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {products.map((product) => (
-                            <div key={product.$id} className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden group hover:shadow-2xl hover:shadow-slate-200 transition-all duration-500">
-                                <div className="aspect-[4/3] bg-[#F8FAFC] relative overflow-hidden">
+                <div className="space-y-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {filteredProducts.map((product, i) => (
+                            <motion.div 
+                                key={product.$id} 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: i * 0.05 }}
+                                className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden group hover:shadow-[0_20px_50px_rgba(0,0,0,0.04)] hover:border-red-500/20 transition-all duration-500"
+                            >
+                                <div className="aspect-square bg-slate-50/50 relative overflow-hidden p-10">
                                     <img 
                                         src={product.imageUrl || '/placeholder.jpg'} 
                                         alt={product.name} 
-                                        className="w-full h-full object-contain p-8 group-hover:scale-110 transition-transform duration-700" 
+                                        className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700" 
                                     />
-                                    <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+                                    <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
                                         <button 
                                             onClick={() => startEditProduct(product)}
-                                            className="w-12 h-12 bg-white text-slate-950 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform -translate-y-4 group-hover:translate-y-0 duration-300 delay-75 shadow-xl"
+                                            className="w-14 h-14 bg-white text-slate-950 rounded-2xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all transform -translate-y-4 group-hover:translate-y-0 duration-300 delay-75 shadow-2xl"
                                         >
-                                            <Edit size={20} />
+                                            <Edit size={24} />
                                         </button>
                                         <button 
                                             onClick={() => deleteProduct(product.$id)}
-                                            className="w-12 h-12 bg-white text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform -translate-y-4 group-hover:translate-y-0 duration-300 delay-150 shadow-xl"
+                                            className="w-14 h-14 bg-white text-red-600 rounded-2xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all transform -translate-y-4 group-hover:translate-y-0 duration-300 delay-150 shadow-2xl"
                                         >
-                                            <Trash2 size={20} />
+                                            <Trash2 size={24} />
                                         </button>
                                     </div>
-                                    <div className="absolute top-4 left-4">
-                                        <span className="px-3 py-1 bg-white/80 backdrop-blur text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm">
+                                    <div className="absolute top-6 left-6">
+                                        <span className="px-4 py-1.5 bg-white shadow-xl text-[9px] font-black uppercase tracking-[0.2em] rounded-xl border border-slate-100">
                                             {product.category}
                                         </span>
                                     </div>
                                 </div>
-                                <div className="p-6">
-                                    <h3 className="font-black text-slate-900 text-lg mb-4 truncate">{product.name}</h3>
-                                    <div className="flex items-center justify-between">
+                                <div className="p-8">
+                                    <h3 className="font-black text-slate-900 text-xl mb-6 truncate uppercase tracking-tight">{product.name}</h3>
+                                    <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing</p>
-                                            <span className="text-xl font-black text-red-500 tracking-tighter">₹{product.price}</span>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Valuation</p>
+                                            <span className="text-2xl font-black text-red-600 tracking-tighter">₹{product.price}</span>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Inventory</p>
-                                            <span className="font-black text-slate-900">{product.stock} Units</span>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Units</p>
+                                            <span className="font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">{product.stock}</span>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'orders' && (
+                <div className="bg-white rounded-[3rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="bg-slate-50/50">
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Principal Name</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Protocol Status</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Transaction Value</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Object Count</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Execution Date</th>
+                                    <th className="px-10 py-6"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {filteredOrders.map((order) => {
+                                    const items = JSON.parse(order.items || '[]');
+                                    return (
+                                        <tr key={order.$id} className="hover:bg-slate-50/80 transition-colors group">
+                                            <td className="px-10 py-8">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center font-black text-sm text-white uppercase shadow-xl">
+                                                        {order.userName?.[0]}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-black text-sm text-slate-900 uppercase">{order.userName}</p>
+                                                        <p className="text-[10px] text-slate-400 font-bold tracking-tight">{order.userEmail}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-10 py-8">
+                                                <span className={`px-4 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest border ${
+                                                    order.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
+                                                    order.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-red-50 text-red-600 border-red-200'
+                                                }`}>
+                                                    {order.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-10 py-8 font-black text-slate-900 text-lg">₹{order.total}</td>
+                                            <td className="px-10 py-8">
+                                                <span className="text-xs font-black text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">{items.length} units</span>
+                                            </td>
+                                            <td className="px-10 py-8 text-[11px] font-black text-slate-400 uppercase">
+                                                {new Date(order.$createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                            </td>
+                                            <td className="px-10 py-8">
+                                                <button 
+                                                    onClick={() => setSelectedOrder(order)}
+                                                    className="w-11 h-11 bg-slate-100 text-slate-900 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center shadow-sm"
+                                                >
+                                                    <ExternalLink size={18} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'customers' && (
+                <div className="bg-white rounded-[3rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="bg-slate-50/50">
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Principal Profile</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Total Orders</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Life Time Value</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Last Activity</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Auth Provider</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {customers.map((customer, i) => (
+                                    <tr key={i} className="hover:bg-slate-50/80 transition-colors">
+                                        <td className="px-10 py-8">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center font-black text-red-600 border border-slate-200">
+                                                    {customer.name?.[0]}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-sm text-slate-900 uppercase">{customer.name}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold">{customer.email}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-8">
+                                            <span className="px-4 py-2 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">{customer.orders} Orders</span>
+                                        </td>
+                                        <td className="px-10 py-8 font-black text-emerald-600 text-lg">₹{customer.totalSpent.toLocaleString()}</td>
+                                        <td className="px-10 py-8 text-[11px] font-black text-slate-400 uppercase">
+                                            {new Date(customer.lastOrder).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        </td>
+                                        <td className="px-10 py-8">
+                                            <span className="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-[9px] font-black uppercase tracking-widest">Google Auth</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'system' && (
+                <div className="space-y-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <div className="bg-slate-950 rounded-[3rem] p-12 text-white overflow-hidden relative shadow-2xl">
+                             <div className="flex items-center justify-between mb-12">
+                                <h3 className="text-2xl font-black uppercase tracking-tighter">Live Terminal Logs</h3>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Listening...</span>
+                                </div>
+                             </div>
+                             <div className="font-mono text-xs space-y-4 opacity-70">
+                                <p className="text-emerald-500">[2024-05-14 12:45:12] AUTH_SUCCESS: user_id: 6a04... logged in via Google_OAuth2</p>
+                                <p className="text-blue-400">[2024-05-14 12:45:15] DB_QUERY: fetched 100 documents from products_collection</p>
+                                <p className="text-amber-400">[2024-05-14 12:45:22] CACHE_HIT: assets/logo.png served from edge_node_4</p>
+                                <p className="text-slate-500">[2024-05-14 12:45:30] SYSTEM_CHECK: Memory usage 42%, CPU 12%</p>
+                                <p className="text-red-400">[2024-05-14 12:45:45] WARNING: detected high traffic from IP 192.168.1.1</p>
+                                <p className="text-emerald-500">[2024-05-14 12:46:01] DB_WRITE: order_id: ord_9921 created successfully</p>
+                             </div>
+                        </div>
+
+                        <div className="bg-white rounded-[3rem] border border-slate-100 p-12 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-12">Resource Allocation</h3>
+                            <div className="space-y-10">
+                                {[
+                                    { label: 'Storage Bucket', value: '1.2 GB / 50 GB', percent: 2 },
+                                    { label: 'API Bandwidth', value: '45.2 GB / 500 GB', percent: 9 },
+                                    { label: 'Database Operations', value: '124k / 1.5M', percent: 8 }
+                                ].map((r, i) => (
+                                    <div key={i}>
+                                        <div className="flex justify-between items-end mb-4">
+                                            <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">{r.label}</span>
+                                            <span className="text-sm font-black text-slate-900">{r.value}</span>
+                                        </div>
+                                        <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                                            <motion.div initial={{ width: 0 }} animate={{ width: `${r.percent}%` }} className="h-full bg-red-600 rounded-full" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -475,133 +687,131 @@ const AdminPanel = () => {
       {/* Advanced Add/Edit Overlay */}
       <AnimatePresence>
         {showAddForm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-end p-4 lg:p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-end p-6">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => { setShowAddForm(false); setEditingProduct(null); }}
-              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
             />
             <motion.div 
-              initial={{ x: '100%', opacity: 0.5 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0.5 }}
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="relative w-full max-w-2xl bg-white h-full rounded-[3rem] shadow-2xl overflow-hidden flex flex-col"
+              className="relative w-full max-w-2xl bg-white h-full rounded-l-[4rem] shadow-2xl overflow-hidden flex flex-col"
             >
-              <div className="p-10 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="p-12 border-b border-slate-50 flex items-center justify-between">
                 <div>
-                  <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-                    {editingProduct ? 'Edit Portfolio Item' : 'New Listing Entry'}
+                  <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">
+                    {editingProduct ? 'Update Matrix' : 'New Listing'}
                   </h2>
-                  <p className="text-slate-500 font-bold text-sm">Configure product details for the marketplace.</p>
+                  <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2">Matrix configuration portal</p>
                 </div>
                 <button 
                   onClick={() => { setShowAddForm(false); setEditingProduct(null); }}
-                  className="w-12 h-12 bg-white text-slate-400 rounded-full flex items-center justify-center hover:text-red-500 border border-slate-200 transition-all shadow-sm"
+                  className="w-14 h-14 bg-slate-100 text-slate-900 rounded-2xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm"
                 >
                   <X size={24} strokeWidth={3} />
                 </button>
               </div>
 
-              <form onSubmit={handleProductSubmit} id="product-form" className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Product Identification</label>
+              <form onSubmit={handleProductSubmit} id="product-form" className="flex-1 overflow-y-auto p-12 space-y-10 custom-scrollbar">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Product Designation</label>
                   <input 
                     type="text" required placeholder="Display Name" 
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
                     value={productForm.name} onChange={(e) => setProductForm({...productForm, name: e.target.value})}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Current Value (₹)</label>
                         <input 
-                            type="number" required placeholder="Offer Price" 
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all"
+                            type="number" required placeholder="Price" 
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
                             value={productForm.price} onChange={(e) => setProductForm({...productForm, price: e.target.value})}
                         />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Market Price (₹)</label>
                         <input 
                             type="number" placeholder="MRP" 
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
                             value={productForm.originalPrice} onChange={(e) => setProductForm({...productForm, originalPrice: e.target.value})}
                         />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Category Branch</label>
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Matrix Branch</label>
                         <select 
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all appearance-none cursor-pointer"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all cursor-pointer appearance-none shadow-sm"
                             value={productForm.category} onChange={(e) => setProductForm({...productForm, category: e.target.value})}
                         >
                             <option value="electronics">📱 Electronics</option>
                             <option value="fashion">👕 Fashion</option>
-                            <option value="home">🏠 Home & Living</option>
-                            <option value="beauty">💄 Beauty & Personal Care</option>
-                            <option value="sports">⚽ Sports & Outdoors</option>
-                            <option value="books">📚 Books & Learning</option>
+                            <option value="home">🏠 Home & Decor</option>
+                            <option value="beauty">💄 Beauty</option>
+                            <option value="sports">⚽ Sports</option>
                         </select>
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Inventory Count</label>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Inventory Stock</label>
                         <input 
                             type="number" required placeholder="Units" 
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all"
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
                             value={productForm.stock} onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
                         />
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Visual Content</label>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="relative group overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] p-8 text-center hover:border-red-500 transition-all cursor-pointer">
-                        <Upload size={32} className="mx-auto text-slate-300 mb-4 group-hover:text-red-500 group-hover:scale-110 transition-all duration-500" />
-                        <p className="font-black text-slate-400 text-sm group-hover:text-slate-900">{imageFile ? imageFile.name : 'Drop Media or Click to Upload'}</p>
-                        <p className="text-[10px] font-bold text-slate-400 mt-2">WEBP, PNG, JPG (Auto-Compressed)</p>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Visual Source</label>
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="relative group overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 text-center hover:border-red-600 hover:bg-white transition-all cursor-pointer shadow-sm">
+                        <Upload size={40} className="mx-auto text-slate-300 mb-6 group-hover:text-red-600 group-hover:scale-110 transition-all duration-500" />
+                        <p className="font-black text-slate-400 text-sm group-hover:text-slate-900">{imageFile ? imageFile.name : 'Click to Upload High-Res Media'}</p>
                         <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => setImageFile(e.target.files[0])} />
                     </div>
                     <div className="relative">
-                        <ImageIcon size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <ImageIcon size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
                         <input 
-                            type="url" placeholder="Direct Image URL Integration" 
-                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-5 pl-14 font-bold focus:border-red-500 outline-none transition-all"
+                            type="url" placeholder="Direct CDN Integration URL" 
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 pl-14 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
                             value={productForm.imageUrl} onChange={(e) => setProductForm({...productForm, imageUrl: e.target.value})}
                         />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Descriptive Content</label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Comprehensive Intelligence</label>
                   <textarea 
-                    rows="6" required placeholder="Write a compelling description..." 
-                    className="w-full bg-slate-50 border border-slate-200 rounded-[2rem] p-8 font-bold focus:border-red-500 outline-none transition-all"
+                    rows="6" required placeholder="Technical specifications and marketing copy..." 
+                    className="w-full bg-slate-50 border border-slate-100 rounded-[2.5rem] p-10 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
                     value={productForm.description} onChange={(e) => setProductForm({...productForm, description: e.target.value})}
                   ></textarea>
                 </div>
               </form>
 
-              <div className="p-10 border-t border-slate-100 bg-white">
+              <div className="p-12 border-t border-slate-50 bg-white">
                 <button 
                   form="product-form"
                   type="submit"
                   disabled={formLoading}
-                  className="w-full bg-slate-950 text-white font-black text-xl py-6 rounded-3xl transition-all shadow-2xl flex items-center justify-center gap-4 active:scale-95 disabled:opacity-70 group"
+                  className="w-full bg-slate-950 text-white font-black text-xl py-7 rounded-[2rem] transition-all shadow-2xl flex items-center justify-center gap-4 active:scale-95 disabled:opacity-70 group hover:bg-red-600"
                 >
                   {formLoading ? (
                     <Clock className="animate-spin" />
                   ) : (
                     <>
                       <CheckCircle size={24} className="group-hover:scale-110 transition-transform" />
-                      <span>{editingProduct ? 'Commit Changes' : 'Initialize Listing'}</span>
+                      <span className="uppercase tracking-widest text-sm">Commit Data to Registry</span>
                     </>
                   )}
                 </button>
@@ -614,122 +824,132 @@ const AdminPanel = () => {
       {/* High-Level Order Details Modal */}
       <AnimatePresence>
         {selectedOrder && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 lg:p-12">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-12">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedOrder(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl"
             />
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-5xl bg-white rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row h-[90vh] lg:h-auto max-h-[90vh]"
+              className="relative w-full max-w-6xl bg-white rounded-[4rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col lg:flex-row h-[85vh]"
             >
-              {/* Receipt Area */}
-              <div className="flex-1 overflow-y-auto p-12 custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-100">
-                <div className="flex justify-between items-start mb-12">
+              <div className="flex-1 overflow-y-auto p-16 custom-scrollbar border-r border-slate-50">
+                <div className="flex justify-between items-start mb-16">
                     <div>
-                        <h2 className="text-4xl font-black text-slate-900 tracking-tighter">ORDER RECEIPT</h2>
-                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-2">ID: {selectedOrder.$id}</p>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-red-600 uppercase tracking-[0.4em] mb-4">
+                            <div className="w-2 h-2 rounded-full bg-red-600"></div>
+                            Transaction Secure
+                        </div>
+                        <h2 className="text-5xl font-black text-slate-900 tracking-tighter uppercase">RECEIPT</h2>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">ID_NODE: {selectedOrder.$id}</p>
                     </div>
                     <div className="text-right">
-                        <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${
-                            selectedOrder.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 
-                            selectedOrder.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'
+                        <div className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${
+                            selectedOrder.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                            selectedOrder.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'
                         }`}>
                             {selectedOrder.status}
                         </div>
-                        <p className="text-xs font-bold text-slate-400 mt-2">{new Date(selectedOrder.$createdAt).toLocaleString()}</p>
+                        <p className="text-xs font-black text-slate-400 mt-4 uppercase tracking-widest">{new Date(selectedOrder.$createdAt).toLocaleString()}</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
-                    <div className="space-y-4">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Customer Details</p>
+                <div className="grid grid-cols-2 gap-20 mb-16">
+                    <div className="space-y-6">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Client Registry</p>
                         <div>
-                            <p className="font-black text-lg text-slate-900">{selectedOrder.userName}</p>
-                            <p className="font-bold text-slate-500">{selectedOrder.userEmail}</p>
-                            <p className="font-bold text-slate-500">{selectedOrder.phone}</p>
+                            <p className="font-black text-2xl text-slate-900 uppercase tracking-tight">{selectedOrder.userName}</p>
+                            <p className="font-bold text-slate-500 text-sm mt-1">{selectedOrder.userEmail}</p>
+                            <p className="font-bold text-slate-500 text-sm mt-1">{selectedOrder.phone}</p>
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Shipping Destination</p>
-                        <p className="font-bold text-slate-900 leading-relaxed">{selectedOrder.address}</p>
+                    <div className="space-y-6">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Geographic Node</p>
+                        <p className="font-black text-slate-900 text-sm leading-relaxed uppercase">{selectedOrder.address}</p>
                     </div>
                 </div>
 
-                <div className="space-y-6 mb-12">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Line Items</p>
+                <div className="space-y-8 mb-16">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Matrix Objects</p>
                     {JSON.parse(selectedOrder.items || '[]').map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center font-black text-slate-900 text-xs">
+                        <div key={idx} className="flex justify-between items-center group">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-900 text-sm border border-slate-100 shadow-sm group-hover:scale-105 transition-transform">
                                     {idx + 1}
                                 </div>
                                 <div>
-                                    <p className="font-black text-slate-900 text-sm truncate max-w-[200px]">{item.name}</p>
-                                    <p className="text-xs font-bold text-slate-400">{item.quantity} × ₹{item.price}</p>
+                                    <p className="font-black text-slate-900 text-lg uppercase tracking-tight truncate max-w-[300px]">{item.name}</p>
+                                    <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">{item.quantity} units @ ₹{item.price}</p>
                                 </div>
                             </div>
-                            <span className="font-black text-slate-900">₹{item.price * item.quantity}</span>
+                            <span className="font-black text-slate-900 text-xl tracking-tighter">₹{item.price * item.quantity}</span>
                         </div>
                     ))}
                 </div>
 
-                <div className="bg-slate-50 p-8 rounded-3xl space-y-4">
-                    <div className="flex justify-between text-sm font-bold text-slate-500">
-                        <span>Cart Subtotal</span>
-                        <span>₹{selectedOrder.subtotal}</span>
+                <div className="bg-slate-50/50 p-12 rounded-[3rem] border border-slate-100 space-y-6">
+                    <div className="flex justify-between text-sm font-black text-slate-400 uppercase tracking-widest">
+                        <span>Base Valuation</span>
+                        <span className="text-slate-900">₹{selectedOrder.subtotal}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-bold text-slate-500">
-                        <span>Logistics & Handling</span>
-                        <span>{selectedOrder.shipping === 0 ? 'FREE' : `₹${selectedOrder.shipping}`}</span>
+                    <div className="flex justify-between text-sm font-black text-slate-400 uppercase tracking-widest">
+                        <span>Logistics Protocol</span>
+                        <span className="text-emerald-500">{selectedOrder.shipping === 0 ? 'FREE_PASS' : `₹${selectedOrder.shipping}`}</span>
                     </div>
-                    <div className="pt-4 border-t border-slate-200 flex justify-between items-end">
-                        <p className="text-xs font-black text-slate-900 uppercase tracking-widest">Total Transaction</p>
-                        <span className="text-3xl font-black text-red-500 tracking-tighter">₹{selectedOrder.total}</span>
+                    <div className="pt-8 border-t border-slate-200 flex justify-between items-end">
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-2">Final Credit Transaction</p>
+                            <span className="text-5xl font-black text-red-600 tracking-tighter">₹{selectedOrder.total}</span>
+                        </div>
+                        <div className="p-4 bg-white rounded-2xl shadow-inner border border-slate-100">
+                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=BYTECORE_ORD" className="opacity-20 grayscale" alt="QR" />
+                        </div>
                     </div>
                 </div>
               </div>
 
-              {/* Action Sidebar */}
-              <div className="w-full lg:w-96 bg-slate-50/50 p-12 flex flex-col gap-6">
-                <h3 className="text-xl font-black text-slate-900 tracking-tight mb-4">Management</h3>
+              <div className="w-[400px] bg-slate-50/50 p-16 flex flex-col gap-10">
+                <h3 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">Protocol Control</h3>
                 
-                <div className="space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Current Workflow Status</p>
-                    <div className="grid grid-cols-1 gap-2">
+                <div className="space-y-6">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update Matrix State</p>
+                    <div className="grid grid-cols-1 gap-3">
                         {['pending', 'processing', 'completed', 'cancelled'].map((status) => (
                             <button 
                                 key={status}
                                 onClick={() => updateOrderStatus(selectedOrder.$id, status)}
-                                className={`w-full text-left p-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border-2 ${
+                                className={`w-full text-left p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all border-2 ${
                                     selectedOrder.status === status 
-                                    ? 'bg-slate-950 text-white border-slate-950 shadow-xl' 
-                                    : 'bg-white text-slate-400 border-slate-100 hover:border-red-200'
+                                    ? 'bg-slate-950 text-white border-slate-950 shadow-2xl' 
+                                    : 'bg-white text-slate-400 border-white hover:border-red-500/20 shadow-sm'
                                 }`}
                             >
-                                {status}
+                                <div className="flex items-center justify-between">
+                                    <span>{status}</span>
+                                    {selectedOrder.status === status && <div className="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_8px_red]"></div>}
+                                </div>
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="mt-auto space-y-3">
-                    <button className="w-full bg-white border border-slate-200 p-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-100 transition-all">
-                        <Printer size={16} /> Print Invoice
+                <div className="mt-auto space-y-4">
+                    <button className="w-full bg-white border border-slate-200 p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-sm">
+                        <Printer size={18} /> Print Record
                     </button>
-                    <button className="w-full bg-white border border-slate-200 p-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-100 transition-all">
-                        <Download size={16} /> Export PDF
+                    <button className="w-full bg-white border border-slate-200 p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-sm">
+                        <Download size={18} /> Export Data
                     </button>
                     <button 
                         onClick={() => setSelectedOrder(null)}
-                        className="w-full bg-red-500 text-white p-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-red-500/20 active:scale-95 transition-all"
+                        className="w-full bg-red-600 text-white p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl shadow-red-600/30 active:scale-95 transition-all mt-4"
                     >
-                        Close Portal
+                        Deactivate Link
                     </button>
                 </div>
               </div>
