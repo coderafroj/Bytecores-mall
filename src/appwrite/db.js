@@ -78,6 +78,8 @@ export class DatabaseService {
         } catch (error) {
             if (error.code === 404) {
                 console.error("CRITICAL: Products collection not found. Please ensure VITE_APPWRITE_PRODUCTS_COLLECTION_ID is set correctly in .env");
+            } else if (error.code === 401) {
+                console.warn("PERMISSIONS ALERT: Please go to Appwrite Console -> Products Collection -> Settings -> Permissions and add 'Any' with 'Read' access.");
             } else {
                 console.log("Appwrite service :: getProducts :: error", error);
             }

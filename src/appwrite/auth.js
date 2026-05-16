@@ -55,8 +55,8 @@ export class AuthService {
         try {
             return await this.account.get();
         } catch (error) {
-            // Silence error for guest users
-            if (error.code !== 401) {
+            // Quietly handle guest users (401 or missing scope)
+            if (error.code !== 401 && !error.message?.includes('missing scopes')) {
                 console.log("Appwrite service :: getCurrentUser :: error", error);
             }
         }
