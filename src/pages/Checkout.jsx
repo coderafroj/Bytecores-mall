@@ -40,34 +40,94 @@ const Checkout = () => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const orderData = {
-        userId: user?.$id || 'guest',
-        userName: formData.name,
-        userEmail: formData.email,
-        phone: formData.phone,
-        address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}`,
-        items: JSON.stringify(cart.map(item => ({
-          id: item.$id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity
-        }))),
-        subtotal,
-        shipping,
-        total,
-        paymentMethod,
-        status: 'pending'
-      };
+    const orderData = {
+      userId: user?.$id || 'guest',
+      userName: formData.name,
+      userEmail: formData.email,
+      phone: formData.phone,
+      address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}`,
+      items: JSON.stringify(cart.map(item => ({
+        id: item.$id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      }))),
+      subtotal,
+      shipping,
+      total,
+      paymentMethod,
+      status: 'pending'
+    };
 
-      await databaseService.createOrder(orderData);
-      dispatch(clearCart());
-      navigate('/order-success');
-    } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
-    } finally {
-      setLoading(false);
+    if (paymentMethod === 'online') {
+      try {
+        const { loadScript } = await import('../utils/loadScript');
+        const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+
+        if (!res) {
+          alert('Razorpay SDK failed to load. Are you online?');
+          setLoading(false);
+          return;
+        }
+
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_your_key_id',
+          amount: total * 100, // in paise
+          currency: 'INR',
+          name: "Bytecore's Mall",
+          description: "Premium Purchase",
+          image: "https://mall.bytecores.in/logo.png",
+          handler: async function (response) {
+            try {
+              const finalOrderData = {
+                ...orderData,
+                paymentId: response.razorpay_payment_id,
+                paymentStatus: 'paid'
+              };
+              await databaseService.createOrder(finalOrderData);
+              dispatch(clearCart());
+              navigate('/order-success');
+            } catch (err) {
+              console.error('Error saving order after payment:', err);
+              alert('Payment successful but order saving failed. Please contact support with Payment ID: ' + response.razorpay_payment_id);
+            }
+          },
+          prefill: {
+            name: formData.name,
+            email: formData.email,
+            contact: formData.phone
+          },
+          notes: {
+            address: formData.address
+          },
+          theme: {
+            color: "#ff4757"
+          }
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
+        setLoading(false);
+      } catch (error) {
+        console.error('Razorpay Error:', error);
+        alert('Could not initialize Razorpay. Please try again.');
+        setLoading(false);
+      }
+    } else {
+      // Cash on Delivery
+      try {
+        await databaseService.createOrder({
+          ...orderData,
+          paymentStatus: 'pending'
+        });
+        dispatch(clearCart());
+        navigate('/order-success');
+      } catch (error) {
+        console.error('Error placing order:', error);
+        alert('Failed to place order. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

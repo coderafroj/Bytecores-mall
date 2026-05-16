@@ -1,0 +1,12 @@
+src/App.jsx
+src/components/BottomNav.jsx
+src/components/ProductGrid.jsx
+src/pages/Checkout.jsx
+src/pages/Contact.jsx
+src/pages/Home.jsx
+src/pages/Login.jsx
+src/pages/OrderSuccess.jsx
+src/pages/ProductDetail.jsx
+src/pages/Products.jsx
+src/pages/Profile.jsx
+src/pages/ProfileLaunch.jsx

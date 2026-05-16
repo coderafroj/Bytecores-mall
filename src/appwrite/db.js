@@ -89,7 +89,8 @@ export class DatabaseService {
                 ID.unique(),
                 {
                     ...orderData,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    paymentStatus: orderData.paymentMethod === 'cod' ? 'pending' : (orderData.paymentStatus || 'pending')
                 }
             );
         } catch (error) {
@@ -98,13 +99,28 @@ export class DatabaseService {
         }
     }
 
-    async updateOrderStatus(orderId, status) {
+    async getOrders(queries = []) {
         try {
+            return await this.databases.listDocuments(
+                import.meta.env.VITE_APPWRITE_DATABASE_ID,
+                import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders',
+                queries
+            );
+        } catch (error) {
+            console.log("Appwrite service :: getOrders :: error", error);
+            return false;
+        }
+    }
+
+    async updateOrderStatus(orderId, status, paymentStatus = null) {
+        try {
+            const data = { status };
+            if (paymentStatus) data.paymentStatus = paymentStatus;
             return await this.databases.updateDocument(
                 import.meta.env.VITE_APPWRITE_DATABASE_ID,
                 import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders',
                 orderId,
-                { status }
+                data
             );
         } catch (error) {
             console.log("Appwrite service :: updateOrderStatus :: error", error);
