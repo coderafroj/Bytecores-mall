@@ -367,109 +367,108 @@ const AdminPanel = () => {
                     </div>
 
                     <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-                        <div className="xl:col-span-2 bg-white rounded-[3rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 overflow-hidden">
+                        <div className="xl:col-span-2 bg-white rounded-[3rem] shadow-[0_8px_60px_rgb(0,0,0,0.03)] border border-slate-100 overflow-hidden flex flex-col">
                             <div className="p-10 border-b border-slate-50 flex items-center justify-between">
-                                <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Recent Activity</h3>
-                                <button onClick={() => setActiveTab('orders')} className="text-[10px] font-black text-red-600 uppercase tracking-widest hover:underline">View All Records</button>
+                                <div>
+                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-1">Matrix Revenue Flux</h3>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Real-time financial synchronization</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    {['7D', '1M', '1Y'].map(t => (
+                                        <button key={t} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${t === '7D' ? 'bg-slate-950 text-white shadow-xl' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>{t}</button>
+                                    ))}
+                                </div>
                             </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="bg-slate-50/50">
-                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Principal</th>
-                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Credit</th>
-                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timestamp</th>
-                                            <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-50">
-                                        {orders.slice(0, 5).map((order) => (
-                                            <tr key={order.$id} className="hover:bg-slate-50/80 transition-colors group">
-                                                <td className="px-10 py-8">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center font-black text-xs text-white uppercase shadow-lg">
-                                                            {order.userName?.[0]}
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <p className="font-black text-sm text-slate-900 truncate uppercase">{order.userName}</p>
-                                                            <p className="text-[10px] text-slate-400 truncate font-bold">{order.userEmail}</p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-10 py-8">
-                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                                                        order.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
-                                                        order.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'
-                                                    }`}>
-                                                        {order.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-10 py-8 font-black text-slate-900">₹{order.total}</td>
-                                                <td className="px-10 py-8 text-[10px] font-black text-slate-400 uppercase">
-                                                    {new Date(order.$createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                </td>
-                                                <td className="px-10 py-8">
-                                                    <button 
-                                                        onClick={() => setSelectedOrder(order)}
-                                                        className="w-10 h-10 bg-slate-100 text-slate-400 rounded-xl hover:bg-slate-900 hover:text-white transition-all flex items-center justify-center"
-                                                    >
-                                                        <Eye size={16} />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                            
+                            {/* Pro CSS Chart */}
+                            <div className="flex-1 p-10 min-h-[400px] flex flex-col justify-end">
+                                <div className="flex items-end justify-between gap-4 h-[300px] mb-8">
+                                    {[65, 45, 78, 52, 90, 70, 85].map((h, i) => (
+                                        <div key={i} className="flex-1 flex flex-col items-center group relative">
+                                            <div className="absolute -top-10 bg-slate-950 text-white px-3 py-1.5 rounded-lg text-[9px] font-black opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                                                ₹{(h * 1000).toLocaleString()}
+                                            </div>
+                                            <motion.div 
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${h}%` }}
+                                                transition={{ delay: i * 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                                className={`w-full max-w-[40px] rounded-t-2xl transition-all duration-500 group-hover:bg-red-500 shadow-2xl ${i === 4 ? 'bg-red-600' : 'bg-slate-900'}`}
+                                            />
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-4">Day {i+1}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="pt-8 border-t border-slate-50 flex items-center justify-between">
+                                    <div className="flex gap-8">
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Peak Load</p>
+                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹90,000</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Mean Value</p>
+                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹62,400</p>
+                                        </div>
+                                    </div>
+                                    <button onClick={() => setActiveTab('orders')} className="group flex items-center gap-3 text-[10px] font-black text-red-600 uppercase tracking-widest">
+                                        Exfiltrate Full Logs <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="space-y-8">
-                            <div className="bg-slate-950 rounded-[3rem] p-10 text-white relative overflow-hidden h-full flex flex-col justify-between shadow-2xl shadow-slate-950/40">
-                                <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/20 rounded-full blur-[100px] -mr-40 -mt-40" />
-                                <div className="relative z-10">
-                                    <div className="flex items-center gap-3 mb-8">
-                                        <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
-                                            <Activity size={20} />
+                        <div className="space-y-8 flex flex-col">
+                            {/* Live Terminal */}
+                            <div className="bg-slate-950 rounded-[3rem] p-10 text-white relative overflow-hidden flex-1 flex flex-col shadow-2xl shadow-slate-950/40 border border-white/5">
+                                <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-[100px] -mr-40 -mt-40" />
+                                <div className="relative z-10 flex flex-col h-full">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center animate-pulse">
+                                                <Activity size={20} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-black uppercase tracking-tight">Live Terminal</h3>
+                                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Protocol v2.4.0 Active</p>
+                                            </div>
                                         </div>
-                                        <h3 className="text-xl font-black uppercase tracking-tight">System Core</h3>
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
                                     </div>
                                     
-                                    <div className="space-y-8 mt-10">
+                                    <div className="flex-1 font-mono text-[9px] space-y-3 opacity-80 custom-scrollbar overflow-y-auto pr-4">
+                                        <p className="text-emerald-500">[12:44:01] AUTH_SYNC: Admin connection established</p>
+                                        <p className="text-blue-400">[12:44:05] DB_PULL: Fetched {products.length} products successfully</p>
+                                        <p className="text-slate-500">[12:44:12] SYS_STATUS: All nodes healthy (latency 42ms)</p>
+                                        <p className="text-emerald-500">[12:44:15] ORDER_FETCH: Syncing {orders.length} transaction records</p>
+                                        <p className="text-amber-400">[12:44:20] CACHE_HIT: Global dashboard analytics ready</p>
+                                        <p className="text-red-500 animate-pulse">[12:44:25] ACTION: Admin viewed Overview Matrix</p>
+                                        <p className="text-slate-500">[12:44:30] SECURITY: Layer 7 protection active</p>
+                                    </div>
+
+                                    <div className="mt-8 pt-8 border-t border-white/10 space-y-6">
                                         <div>
-                                            <div className="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">
-                                                <span>Server Payload</span>
-                                                <span className="text-emerald-500">Normal</span>
+                                            <div className="flex justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">
+                                                <span>Core Processing</span>
+                                                <span className="text-emerald-500">Optimum</span>
                                             </div>
-                                            <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                                                <motion.div initial={{ width: 0 }} animate={{ width: '42%' }} className="h-full bg-emerald-500" />
+                                            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                <motion.div initial={{ width: 0 }} animate={{ width: '38%' }} transition={{ duration: 2 }} className="h-full bg-emerald-500" />
                                             </div>
                                         </div>
                                         <div>
-                                            <div className="flex justify-between text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">
-                                                <span>API Latency</span>
-                                                <span className="text-blue-500">124ms</span>
+                                            <div className="flex justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">
+                                                <span>Memory Utilization</span>
+                                                <span className="text-blue-500">12GB / 32GB</span>
                                             </div>
-                                            <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                                                <motion.div initial={{ width: 0 }} animate={{ width: '68%' }} className="h-full bg-blue-500" />
-                                            </div>
-                                        </div>
-                                        <div className="pt-6 border-t border-white/5 space-y-4">
-                                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
-                                                <span className="text-slate-400">Database Sync</span>
-                                                <span className="text-emerald-500">Live</span>
-                                            </div>
-                                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
-                                                <span className="text-slate-400">Auto-Scaling</span>
-                                                <span className="text-slate-500">Enabled</span>
+                                            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                <motion.div initial={{ width: 0 }} animate={{ width: '62%' }} transition={{ duration: 2 }} className="h-full bg-blue-500" />
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                    <button className="relative z-10 w-full bg-white text-slate-950 font-black py-4 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest mt-10 shadow-2xl">
+                                        <Shield size={16} /> Encryption Key Verified
+                                    </button>
                                 </div>
-
-                                <button className="relative z-10 w-full bg-white text-slate-950 font-black py-5 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 text-[11px] uppercase tracking-widest mt-12">
-                                    <Shield size={18} /> Terminal Security Protocol
-                                </button>
                             </div>
                         </div>
                     </div>

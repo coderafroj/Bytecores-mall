@@ -53,47 +53,47 @@ const Navbar = ({ cartCount }) => {
             </div>
             <div className="flex flex-col">
                 <h1 className="text-xl lg:text-2xl font-black text-slate-950 tracking-tighter uppercase leading-none">ByteCore Mall</h1>
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">A Division of ByteCore Computer Centre</span>
+              <span className="text-2xl font-black tracking-tighter uppercase leading-none group-hover:text-red-600 transition-colors">Bytecores Mall</span>
+              <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mt-1">Matrix Protocol Active</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-10">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.path} 
-                to={link.path} 
-                className={`text-xs font-black uppercase tracking-[0.2em] transition-all hover:text-red-600 ${
-                  location.pathname === link.path ? 'text-red-600' : 'text-slate-500'
-                }`}
-              >
-                {link.label}
-              </Link>
+          <div className="hidden lg:flex items-center gap-12">
+            {[
+                { label: 'Hot Deals', path: '/products', icon: <Zap size={14} className="text-red-500" /> },
+                { label: 'Inventory', path: '/products', icon: <Package size={14} /> },
+                { label: 'Support', path: '/contact', icon: <Settings size={14} /> }
+            ].map(item => (
+                <Link 
+                    key={item.label}
+                    to={item.path} 
+                    className="relative group flex items-center gap-2"
+                >
+                    <span className="text-slate-400 group-hover:scale-110 transition-transform">{item.icon}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 group-hover:text-slate-950 transition-colors">{item.label}</span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-600 transition-all duration-300 group-hover:w-full" />
+                </Link>
             ))}
           </div>
 
-          {/* Actions Section */}
+          {/* Action Icons */}
           <div className="flex items-center gap-4 lg:gap-8">
-            <Link to="/products" className="p-3 lg:p-4 text-slate-400 hover:text-slate-950 transition-all hidden sm:flex">
-              <Search size={22} strokeWidth={2.5} />
-            </Link>
+            <div className="hidden md:flex relative group">
+                <Search size={18} className="text-slate-400 group-hover:text-red-600 transition-colors cursor-pointer" />
+            </div>
 
-            <Link to="/cart" className="relative p-3 lg:p-4 text-slate-400 hover:text-slate-950 transition-all group">
-              <ShoppingBag size={22} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+            <Link to="/cart" className="relative group">
+              <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center group-hover:bg-slate-950 group-hover:text-white transition-all duration-500">
+                <ShoppingCart size={20} />
+              </div>
               {cartCount > 0 && (
-                <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-4 border-white shadow-xl animate-reveal">
                   {cartCount}
                 </span>
               )}
             </Link>
 
-            <div className="h-8 w-px bg-slate-100 hidden sm:block"></div>
-
-            {/* Profile Logic */}
-            <div className="relative">
-              {user ? (
-                <button 
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center gap-3 p-1.5 lg:p-2 bg-slate-50 rounded-2xl lg:rounded-[1.5rem] border border-slate-100 hover:bg-slate-100 transition-all"
                 >
                   <div className="w-9 h-9 lg:w-11 lg:h-11 bg-slate-950 text-white rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-sm shadow-xl">
