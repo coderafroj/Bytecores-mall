@@ -19,8 +19,8 @@ const Contact = () => {
       className="w-full min-h-screen bg-white pt-32 pb-24"
     >
       <Helmet>
-        <title>Contact Us | Bytecore's Mall Support</title>
-        <meta name="description" content="Need help? Contact Bytecore's Mall support team for orders, returns, or any queries. We're here to help you 24/7." />
+        <title>Contact Us | ByteCore Computer Centre</title>
+        <meta name="description" content="Need help? Contact ByteCore Computer Centre's mall division for orders, returns, or any queries. We're here to help you 24/7." />
       </Helmet>
 
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12">
@@ -38,8 +38,8 @@ const Contact = () => {
           <div className="space-y-12">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {[
-                { icon: <Mail />, title: "Email Us", detail: "support@bytecores.com", sub: "Response within 24h" },
-                { icon: <Phone />, title: "Call Us", detail: "+91 9999 000 999", sub: "Mon-Sat, 9am-6pm" },
+                { icon: <Mail />, title: "Email Us", detail: "bytecore.info@gmail.com", sub: "Response within 24h" },
+                { icon: <Phone />, title: "Call Us", detail: "+91 63968 35709", sub: "Mon-Sat, 9am-6pm" },
                 { icon: <MessageSquare />, title: "Live Chat", detail: "Active Now", sub: "Average wait: 2 mins" },
                 { icon: <Clock />, title: "Working Hours", detail: "24/7 Online", sub: "Orders processed daily" }
               ].map((item, i) => (
@@ -67,13 +67,13 @@ const Contact = () => {
                 <div className="flex items-start gap-4">
                   <MapPin className="text-red-500 shrink-0" size={24} />
                   <p className="text-lg font-bold text-slate-400 leading-relaxed">
-                    123 Innovation Drive, Tech Park Area,<br />
-                    New Delhi, India - 110001
+                    Nariyawal Campus, Bareilly,<br />
+                    Uttar Pradesh, India - 243123
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <Globe className="text-red-500" size={24} />
-                  <p className="text-lg font-bold text-slate-400">www.bytecores-mall.com</p>
+                  <p className="text-lg font-bold text-slate-400">www.bytecores.in</p>
                 </div>
               </div>
             </div>

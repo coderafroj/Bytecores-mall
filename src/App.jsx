@@ -17,6 +17,11 @@ import OrderSuccess from './pages/OrderSuccess';
 import Contact from './pages/Contact';
 import ProfileLaunch from './pages/ProfileLaunch';
 import Profile from './pages/Profile';
+import AboutUs from './pages/AboutUs';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
+import RefundPolicy from './pages/RefundPolicy';
+import Footer from './components/Footer';
 
 const LayoutNavbar = ({ user, cartCount }) => {
   const location = useLocation();
@@ -65,7 +70,7 @@ function App() {
             className="w-16 h-16 border-[6px] border-slate-100 border-t-red-500 rounded-full mb-6" 
         />
         <div className="flex flex-col items-center">
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">Bytecore Mall</h2>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">ByteCore Mall</h2>
             <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2 animate-pulse">Initializing Matrix...</span>
         </div>
       </div>
@@ -95,7 +100,12 @@ function App() {
           } />
           <Route path="/profile-launch" element={<ProfileLaunch />} />
           <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
         </Routes>
+        <Footer />
         <BottomNav cartCount={cartCount} />
         <div className="lg:hidden h-20" />
       </div>

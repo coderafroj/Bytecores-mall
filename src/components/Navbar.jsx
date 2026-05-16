@@ -52,8 +52,8 @@ const Navbar = ({ cartCount }) => {
                 <Zap size={20} fill="white" className="text-white" />
             </div>
             <div className="flex flex-col">
-                <h1 className="text-xl lg:text-2xl font-black text-slate-950 tracking-tighter uppercase leading-none">Bytecore</h1>
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">Mall Protocol</span>
+                <h1 className="text-xl lg:text-2xl font-black text-slate-950 tracking-tighter uppercase leading-none">ByteCore Mall</h1>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">A Division of ByteCore Computer Centre</span>
             </div>
           </Link>
 

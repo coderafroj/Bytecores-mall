@@ -248,8 +248,8 @@ const AdminPanel = () => {
                     <Shield size={24} className="text-white" />
                 </div>
                 <div>
-                    <h1 className="font-black text-2xl tracking-tighter uppercase leading-none">Bytecore</h1>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Admin OS v2.0</p>
+                    <h1 className="font-black text-2xl tracking-tighter uppercase leading-none">ByteCore Mall</h1>
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">A Division of ByteCore Computer Centre</p>
                 </div>
             </div>
             
