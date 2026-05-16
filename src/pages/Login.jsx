@@ -61,7 +61,21 @@ const Login = () => {
       const userData = await authService.getCurrentUser();
       if (userData) {
         dispatch(authLogin(userData));
-        navigate('/');
+        
+        // Show success toast
+        const toast = document.createElement('div');
+        toast.className = 'fixed top-12 left-1/2 -translate-x-1/2 glass-dark text-white px-10 py-5 rounded-[2rem] font-black shadow-2xl z-[9999] border border-white/10 animate-reveal flex items-center gap-4';
+        toast.innerHTML = `<div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center"><CheckCircle size={20} /></div> ${isLogin ? 'Access Granted! Initializing Matrix...' : 'Account Created! Welcome to the Elite.'}`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translate(-50%, -20px)';
+            setTimeout(() => {
+                toast.remove();
+                navigate('/');
+            }, 300);
+        }, 2000);
       }
     } catch (err) {
       let msg = err.message || 'Authentication failed.';

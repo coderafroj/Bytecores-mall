@@ -94,6 +94,11 @@ const Navbar = ({ cartCount }) => {
               )}
             </Link>
 
+            {/* Profile Logic */}
+            <div className="relative">
+              {user ? (
+                <button 
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center gap-3 p-1.5 lg:p-2 bg-slate-50 rounded-2xl lg:rounded-[1.5rem] border border-slate-100 hover:bg-slate-100 transition-all"
                 >
                   <div className="w-9 h-9 lg:w-11 lg:h-11 bg-slate-950 text-white rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-sm shadow-xl">

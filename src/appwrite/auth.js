@@ -55,12 +55,9 @@ export class AuthService {
         try {
             return await this.account.get();
         } catch (error) {
-            // Quietly handle guest users (401 or missing scope)
-            if (error.code !== 401 && !error.message?.includes('missing scopes')) {
-                console.log("Appwrite service :: getCurrentUser :: error", error);
-            }
+            // Silently return null for guests without logging errors
+            return null;
         }
-        return null;
     }
 
     async updatePrefs(prefs) {
