@@ -10,8 +10,9 @@ const AboutUs = () => {
       className="w-full min-h-screen bg-white pt-32 pb-24"
     >
       <Helmet>
-        <title>About Us | ByteCore Computer Centre</title>
-        <meta name="description" content="Learn more about ByteCore Computer Centre and ByteCore Mall - Your destination for premium gadgets and tech education." />
+        <title>About Bytecores Mall | Premium Tech & Shopping in Bareilly</title>
+        <meta name="description" content="Discover the story of Bytecores Mall and ByteCore Computer Centre in Nariyawal, Bareilly. We are committed to providing high-quality tech products and education to the community." />
+        <link rel="canonical" href="https://mall.bytecores.in/about-us" />
       </Helmet>
 
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12">

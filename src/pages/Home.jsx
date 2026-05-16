@@ -29,8 +29,53 @@ const Home = () => {
   return (
     <div className="w-full bg-white font-['Plus_Jakarta_Sans',sans-serif] selection:bg-red-500/10 selection:text-red-600">
       <Helmet>
-        <title>Bytecore's Mall | India's #1 Value Store</title>
-        <meta name="description" content="Shop the latest fashion, electronics and home decor at unbeatable prices. Everything under ₹99!" />
+        <title>Bytecores Mall | India's #1 Value Store | Nariyawal Bareilly</title>
+        <meta name="description" content="Bytecores Mall is the premier shopping destination in Nariyawal, Bareilly. We offer fashion, gadgets, home decor, and more starting at ₹49. Visit us or order online for fast delivery." />
+        <link rel="canonical" href="https://mall.bytecores.in/" />
+        <script type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              "name": "Bytecores Mall",
+              "image": "https://mall.bytecores.in/favicon.png",
+              "@id": "https://mall.bytecores.in",
+              "url": "https://mall.bytecores.in",
+              "telephone": "+91-XXXXXXXXXX",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Nariyawal",
+                "addressLocality": "Bareilly",
+                "postalCode": "243123",
+                "addressRegion": "UP",
+                "addressCountry": "IN"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 28.34,
+                "longitude": 79.41
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday"
+                ],
+                "opens": "09:00",
+                "closes": "21:00"
+              },
+              "sameAs": [
+                "https://facebook.com/bytecoresmall",
+                "https://instagram.com/bytecoresmall"
+              ]
+            }
+          `}
+        </script>
       </Helmet>
       
       {/* Premium Hero */}
@@ -172,7 +217,7 @@ const Home = () => {
                     <h2 className="font-black text-2xl tracking-tighter uppercase">Bytecore Mall</h2>
                 </div>
                 <p className="text-slate-500 font-bold text-sm leading-relaxed mb-8">
-                    Providing high-quality products at the lowest prices in the matrix. Discover your vibe today.
+                    India's #1 Value Store located in Nariyawal, Bareilly. We provide high-quality products at the lowest prices in the matrix. Shop in-store or order online for fast home delivery.
                 </p>
                 <div className="flex gap-4">
                     {[1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer" />)}

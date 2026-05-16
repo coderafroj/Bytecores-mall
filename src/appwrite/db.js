@@ -69,14 +69,19 @@ export class DatabaseService {
 
     async getProducts(queries = [Query.limit(100)]) {
         try {
+            const collectionId = import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products';
             return await this.databases.listDocuments(
                 import.meta.env.VITE_APPWRITE_DATABASE_ID,
-                import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products',
+                collectionId,
                 queries
             );
         } catch (error) {
-            console.log("Appwrite service :: getProducts :: error", error);
-            return false;
+            if (error.code === 404) {
+                console.error("CRITICAL: Products collection not found. Please ensure VITE_APPWRITE_PRODUCTS_COLLECTION_ID is set correctly in .env");
+            } else {
+                console.log("Appwrite service :: getProducts :: error", error);
+            }
+            return { documents: [], total: 0 };
         }
     }
 
@@ -101,14 +106,19 @@ export class DatabaseService {
 
     async getOrders(queries = []) {
         try {
+            const collectionId = import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders';
             return await this.databases.listDocuments(
                 import.meta.env.VITE_APPWRITE_DATABASE_ID,
-                import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders',
+                collectionId,
                 queries
             );
         } catch (error) {
-            console.log("Appwrite service :: getOrders :: error", error);
-            return false;
+            if (error.code === 404) {
+                console.error("CRITICAL: Orders collection not found. Please ensure VITE_APPWRITE_ORDERS_COLLECTION_ID is set correctly in .env");
+            } else {
+                console.log("Appwrite service :: getOrders :: error", error);
+            }
+            return { documents: [], total: 0 };
         }
     }
 

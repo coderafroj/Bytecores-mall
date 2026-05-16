@@ -19,8 +19,9 @@ const Contact = () => {
       className="w-full min-h-screen bg-white pt-32 pb-24"
     >
       <Helmet>
-        <title>Contact Us | ByteCore Computer Centre</title>
-        <meta name="description" content="Need help? Contact ByteCore Computer Centre's mall division for orders, returns, or any queries. We're here to help you 24/7." />
+        <title>Contact Bytecores Mall | Customer Support | Nariyawal Bareilly</title>
+        <meta name="description" content="Get in touch with Bytecores Mall in Nariyawal, Bareilly. Contact us for order support, product inquiries, or visit our physical store. We're here to help!" />
+        <link rel="canonical" href="https://mall.bytecores.in/contact" />
       </Helmet>
 
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12">

@@ -55,9 +55,30 @@ export class AuthService {
         try {
             return await this.account.get();
         } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error", error);
+            // Silence error for guest users
+            if (error.code !== 401) {
+                console.log("Appwrite service :: getCurrentUser :: error", error);
+            }
         }
         return null;
+    }
+
+    async updatePrefs(prefs) {
+        try {
+            return await this.account.updatePrefs(prefs);
+        } catch (error) {
+            console.log("Appwrite service :: updatePrefs :: error", error);
+            throw error;
+        }
+    }
+
+    async getPrefs() {
+        try {
+            return await this.account.getPrefs();
+        } catch (error) {
+            console.log("Appwrite service :: getPrefs :: error", error);
+            return {};
+        }
     }
 
     async logout() {

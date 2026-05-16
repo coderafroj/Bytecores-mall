@@ -10,7 +10,8 @@ const PrivacyPolicy = () => {
       className="w-full min-h-screen bg-slate-50 pt-32 pb-24"
     >
       <Helmet>
-        <title>Privacy Policy | ByteCore Computer Centre</title>
+        <title>Privacy Policy | Bytecores Mall</title>
+        <link rel="canonical" href="https://mall.bytecores.in/privacy-policy" />
       </Helmet>
 
       <div className="max-w-4xl mx-auto px-6 lg:px-12">

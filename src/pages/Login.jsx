@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, LogIn, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, LogIn, UserPlus, AlertCircle, Loader2, Phone, CheckCircle } from 'lucide-react';
 import logo from '../assets/bytecoreMall.jpg';
 import authService from '../appwrite/auth';
 import { login as authLogin } from '../store/authSlice';
@@ -17,7 +17,9 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: ''
+    confirmPassword: '',
+    name: '',
+    phone: ''
   });
 
   const user = useSelector((state) => state.auth.userData);
@@ -40,9 +42,21 @@ const Login = () => {
 
     try {
       if (!isLogin) {
-        await authService.createAccount(formData);
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error("Passwords do not match!");
+        }
+        await authService.createAccount({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name
+        });
+        // After account creation, store phone in prefs
+        await authService.updatePrefs({ phone: formData.phone });
       } else {
-        await authService.login(formData);
+        await authService.login({
+          email: formData.email,
+          password: formData.password
+        });
       }
       const userData = await authService.getCurrentUser();
       if (userData) {
@@ -50,7 +64,10 @@ const Login = () => {
         navigate('/');
       }
     } catch (err) {
-      setError(err.message || 'Authentication failed. Please try again.');
+      let msg = err.message || 'Authentication failed.';
+      if (msg.includes('Invalid credentials')) msg = "Incorrect email or password. Please try again.";
+      if (msg.includes('user_already_exists')) msg = "An account with this email already exists.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -126,21 +143,39 @@ const Login = () => {
             )}
 
             {!isLogin && (
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Full Name</label>
-                <div className="relative group">
-                  <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors" size={20} />
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4.5 pl-14 font-bold text-slate-900 focus:border-red-500 focus:bg-white outline-none transition-all shadow-sm focus:shadow-red-500/10"
-                    placeholder="Enter your name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                  />
+              <>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Full Name</label>
+                  <div className="relative group">
+                    <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors" size={20} />
+                    <input
+                      type="text"
+                      name="name"
+                      required
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4.5 pl-14 font-bold text-slate-900 focus:border-red-500 focus:bg-white outline-none transition-all shadow-sm focus:shadow-red-500/10"
+                      placeholder="Enter your name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
-              </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Phone Number</label>
+                  <div className="relative group">
+                    <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors" size={20} />
+                    <input
+                      type="tel"
+                      name="phone"
+                      required
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4.5 pl-14 font-bold text-slate-900 focus:border-red-500 focus:bg-white outline-none transition-all shadow-sm focus:shadow-red-500/10"
+                      placeholder="+91 00000 00000"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             <div className="space-y-2">
@@ -177,6 +212,24 @@ const Login = () => {
                 />
               </div>
             </div>
+
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">Confirm Password</label>
+                <div className="relative group">
+                  <CheckCircle className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors" size={20} />
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    required
+                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4.5 pl-14 font-bold text-slate-900 focus:border-red-500 focus:bg-white outline-none transition-all shadow-sm focus:shadow-red-500/10"
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+            )}
 
             <button 
               type="submit" 
