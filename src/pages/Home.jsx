@@ -1,275 +1,152 @@
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Search, ChevronRight, ShieldCheck, RotateCcw, Shield, Tag, HeadphonesIcon, ShoppingCart, Truck, Zap, Sparkles, TrendingUp, ArrowRight, UserPlus } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Heart, Monitor, Cpu, Wifi, BookOpen, ShoppingBag, ShieldCheck, Truck, HeadphonesIcon, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import Hero3D from '../components/Hero3D';
 import ProductGrid from '../components/ProductGrid';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../store/cartSlice';
 
 const CATS = [
-  { name: "LAPTOPS", emoji: "💻", path: "/products/laptops", active: false },
-  { name: "GADGETS", emoji: "🎧", path: "/products/electronics", active: true },
-  { name: "NETWORKING", emoji: "🌐", path: "/products/networking", active: false },
-  { name: "STUDY KITS", emoji: "📚", path: "/products/study-kits", active: false },
-  { name: "PC PARTS", emoji: "⚙️", path: "/products/pc-parts", active: false },
-  { name: "TECH MERCH", emoji: "👕", path: "/products/merch", active: false },
+  { name: "Laptops", icon: <Monitor size={32} strokeWidth={1.5} />, path: "/products/laptops", img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&q=80" },
+  { name: "Gadgets", icon: <HeadphonesIcon size={32} strokeWidth={1.5} />, path: "/products/electronics", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80" },
+  { name: "Study Kits", icon: <BookOpen size={32} strokeWidth={1.5} />, path: "/products/study-kits", img: "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?w=500&q=80" },
+  { name: "PC Parts", icon: <Cpu size={32} strokeWidth={1.5} />, path: "/products/pc-parts", img: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=500&q=80" },
 ];
 
 const TRUST = [
-  { icon: <ShieldCheck size={24} />, t: "100% SECURE", s: "Payment" },
-  { icon: <RotateCcw size={24} />, t: "EASY RETURNS", s: "7 Days" },
-  { icon: <Truck size={24} />, t: "FREE DELIVERY", s: "Over ₹999" },
-  { icon: <HeadphonesIcon size={24} />, t: "24/7 SUPPORT", s: "Help" },
+  { icon: <ShieldCheck size={28} />, t: "Secure Checkout", s: "Protected Payments" },
+  { icon: <RotateCcw size={28} />, t: "Easy Returns", s: "7 Days Policy" },
+  { icon: <Truck size={28} />, t: "Free Delivery", s: "Orders Over ₹999" },
+  { icon: <HeadphonesIcon size={28} />, t: "24/7 Support", s: "Expert Tech Help" },
 ];
 
 const Home = () => {
-  const dispatch = useDispatch();
-  
   return (
-    <div className="w-full bg-white font-['Plus_Jakarta_Sans',sans-serif] selection:bg-red-500/10 selection:text-red-600">
+    <div className="w-full bg-[#FAFAFA] font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#C62828] selection:text-white pb-20 lg:pb-0">
       <Helmet>
-        <title>Bytecores Mall | ByteCore Computer Centre Official Store</title>
-        <meta name="description" content="Bytecores Mall is the official tech retail and student supply division of ByteCore Computer Centre. Shop laptops, gadgets, PC parts, and study kits." />
-        <link rel="canonical" href="https://mall.bytecores.in/" />
-        <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              "name": "ByteCore Computer Centre Mall",
-              "image": "https://mall.bytecores.in/favicon.png",
-              "@id": "https://mall.bytecores.in",
-              "url": "https://mall.bytecores.in",
-              "telephone": "+91 6396835709",
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "Nariyawal",
-                "addressLocality": "Bareilly",
-                "postalCode": "243123",
-                "addressRegion": "UP",
-                "addressCountry": "IN"
-              },
-              "geo": {
-                "@type": "GeoCoordinates",
-                "latitude": 28.34,
-                "longitude": 79.41
-              },
-              "openingHoursSpecification": {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": [
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday",
-                  "Sunday"
-                ],
-                "opens": "09:00",
-                "closes": "21:00"
-              },
-              "sameAs": [
-                "https://facebook.com/bytecoresmall",
-                "https://instagram.com/bytecoresmall"
-              ]
-            }
-          `}
-        </script>
+        <title>Bytecores Mall | Premium Tech & Essentials</title>
+        <meta name="description" content="Discover premium tech, laptops, study kits, and gadgets." />
       </Helmet>
       
-      {/* Trending Matrix Ticker */}
-      <div className="bg-slate-950 py-3 border-y border-white/5 overflow-hidden whitespace-nowrap relative z-40">
-        <motion.div 
-          animate={{ x: [0, -1000] }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="inline-flex gap-16"
-        >
-          {[...Array(10)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4">
-              <Sparkles size={14} className="text-red-500" />
-              <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">ByteCore Computer Centre Official Retail • Tech Gear • Student Kits • Matrix Logistics Enabled</span>
+      {/* 99 Mall Style E-commerce Hero - Exactly like the reference image */}
+      <section className="w-full max-w-[1920px] mx-auto lg:px-6 lg:pt-4 mb-20 lg:mb-32">
+        <div className="relative w-full h-[700px] lg:h-[800px] bg-[#C62828] lg:rounded-[3rem] overflow-hidden flex flex-col pt-24 lg:pt-32">
+            
+            {/* Subtle background forest/texture (like the image) */}
+            <div className="absolute inset-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }} />
+
+            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between w-full h-full max-w-[1400px] mx-auto px-6 lg:px-20 pb-10">
+                
+                {/* Left Navigation Arrow (Like image) */}
+                <div className="hidden lg:flex items-center gap-4 text-white/50 hover:text-white transition-colors cursor-pointer absolute left-10 top-1/2 -translate-y-1/2 z-30">
+                    <div className="w-12 h-12 rounded-full border border-current flex items-center justify-center">
+                        <ArrowLeft size={20} />
+                    </div>
+                    <span className="text-sm font-medium">Previous</span>
+                </div>
+
+                {/* Main Content */}
+                <div className="w-full lg:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-left z-20 mt-10 lg:mt-0 relative">
+                    <h2 className="text-white/90 text-2xl lg:text-3xl font-medium tracking-wide mb-2 lg:mb-0">New premium gear for</h2>
+                    <h1 className="text-7xl lg:text-[130px] font-serif italic text-white font-bold tracking-tighter leading-[0.8] mb-8 lg:mb-12 drop-shadow-lg">
+                        Professionals
+                    </h1>
+                    
+                    <div className="flex flex-col lg:flex-row items-center gap-6">
+                        <Link to="/products" className="group flex items-center gap-3 bg-white text-[#C62828] px-8 py-4 lg:px-10 lg:py-5 rounded-full font-bold text-sm lg:text-base hover:shadow-2xl hover:scale-105 transition-all">
+                            Shop This Collection
+                            <Heart size={18} className="text-[#C62828] group-hover:fill-current transition-colors" />
+                        </Link>
+                    </div>
+
+                    <div className="mt-12 lg:mt-24 max-w-sm hidden lg:block">
+                        <h3 className="text-white text-xl lg:text-2xl font-serif mb-3">Begin your journey with...</h3>
+                        <p className="text-white/80 text-sm lg:text-sm font-medium leading-relaxed">
+                            This is an easy to setup computing rig which you or your colleagues will have a lot of fun operating.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Center 3D Floating Element (Like the Christmas Tree) */}
+                <div className="w-full lg:w-[50%] h-[350px] lg:h-[600px] relative z-20 flex items-center justify-center mt-12 lg:mt-0 lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                    <motion.img 
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        src="https://pngimg.com/uploads/macbook/macbook_PNG8.png" 
+                        alt="Premium Laptop" 
+                        className="w-[90%] lg:w-full max-w-[800px] h-auto object-contain drop-shadow-[0_40px_40px_rgba(0,0,0,0.5)]"
+                    />
+                </div>
+
+                {/* Right Navigation Arrow (Like image) */}
+                <div className="hidden lg:flex items-center gap-4 text-white hover:text-white transition-colors cursor-pointer absolute right-10 top-1/2 -translate-y-1/2 z-30">
+                    <span className="text-sm font-medium">Next</span>
+                    <div className="w-12 h-12 rounded-full border border-current flex items-center justify-center">
+                        <ArrowRight size={20} />
+                    </div>
+                </div>
+
             </div>
-          ))}
-        </motion.div>
-      </div>
-
-      {/* Premium Hero */}
-      <Hero3D />
-
-      {/* Floating Trust Bar */}
-      <section className="relative z-30 -mt-16 lg:-mt-24 px-4 lg:px-12 max-w-[1400px] mx-auto animate-reveal">
-        <div className="glass rounded-[2.5rem] lg:rounded-[4rem] p-8 lg:p-12 grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 divide-x-0 lg:divide-x divide-slate-100">
-            {TRUST.map((item, i) => (
-                <div key={i} className="flex items-center justify-center gap-5 group">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-950 text-white flex items-center justify-center group-hover:bg-red-600 transition-all duration-500 shadow-2xl shadow-slate-900/20 group-hover:-rotate-12">
-                        {item.icon}
-                    </div>
-                    <div>
-                        <p className="text-[10px] lg:text-xs font-black text-slate-900 tracking-widest leading-none mb-1.5 uppercase">{item.t}</p>
-                        <p className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.s}</p>
-                    </div>
-                </div>
-            ))}
         </div>
       </section>
 
-      {/* Featured Collections - NEW SECTION */}
-      <section className="py-24 px-6 lg:px-12 max-w-[1800px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <motion.div 
-                whileHover={{ scale: 0.98 }}
-                className="group relative h-[400px] lg:h-[600px] rounded-[4rem] overflow-hidden bg-slate-950"
-            >
-                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=1000" alt="Tech" className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-1000" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                <div className="absolute bottom-12 left-12 right-12 glass-dark p-10 rounded-[3rem] border-white/10">
-                    <div className="flex items-center gap-3 mb-4">
-                        <TrendingUp size={16} className="text-red-500" />
-                        <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Trending Now</span>
-                    </div>
-                    <h3 className="text-3xl lg:text-5xl font-black text-white uppercase tracking-tighter mb-6 leading-tight">Gadget <br/>Matrix 2026</h3>
-                    <Link to="/products/electronics" className="inline-flex items-center gap-3 bg-white text-slate-950 px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all group-hover:translate-x-2">
-                        Initialize View <ArrowRight size={14} />
+      {/* Clean Categories Section (Matches image's bottom section) */}
+      <section className="py-12 lg:py-20 px-6 lg:px-12 max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-12 lg:gap-20 border-b border-slate-100 pb-20">
+        <div className="w-full lg:w-1/3 text-center lg:text-left">
+            <h2 className="text-3xl lg:text-5xl font-serif text-slate-900 tracking-tight leading-tight mb-6">
+                Explore our range of <br/> festive collection
+            </h2>
+            <p className="text-slate-500 text-sm lg:text-base leading-relaxed mb-8">
+                HO HO HO! Merriest time of year is here. Decorate your desk or office with our range of tech utility collection. If you want to make this more fun please explore our range of commodities.
+            </p>
+            <Link to="/products" className="inline-block bg-[#C62828] text-white px-8 py-3 rounded-full font-bold text-sm hover:bg-[#b71c1c] transition-colors shadow-lg shadow-red-500/20">
+                Explore The Range
+            </Link>
+        </div>
+        <div className="w-full lg:w-2/3 flex items-center justify-center">
+             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                 {CATS.slice(0,3).map((cat, i) => (
+                    <Link key={i} to={cat.path} className="group flex flex-col items-center bg-white rounded-[2rem] p-4 lg:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all border border-slate-50">
+                        <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-4 overflow-hidden p-4">
+                            <img src={cat.img} alt={cat.name} className="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform" />
+                        </div>
+                        <h3 className="text-sm lg:text-base font-bold text-slate-900">{cat.name}</h3>
                     </Link>
-                </div>
-            </motion.div>
-
-            <motion.div 
-                whileHover={{ scale: 0.98 }}
-                className="group relative h-[400px] lg:h-[600px] rounded-[4rem] overflow-hidden bg-slate-100"
-            >
-                <img src="https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&q=80&w=1000" alt="Student Kits" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-                <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
-                <div className="absolute bottom-12 left-12 right-12 glass p-10 rounded-[3rem]">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Sparkles size={16} className="text-red-500" />
-                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">New Protocol</span>
-                    </div>
-                    <h3 className="text-3xl lg:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-6 leading-tight">Student <br/>Kits 2026</h3>
-                    <Link to="/products/study-kits" className="inline-flex items-center gap-3 bg-slate-950 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all group-hover:translate-x-2">
-                        Explore Kits <ArrowRight size={14} />
-                    </Link>
-                </div>
-            </motion.div>
+                 ))}
+             </div>
         </div>
       </section>
 
-      {/* Categories Grid */}
-      <section className="py-16 lg:py-24 px-6 lg:px-12 max-w-[1600px] mx-auto">
-        <div className="flex flex-col items-center text-center mb-16">
-            <span className="text-red-500 font-black text-[11px] uppercase tracking-[0.5em] mb-4">Discovery Engine</span>
-            <h2 className="text-4xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase leading-none">Sector Maps</h2>
+      {/* Dynamic Products */}
+      <section className="py-20 lg:py-32 px-6 lg:px-12 max-w-[1600px] mx-auto bg-[#FAFAFA]">
+        <div className="text-center mb-16 lg:mb-20">
+            <h2 className="text-3xl lg:text-5xl font-serif text-slate-900 tracking-tight leading-tight mb-4">
+                Finish your shopping checklist
+            </h2>
+            <p className="text-slate-500 text-sm lg:text-base max-w-2xl mx-auto">
+                Discover the best items throughout the season, so to save any last-minute dashes, here's our checklist.
+            </p>
         </div>
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-6 lg:gap-10">
-            {CATS.map((cat, i) => (
-                <Link 
-                    key={i} 
-                    to={cat.path}
-                    className="flex flex-col items-center gap-6 group"
-                >
-                    <div className="w-full aspect-square rounded-[2.5rem] lg:rounded-[4rem] bg-slate-50 border border-slate-100 flex items-center justify-center transition-all duration-700 group-hover:bg-slate-950 group-hover:shadow-2xl group-hover:shadow-slate-900/20 group-hover:-translate-y-4 relative overflow-hidden">
-                        <span className="text-4xl lg:text-7xl z-10 transition-transform duration-700 group-hover:scale-125 group-hover:rotate-12">{cat.emoji}</span>
-                        <div className="absolute inset-0 bg-gradient-to-br from-red-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                    <span className="text-[10px] lg:text-xs font-black text-slate-400 group-hover:text-red-600 transition-colors tracking-[0.3em] uppercase">{cat.name}</span>
-                </Link>
-            ))}
+
+        <div className="-mx-4 lg:mx-0">
+            <ProductGrid limit={4} />
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-32 px-6 lg:px-12 bg-slate-950 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] -mr-48 -mt-48" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/10 rounded-full blur-[100px] -ml-32 -mb-32" />
-        
-        <div className="max-w-[1600px] mx-auto relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-20 gap-8">
-                <div>
-                    <span className="text-red-500 font-black text-[11px] uppercase tracking-[0.5em] mb-4 block">Terminal Registry</span>
-                    <h2 className="text-4xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-none">Global <br/>Trends</h2>
-                </div>
-                <Link to="/products" className="group flex items-center gap-5 bg-white text-slate-950 px-10 py-6 rounded-[2.5rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl hover:bg-red-600 hover:text-white transition-all active:scale-95">
-                    View Complete Data
-                    <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                </Link>
+      {/* Modern Newsletter / Trust Banner */}
+      <section className="py-20 px-6 lg:px-12 max-w-[1400px] mx-auto">
+        <div className="bg-slate-50 rounded-[3rem] p-10 lg:p-20 flex flex-col lg:flex-row items-center justify-between border border-slate-100 gap-10">
+            <div className="w-full lg:w-1/2">
+                <h2 className="text-3xl lg:text-5xl font-serif text-slate-900 tracking-tight mb-4">Let's drop in some <br/> notifications</h2>
             </div>
             
-            <div className="-mx-6 lg:-mx-12 dark-products">
-                <ProductGrid limit={12} />
+            <div className="flex w-full lg:w-1/2 bg-white rounded-full p-2 shadow-sm border border-slate-200">
+                <input type="email" placeholder="Your email address" className="flex-1 bg-transparent border-none outline-none px-6 text-sm text-slate-900 placeholder:text-slate-400" />
+                <button className="w-12 h-12 rounded-full bg-[#C62828] text-white flex items-center justify-center hover:bg-[#b71c1c] transition-colors shadow-md">
+                    <ArrowRight size={18} />
+                </button>
             </div>
         </div>
       </section>
-
-      {/* Experience Section */}
-      <section className="py-32 px-6 lg:px-12 bg-white">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-20">
-            {[
-                { title: "Quantum Logistics", desc: "Express delivery across India for every order.", icon: <Truck size={32} />, color: "bg-blue-600" },
-                { title: "Terminal Protocol", desc: "Encryption standards for all transactions.", icon: <ShieldCheck size={32} />, color: "bg-red-600" },
-                { title: "Premium Index", desc: "Each item verified for maximum quality.", icon: <Sparkles size={32} />, color: "bg-emerald-600" }
-            ].map((item, i) => (
-                <div key={i} className="group p-16 rounded-[4rem] bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-5">
-                    <div className={`w-24 h-24 rounded-[2.5rem] ${item.color} text-white flex items-center justify-center mb-10 shadow-2xl group-hover:scale-110 transition-all duration-500`}>
-                        {item.icon}
-                    </div>
-                    <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-6">{item.title}</h3>
-                    <p className="text-slate-500 font-bold text-lg leading-relaxed">{item.desc}</p>
-                </div>
-            ))}
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="px-4 lg:px-12 pb-32">
-        <div className="max-w-[1600px] mx-auto glass rounded-[5rem] p-12 lg:p-24 flex flex-col lg:flex-row items-center justify-between gap-16 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-red-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 max-w-2xl text-center lg:text-left">
-                <h2 className="text-4xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase leading-[0.9] mb-8">Ready to <br/>Join the Elite?</h2>
-                <p className="text-xl text-slate-500 font-bold mb-12">Access exclusive drops and premium logistics starting today. No subscription required.</p>
-                <Link to="/login" className="inline-flex items-center gap-4 bg-slate-950 text-white px-12 py-6 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-red-600 transition-all shadow-2xl">
-                    Initialize Account <UserPlus size={18} />
-                </Link>
-            </div>
-            <div className="relative z-10">
-                <div className="w-64 h-64 lg:w-96 lg:h-96 rounded-full bg-slate-950 flex items-center justify-center text-8xl lg:text-9xl animate-pulse-glow shadow-2xl">
-                    💎
-                </div>
-            </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-950 text-white pt-24 pb-12 rounded-t-[4rem] lg:rounded-t-[6rem]">
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-            <div className="lg:col-span-1">
-                <div className="flex items-center gap-4 mb-10">
-                    <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center font-black text-2xl">B</div>
-                    <h2 className="font-black text-2xl tracking-tighter uppercase">Bytecore Mall</h2>
-                </div>
-                <p className="text-slate-500 font-bold text-sm leading-relaxed mb-8">
-                    Official retail platform of ByteCore Computer Centre. Providing students and tech enthusiasts with high-quality electronics, study materials, and hardware at our Nariyawal and Thiriya campuses.
-                </p>
-                <div className="flex gap-4">
-                    {[1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer" />)}
-                </div>
-            </div>
-            {['Quick Links', 'Categories', 'Support'].map((title, i) => (
-                <div key={i}>
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-8">{title}</h4>
-                    <ul className="space-y-4">
-                        {[1,2,3,4,5].map(j => <li key={j} className="text-sm font-bold text-slate-400 hover:text-white transition-colors cursor-pointer">Matrix Link {j}</li>)}
-                    </ul>
-                </div>
-            ))}
-        </div>
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2026 Bytecore Mall. All rights reserved.</p>
-            <div className="flex gap-4">
-                {['UPI', 'VISA', 'MASTERCARD', 'COD'].map(p => <span key={p} className="px-3 py-1 rounded bg-white/5 text-[8px] font-black text-slate-500 tracking-widest">{p}</span>)}
-            </div>
-        </div>
-      </footer>
 
     </div>
   );

@@ -1,23 +1,22 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDispatch, useSelector } from 'react-redux';
-import { logout as authLogout } from '../store/authSlice';
-import authService from '../appwrite/auth';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useUser, useClerk } from '@clerk/react';
 import databaseService from '../appwrite/db';
 import storageService from '../appwrite/storage';
 import { 
   Plus, LayoutDashboard, Package, ShoppingCart, Users, 
   LogOut, Search, Filter, TrendingUp, 
   CheckCircle, Clock, Edit, Trash2, 
-  Image as ImageIcon, DollarSign, Tag, Briefcase, ChevronRight, Upload,
+  Image as ImageIcon, DollarSign, Tag, Briefcase, ChevronRight, ArrowRight, Upload,
   X, Eye, FileText, Printer, Download, ExternalLink, RefreshCcw,
   Settings, Shield, Activity, Bell, HelpCircle
 } from 'lucide-react';
 import { Query } from 'appwrite';
 
 const AdminPanel = () => {
-  const user = useSelector((state) => state.auth.userData);
-  const dispatch = useDispatch();
+  const { user } = useUser();
+  const { signOut } = useClerk();
   
   const [activeTab, setActiveTab] = useState('dashboard');
   const [products, setProducts] = useState([]);
@@ -107,8 +106,7 @@ const AdminPanel = () => {
   }, [orders]);
 
   const handleLogout = async () => {
-    await authService.logout();
-    dispatch(authLogout());
+    await signOut();
   };
 
   const handleProductSubmit = async (e) => {
@@ -255,10 +253,10 @@ const AdminPanel = () => {
             
             <div className="bg-white/5 p-5 rounded-3xl border border-white/5 flex items-center gap-4">
                 <div className="w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center font-black text-red-500 border border-white/10 shadow-inner">
-                    {user?.name?.[0]}
+                    {user?.firstName?.[0] || 'A'}
                 </div>
                 <div className="min-w-0">
-                    <p className="font-bold text-sm truncate">{user?.name}</p>
+                    <p className="font-bold text-sm truncate">{user?.fullName || 'Admin User'}</p>
                     <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                         Administrator

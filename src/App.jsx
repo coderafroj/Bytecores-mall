@@ -1,9 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import authService from './appwrite/auth';
-import { login, logout } from './store/authSlice';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/react';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
@@ -11,7 +8,6 @@ import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
-import Login from './pages/Login';
 import AdminPanel from './pages/AdminPanel';
 import OrderSuccess from './pages/OrderSuccess';
 import Contact from './pages/Contact';
@@ -22,90 +18,71 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import RefundPolicy from './pages/RefundPolicy';
 import Footer from './components/Footer';
-import TestHomepage from './pages/TestHomepage';
 
-const LayoutNavbar = ({ user, cartCount }) => {
+const LayoutNavbar = ({ cartCount }) => {
   const location = useLocation();
   if (location.pathname === '/profile-launch') return null;
-  return <Navbar user={user} cartCount={cartCount} />;
+  return <Navbar cartCount={cartCount} />;
+};
+
+// Protected Route Wrapper for Clerk
+const ProtectedRoute = ({ children }) => {
+  return (
+    <>
+      <SignedIn>
+        {children}
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
+  );
 };
 
 function App() {
-  const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.userData);
   const cartItems = useSelector((state) => state.cart.items);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
-  useEffect(() => {
-    authService.getCurrentUser()
-      .then((userData) => {
-        if (userData) {
-          dispatch(login(userData));
-          // Provide feedback if just logged in
-          if (!localStorage.getItem('welcome_toast')) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-24 right-6 bg-slate-900 text-white px-6 py-4 rounded-3xl font-black shadow-2xl z-[9999] flex items-center gap-3 border border-white/10 animate-float';
-            toast.innerHTML = `<div class="w-8 h-8 bg-red-600 rounded-xl flex items-center justify-center font-black">✓</div> Welcome back, ${userData.name.split(' ')[0]}!`;
-            document.body.appendChild(toast);
-            localStorage.setItem('welcome_toast', 'shown');
-            setTimeout(() => {
-              toast.style.opacity = '0';
-              setTimeout(() => toast.remove(), 500);
-            }, 3000);
-          }
-        } else {
-          dispatch(logout());
-          localStorage.removeItem('welcome_toast');
-        }
-      })
-      .finally(() => setLoading(false));
-  }, [dispatch]);
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white z-[9999]">
-        <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-            className="w-16 h-16 border-[6px] border-slate-100 border-t-red-500 rounded-full mb-6" 
-        />
-        <div className="flex flex-col items-center">
-            <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">ByteCore Mall</h2>
-            <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2 animate-pulse">Initializing Matrix...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <Router>
       <div className="app">
-        <LayoutNavbar user={user} cartCount={cartCount} />
+        <LayoutNavbar cartCount={cartCount} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:category" element={<Products />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
+          
+          <Route path="/checkout" element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          } />
+          
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
+          
+          {/* We remove the standalone login route because Clerk handles it in a modal via Navbar SignInButton, or redirects to their hosted UI */}
+          
           <Route path="/admin" element={
-            user?.labels?.includes('admin') ? (
-              <AdminPanel user={user} />
-            ) : (
-              <Navigate to="/login" />
-            )
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
           } />
+          
           <Route path="/profile-launch" element={<ProfileLaunch />} />
-          <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+          
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/test-home" element={<TestHomepage />} />
         </Routes>
         <Footer />
         <BottomNav cartCount={cartCount} />
