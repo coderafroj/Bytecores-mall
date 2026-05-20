@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Zap, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import { Mail, Phone, MapPin, Zap } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -19,14 +19,18 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-xl text-slate-400 font-bold leading-relaxed max-w-md">
-              ByteCore Mall is a premium e-commerce division of ByteCore Computer Centre, Bareilly. We bring you the latest tech and gadgets with unmatched service.
+              ByteCore Mall is the official tech retail and student supply division of ByteCore Computer Centre, serving our Nariyawal and Thiriya campuses.
             </p>
             <div className="flex gap-4">
-              {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">
-                  <Icon size={20} />
-                </a>
-              ))}
+              <a href="#" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">
+                <Mail size={20} />
+              </a>
+              <a href="#" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">
+                <Phone size={20} />
+              </a>
+              <a href="#" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all">
+                <MapPin size={20} />
+              </a>
             </div>
           </div>
 
@@ -34,10 +38,10 @@ const Footer = () => {
           <div className="lg:col-span-2 space-y-8">
             <h3 className="text-sm font-black text-red-500 uppercase tracking-widest">Shop</h3>
             <ul className="space-y-4">
-              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">Marketplace</Link></li>
-              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">Electronics</Link></li>
-              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">Accessories</Link></li>
-              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">Best Sellers</Link></li>
+              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">Laptops</Link></li>
+              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">PC Parts</Link></li>
+              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">Student Kits</Link></li>
+              <li><Link to="/products" className="text-lg font-bold text-slate-400 hover:text-white transition-colors">Tech Accessories</Link></li>
             </ul>
           </div>
 

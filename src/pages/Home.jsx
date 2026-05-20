@@ -8,12 +8,12 @@ import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/cartSlice';
 
 const CATS = [
-  { name: "FASHION", emoji: "👕", path: "/products/fashion", active: false },
+  { name: "LAPTOPS", emoji: "💻", path: "/products/laptops", active: false },
   { name: "GADGETS", emoji: "🎧", path: "/products/electronics", active: true },
-  { name: "DECOR", emoji: "🏠", path: "/products/home", active: false },
-  { name: "BEAUTY", emoji: "💄", path: "/products/beauty", active: false },
-  { name: "BOOKS", emoji: "📚", path: "/products/books", active: false },
-  { name: "TOYS", emoji: "🧸", path: "/products/toys", active: false },
+  { name: "NETWORKING", emoji: "🌐", path: "/products/networking", active: false },
+  { name: "STUDY KITS", emoji: "📚", path: "/products/study-kits", active: false },
+  { name: "PC PARTS", emoji: "⚙️", path: "/products/pc-parts", active: false },
+  { name: "TECH MERCH", emoji: "👕", path: "/products/merch", active: false },
 ];
 
 const TRUST = [
@@ -29,19 +29,19 @@ const Home = () => {
   return (
     <div className="w-full bg-white font-['Plus_Jakarta_Sans',sans-serif] selection:bg-red-500/10 selection:text-red-600">
       <Helmet>
-        <title>Bytecores Mall | India's #1 Value Store | Nariyawal Bareilly</title>
-        <meta name="description" content="Bytecores Mall is the premier shopping destination in Nariyawal, Bareilly. We offer fashion, gadgets, home decor, and more starting at ₹49. Visit us or order online for fast delivery." />
+        <title>Bytecores Mall | ByteCore Computer Centre Official Store</title>
+        <meta name="description" content="Bytecores Mall is the official tech retail and student supply division of ByteCore Computer Centre. Shop laptops, gadgets, PC parts, and study kits." />
         <link rel="canonical" href="https://mall.bytecores.in/" />
         <script type="application/ld+json">
           {`
             {
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
-              "name": "Bytecores Mall",
+              "name": "ByteCore Computer Centre Mall",
               "image": "https://mall.bytecores.in/favicon.png",
               "@id": "https://mall.bytecores.in",
               "url": "https://mall.bytecores.in",
-              "telephone": "+91-XXXXXXXXXX",
+              "telephone": "+91 6396835709",
               "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "Nariyawal",
@@ -88,7 +88,7 @@ const Home = () => {
           {[...Array(10)].map((_, i) => (
             <div key={i} className="flex items-center gap-4">
               <Sparkles size={14} className="text-red-500" />
-              <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">Bytecores Mall Exclusive • New Drop at Nariyawal • Everything Under ₹99 • Matrix Logistics Enabled</span>
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.4em]">ByteCore Computer Centre Official Retail • Tech Gear • Student Kits • Matrix Logistics Enabled</span>
             </div>
           ))}
         </motion.div>
@@ -139,16 +139,16 @@ const Home = () => {
                 whileHover={{ scale: 0.98 }}
                 className="group relative h-[400px] lg:h-[600px] rounded-[4rem] overflow-hidden bg-slate-100"
             >
-                <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1000" alt="Fashion" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                <img src="https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&q=80&w=1000" alt="Student Kits" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                 <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
                 <div className="absolute bottom-12 left-12 right-12 glass p-10 rounded-[3rem]">
                     <div className="flex items-center gap-3 mb-4">
                         <Sparkles size={16} className="text-red-500" />
                         <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">New Protocol</span>
                     </div>
-                    <h3 className="text-3xl lg:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-6 leading-tight">Fashion <br/>Protocol V1</h3>
-                    <Link to="/products/fashion" className="inline-flex items-center gap-3 bg-slate-950 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all group-hover:translate-x-2">
-                        Explore Wearables <ArrowRight size={14} />
+                    <h3 className="text-3xl lg:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-6 leading-tight">Student <br/>Kits 2026</h3>
+                    <Link to="/products/study-kits" className="inline-flex items-center gap-3 bg-slate-950 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all group-hover:translate-x-2">
+                        Explore Kits <ArrowRight size={14} />
                     </Link>
                 </div>
             </motion.div>
@@ -248,7 +248,7 @@ const Home = () => {
                     <h2 className="font-black text-2xl tracking-tighter uppercase">Bytecore Mall</h2>
                 </div>
                 <p className="text-slate-500 font-bold text-sm leading-relaxed mb-8">
-                    India's #1 Value Store located in Nariyawal, Bareilly. We provide high-quality products at the lowest prices in the matrix. Shop in-store or order online for fast home delivery.
+                    Official retail platform of ByteCore Computer Centre. Providing students and tech enthusiasts with high-quality electronics, study materials, and hardware at our Nariyawal and Thiriya campuses.
                 </p>
                 <div className="flex gap-4">
                     {[1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer" />)}

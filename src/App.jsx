@@ -22,6 +22,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import RefundPolicy from './pages/RefundPolicy';
 import Footer from './components/Footer';
+import TestHomepage from './pages/TestHomepage';
 
 const LayoutNavbar = ({ user, cartCount }) => {
   const location = useLocation();
@@ -104,6 +105,7 @@ function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/test-home" element={<TestHomepage />} />
         </Routes>
         <Footer />
         <BottomNav cartCount={cartCount} />

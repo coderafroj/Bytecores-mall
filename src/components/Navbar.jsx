@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ShoppingBag, User, Search, Menu, X, LogOut, 
+  ShoppingBag, ShoppingCart, User, Search, Menu, X, LogOut, 
   Settings, Package, Shield, ChevronRight, Zap
 } from 'lucide-react';
 import { logout as authLogout } from '../store/authSlice';
@@ -102,10 +102,10 @@ const Navbar = ({ cartCount }) => {
                   className="flex items-center gap-3 p-1.5 lg:p-2 bg-slate-50 rounded-2xl lg:rounded-[1.5rem] border border-slate-100 hover:bg-slate-100 transition-all"
                 >
                   <div className="w-9 h-9 lg:w-11 lg:h-11 bg-slate-950 text-white rounded-xl lg:rounded-2xl flex items-center justify-center font-black text-sm shadow-xl">
-                    {user.name?.[0].toUpperCase()}
+                    {user?.name ? user.name[0].toUpperCase() : 'U'}
                   </div>
                   <div className="hidden lg:flex flex-col items-start pr-4">
-                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{user.name.split(' ')[0]}</span>
+                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{user?.name ? user.name.split(' ')[0] : 'User'}</span>
                     <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest mt-0.5">Online</span>
                   </div>
                 </button>
@@ -138,7 +138,7 @@ const Navbar = ({ cartCount }) => {
                     >
                       <div className="px-8 py-6 border-b border-slate-50">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Principal</p>
-                        <p className="font-black text-slate-900 uppercase truncate">{user.name}</p>
+                        <p className="font-black text-slate-900 uppercase truncate">{user?.name || 'User'}</p>
                       </div>
 
                       <div className="p-3 space-y-1">

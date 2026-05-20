@@ -30,7 +30,7 @@ const AboutUs = () => {
             A Legacy of <br /><span className="text-red-500">Excellence</span>
           </h1>
           <p className="text-2xl text-slate-500 font-bold max-w-3xl mx-auto leading-relaxed">
-            ByteCore Computer Centre, Bareilly, is a premier institution dedicated to technology education and digital empowerment. ByteCore Mall is our retail initiative to bring quality hardware and gadgets to our community.
+            ByteCore Computer Centre, Bareilly, is a premier institution dedicated to technology education and digital empowerment. ByteCore Mall was established to provide our students at Nariyawal and Thiriya campuses, as well as the wider Bareilly tech community, with reliable, high-quality computer hardware, software, and study materials.
           </p>
         </div>
 

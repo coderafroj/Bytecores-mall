@@ -397,7 +397,6 @@ const Profile = () => {
 
         </div>
       </div>
-    </div>
       {/* Toast Notification */}
       <AnimatePresence>
         {toast && (
