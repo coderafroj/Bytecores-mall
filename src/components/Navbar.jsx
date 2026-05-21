@@ -5,11 +5,14 @@ import { motion } from 'framer-motion';
 import { 
   ShoppingBag, Search, MapPin
 } from 'lucide-react';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
+import logo from '../assets/bytecoreMall.png';
 
 const Navbar = ({ cartCount }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { user } = useUser();
+  const isAdmin = user?.primaryEmailAddress?.emailAddress === 'coderafroj@gmail.com';
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -33,8 +36,8 @@ const Navbar = ({ cartCount }) => {
         }`}>
           
           {/* Logo Section */}
-          <Link to="/" className={`text-2xl lg:text-3xl font-serif italic font-bold tracking-tight ${textColor} transition-colors`}>
-            Bytecore's Shop
+          <Link to="/" className="flex items-center gap-2">
+            <img src={logo} alt="Bytecore Mall" className="h-10 lg:h-14 object-contain" />
           </Link>
 
           {/* Search Bar (Matches Image) */}
@@ -54,6 +57,14 @@ const Navbar = ({ cartCount }) => {
           {/* Action Icons (Matches Image) */}
           <div className="flex items-center gap-2 lg:gap-4">
             
+            {isAdmin && (
+                <Link to="/admin" className={`hidden lg:flex items-center justify-center px-4 py-2 rounded-full font-bold text-xs transition-all tracking-widest uppercase shadow-sm ${
+                    isTransparent ? 'bg-white text-red-600 hover:bg-white/90' : 'bg-red-600 text-white hover:bg-red-700'
+                }`}>
+                  Admin Console
+                </Link>
+            )}
+
             {/* User Icon / Profile */}
             <div className="relative flex items-center justify-center">
               <SignedIn>

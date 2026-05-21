@@ -139,6 +139,38 @@ export class DatabaseService {
             throw error;
         }
     }
+
+    // Feedbacks
+    async createFeedback(feedbackData) {
+        try {
+            return await this.databases.createDocument(
+                import.meta.env.VITE_APPWRITE_DATABASE_ID,
+                import.meta.env.VITE_APPWRITE_FEEDBACK_COLLECTION_ID || 'feedbacks',
+                ID.unique(),
+                {
+                    ...feedbackData,
+                    createdAt: new Date().toISOString()
+                }
+            );
+        } catch (error) {
+            console.log("Appwrite service :: createFeedback :: error", error);
+            throw error;
+        }
+    }
+
+    async getFeedbacks(queries = [Query.orderDesc('$createdAt')]) {
+        try {
+            const collectionId = import.meta.env.VITE_APPWRITE_FEEDBACK_COLLECTION_ID || 'feedbacks';
+            return await this.databases.listDocuments(
+                import.meta.env.VITE_APPWRITE_DATABASE_ID,
+                collectionId,
+                queries
+            );
+        } catch (error) {
+            console.log("Appwrite service :: getFeedbacks :: error", error);
+            return { documents: [], total: 0 };
+        }
+    }
 }
 
 const databaseService = new DatabaseService();

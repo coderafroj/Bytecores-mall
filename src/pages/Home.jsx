@@ -28,7 +28,7 @@ const Home = () => {
       
       {/* 99 Mall Style E-commerce Hero - Exactly like the reference image */}
       <section className="w-full mx-auto mb-20 lg:mb-32">
-        <div className="relative w-full h-[700px] lg:h-[800px] bg-[#C62828] overflow-hidden flex flex-col pt-24 lg:pt-32">
+        <div className="relative w-full min-h-[100svh] lg:min-h-[800px] bg-[#C62828] overflow-hidden flex flex-col pt-28 lg:pt-32">
             
             {/* Subtle background forest/texture (like the image) */}
             <div className="absolute inset-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }} />

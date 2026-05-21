@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, RedirectToSignIn, useUser } from '@clerk/clerk-react';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
@@ -21,8 +21,25 @@ import Footer from './components/Footer';
 
 const LayoutNavbar = ({ cartCount }) => {
   const location = useLocation();
-  if (location.pathname === '/profile-launch') return null;
+  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin')) return null;
   return <Navbar cartCount={cartCount} />;
+};
+
+const LayoutFooter = () => {
+  const location = useLocation();
+  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin')) return null;
+  return <Footer />;
+};
+
+const LayoutBottomNav = ({ cartCount }) => {
+  const location = useLocation();
+  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin')) return null;
+  return (
+    <>
+      <BottomNav cartCount={cartCount} />
+      <div className="lg:hidden h-20" />
+    </>
+  );
 };
 
 // Protected Route Wrapper for Clerk
@@ -37,6 +54,26 @@ const ProtectedRoute = ({ children }) => {
       </SignedOut>
     </>
   );
+};
+
+// Admin Route Wrapper
+const AdminRoute = ({ children }) => {
+  const { isLoaded, user } = useUser();
+  if (!isLoaded) return <div className="h-screen bg-slate-950 flex items-center justify-center"><div className="w-10 h-10 border-4 border-red-500/20 border-t-red-500 rounded-full animate-spin"></div></div>;
+  if (!user) return <RedirectToSignIn />;
+  
+  const isAdmin = user.primaryEmailAddress?.emailAddress === 'coderafroj@gmail.com';
+  
+  if (!isAdmin) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center text-center p-6 bg-slate-950 text-white">
+        <h1 className="text-5xl font-black text-red-600 mb-4 tracking-tighter uppercase">Access Denied</h1>
+        <p className="text-slate-400 font-bold max-w-md mx-auto">This sector is classified. You do not have administrator privileges to view this console.</p>
+      </div>
+    );
+  }
+  
+  return children;
 };
 
 function App() {
@@ -66,9 +103,9 @@ function App() {
           {/* We remove the standalone login route because Clerk handles it in a modal via Navbar SignInButton, or redirects to their hosted UI */}
           
           <Route path="/admin" element={
-            <ProtectedRoute>
+            <AdminRoute>
               <AdminPanel />
-            </ProtectedRoute>
+            </AdminRoute>
           } />
           
           <Route path="/profile-launch" element={<ProfileLaunch />} />
@@ -84,9 +121,8 @@ function App() {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
         </Routes>
-        <Footer />
-        <BottomNav cartCount={cartCount} />
-        <div className="lg:hidden h-20" />
+        <LayoutFooter />
+        <LayoutBottomNav cartCount={cartCount} />
       </div>
     </Router>
   );

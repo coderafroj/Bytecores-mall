@@ -2,14 +2,32 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock, Globe } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import databaseService from '../appwrite/db';
 
 const Contact = () => {
   const [formState, setFormState] = useState('idle');
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: 'General Inquiry',
+    message: ''
+  });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormState('submitting');
-    setTimeout(() => setFormState('success'), 1500);
+    try {
+      await databaseService.createFeedback(formData);
+      setFormState('success');
+      setFormData({
+        firstName: '', lastName: '', email: '', subject: 'General Inquiry', message: ''
+      });
+    } catch (error) {
+      console.error("Feedback error", error);
+      alert("Failed to send message. Please try again.");
+      setFormState('idle');
+    }
   };
 
   return (
@@ -105,33 +123,43 @@ const Contact = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">First Name</label>
-                    <input type="text" required placeholder="John" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all" />
+                    <input type="text" required placeholder="John" 
+                      value={formData.firstName} onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Last Name</label>
-                    <input type="text" required placeholder="Doe" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all" />
+                    <input type="text" required placeholder="Doe" 
+                      value={formData.lastName} onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Email Address</label>
-                  <input type="email" required placeholder="john@example.com" className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all" />
+                  <input type="email" required placeholder="john@example.com" 
+                    value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all" />
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Subject</label>
-                  <select className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all appearance-none">
-                    <option>General Inquiry</option>
-                    <option>Order Status</option>
-                    <option>Return/Refund</option>
-                    <option>Bulk Orders</option>
-                    <option>Other</option>
+                  <select 
+                    value={formData.subject} onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 font-bold focus:border-red-500 outline-none transition-all appearance-none">
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Order Status">Order Status</option>
+                    <option value="Return/Refund">Return/Refund</option>
+                    <option value="Bulk Orders">Bulk Orders</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-black text-slate-900 uppercase tracking-widest pl-2">Message</label>
-                  <textarea rows="5" required placeholder="How can we help you?" className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] p-8 font-bold focus:border-red-500 outline-none transition-all"></textarea>
+                  <textarea rows="5" required placeholder="How can we help you?" 
+                    value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] p-8 font-bold focus:border-red-500 outline-none transition-all"></textarea>
                 </div>
 
                 <button 

@@ -8,7 +8,7 @@ import {
   LogOut, Search, Filter, TrendingUp, 
   CheckCircle, Clock, Edit, Trash2, 
   Image as ImageIcon, DollarSign, Tag, Briefcase, ChevronRight, ArrowRight, Upload,
-  X, Eye, FileText, Printer, Download, ExternalLink, RefreshCcw,
+  X, Eye, FileText, Printer, Download, ExternalLink, RefreshCcw, MessageSquare,
   Settings, Shield, Activity, Bell, HelpCircle
 } from 'lucide-react';
 import { Query } from 'appwrite';
@@ -20,6 +20,7 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Modals / Overlays
@@ -33,7 +34,8 @@ const AdminPanel = () => {
     totalSales: 0,
     totalOrders: 0,
     totalProducts: 0,
-    pendingOrders: 0
+    pendingOrders: 0,
+    totalMessages: 0
   });
 
   const [productForm, setProductForm] = useState({
@@ -56,17 +58,19 @@ const AdminPanel = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [prodRes, orderRes] = await Promise.all([
+      const [prodRes, orderRes, feedbackRes] = await Promise.all([
         databaseService.getProducts([Query.limit(100)]),
         databaseService.databases.listDocuments(
             import.meta.env.VITE_APPWRITE_DATABASE_ID,
             import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders',
             [Query.limit(100), Query.orderDesc('$createdAt')]
-        )
+        ),
+        databaseService.getFeedbacks([Query.limit(100), Query.orderDesc('$createdAt')])
       ]);
 
       if (prodRes) setProducts(prodRes.documents);
       if (orderRes) setOrders(orderRes.documents);
+      if (feedbackRes) setFeedbacks(feedbackRes.documents);
 
       const totalSales = orderRes?.documents
         .filter(o => o.paymentStatus === 'paid' || o.paymentMethod === 'cod')
@@ -77,7 +81,8 @@ const AdminPanel = () => {
         totalSales,
         totalOrders: orderRes?.total || 0,
         totalProducts: prodRes?.total || 0,
-        pendingOrders: pending
+        pendingOrders: pending,
+        totalMessages: feedbackRes?.total || 0
       });
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -207,6 +212,7 @@ const AdminPanel = () => {
     { id: 'products', icon: <Package />, label: 'Inventory' },
     { id: 'orders', icon: <ShoppingCart />, label: 'Orders' },
     { id: 'customers', icon: <Users />, label: 'Customers' },
+    { id: 'messages', icon: <MessageSquare />, label: 'Messages' },
     { id: 'system', icon: <Activity />, label: 'System Status' },
     { id: 'settings', icon: <Settings />, label: 'Settings' }
   ];
@@ -626,6 +632,61 @@ const AdminPanel = () => {
                                         </td>
                                         <td className="px-10 py-8">
                                             <span className="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-[9px] font-black uppercase tracking-widest">Google Auth</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'messages' && (
+                <div className="bg-white rounded-[3rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 overflow-hidden">
+                    <div className="p-10 border-b border-slate-50 flex items-center justify-between">
+                        <div>
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-1">Inbound Transmissions</h3>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Messages Logged: {stats.totalMessages}</p>
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="bg-slate-50/50">
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sender Protocol</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subject Classification</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Transmission Body</th>
+                                    <th className="px-10 py-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {feedbacks.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="4" className="px-10 py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">No incoming transmissions found</td>
+                                    </tr>
+                                ) : feedbacks.map((fb) => (
+                                    <tr key={fb.$id} className="hover:bg-slate-50/80 transition-colors group">
+                                        <td className="px-10 py-8 min-w-[250px]">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center font-black text-white text-lg shadow-xl shadow-indigo-500/30">
+                                                    {fb.firstName?.[0] || 'U'}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-sm text-slate-900 uppercase">{fb.firstName} {fb.lastName}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold tracking-tight">{fb.email}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-10 py-8">
+                                            <span className="px-4 py-2 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-sm inline-block">
+                                                {fb.subject}
+                                            </span>
+                                        </td>
+                                        <td className="px-10 py-8 max-w-[400px]">
+                                            <p className="text-sm font-bold text-slate-600 line-clamp-2 leading-relaxed">{fb.message}</p>
+                                        </td>
+                                        <td className="px-10 py-8 text-[11px] font-black text-slate-400 uppercase">
+                                            {new Date(fb.$createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                         </td>
                                     </tr>
                                 ))}
