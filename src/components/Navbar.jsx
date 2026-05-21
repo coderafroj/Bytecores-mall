@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
   ShoppingBag, Search, MapPin
 } from 'lucide-react';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/react';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 const Navbar = ({ cartCount }) => {
   const [isScrolled, setIsScrolled] = useState(false);

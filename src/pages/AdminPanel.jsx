@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useUser, useClerk } from '@clerk/react';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import databaseService from '../appwrite/db';
 import storageService from '../appwrite/storage';
 import { 
