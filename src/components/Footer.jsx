@@ -83,7 +83,7 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-lg font-bold text-white">Email Us</p>
-                  <p className="text-slate-400 font-bold">bytecore.info@gmail.com</p>
+                  <p className="text-slate-400 font-bold">bytecore.mall@gmail.com</p>
                 </div>
               </div>
             </div>

@@ -39,7 +39,7 @@ const Contact = () => {
           <div className="space-y-12">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {[
-                { icon: <Mail />, title: "Email Us", detail: "bytecore.info@gmail.com", sub: "Response within 24h" },
+                { icon: <Mail />, title: "Email Us", detail: "bytecore.mall@gmail.com", sub: "Response within 24h" },
                 { icon: <Phone />, title: "Call Us", detail: "+91 63968 35709", sub: "Mon-Sat, 9am-6pm" },
                 { icon: <MessageSquare />, title: "Live Chat", detail: "Active Now", sub: "Average wait: 2 mins" },
                 { icon: <Clock />, title: "Working Hours", detail: "24/7 Online", sub: "Orders processed daily" }

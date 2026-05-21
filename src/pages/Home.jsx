@@ -45,9 +45,9 @@ const Home = () => {
 
                 {/* Main Content */}
                 <div className="w-full lg:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-left z-20 mt-10 lg:mt-0 relative">
-                    <h2 className="text-white/90 text-2xl lg:text-3xl font-medium tracking-wide mb-2 lg:mb-0">New premium gear for</h2>
+                    <h2 className="text-white/90 text-2xl lg:text-3xl font-medium tracking-wide mb-2 lg:mb-0">Mega Shopping Festival</h2>
                     <h1 className="text-7xl lg:text-[130px] font-serif italic text-white font-bold tracking-tighter leading-[0.8] mb-8 lg:mb-12 drop-shadow-lg">
-                        Professionals
+                        ₹99 Store
                     </h1>
                     
                     <div className="flex flex-col lg:flex-row items-center gap-6">
@@ -58,9 +58,9 @@ const Home = () => {
                     </div>
 
                     <div className="mt-12 lg:mt-24 max-w-sm hidden lg:block">
-                        <h3 className="text-white text-xl lg:text-2xl font-serif mb-3">Begin your journey with...</h3>
+                        <h3 className="text-white text-xl lg:text-2xl font-serif mb-3">Grab the best deals...</h3>
                         <p className="text-white/80 text-sm lg:text-sm font-medium leading-relaxed">
-                            This is an easy to setup computing rig which you or your colleagues will have a lot of fun operating.
+                            Discover premium quality products across all categories, exclusively curated and available at just ₹99. Don't miss out!
                         </p>
                     </div>
                 </div>
@@ -68,12 +68,12 @@ const Home = () => {
                 {/* Center 3D Floating Element (Like the Christmas Tree) */}
                 <div className="w-full lg:w-[50%] h-[350px] lg:h-[600px] relative z-20 flex items-center justify-center mt-12 lg:mt-0 lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
                     <motion.img 
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, y: 50, rotate: -5 }}
+                        animate={{ opacity: 1, y: 0, rotate: 0 }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        src="https://pngimg.com/uploads/macbook/macbook_PNG8.png" 
-                        alt="Premium Laptop" 
-                        className="w-[90%] lg:w-full max-w-[800px] h-auto object-contain drop-shadow-[0_40px_40px_rgba(0,0,0,0.5)]"
+                        src="https://pngimg.com/uploads/shopping_cart/shopping_cart_PNG38.png" 
+                        alt="99 Mall Shopping" 
+                        className="w-[90%] lg:w-full max-w-[700px] h-auto object-contain drop-shadow-[0_40px_40px_rgba(0,0,0,0.5)]"
                     />
                 </div>
 
