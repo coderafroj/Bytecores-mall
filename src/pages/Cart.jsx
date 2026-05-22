@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateQuantity } from '../store/cartSlice';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -40,6 +41,12 @@ const Cart = () => {
       animate={{ opacity: 1 }}
       className="w-full min-h-screen bg-slate-50 pt-32 pb-24 px-6 lg:px-12"
     >
+      <Helmet>
+        <title>Shopping Cart | Bytecores Mall</title>
+        <meta name="description" content="Review your items and proceed to a secure checkout at Bytecores Mall." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
       <div className="max-w-[1920px] mx-auto">
         <div className="mb-12">
           <h1 className="text-4xl lg:text-6xl font-black text-slate-900 tracking-tighter">Shopping <span className="text-red-500">Cart</span></h1>

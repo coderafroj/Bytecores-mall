@@ -28,7 +28,7 @@ const Home = () => {
       
       {/* 99 Mall Style E-commerce Hero - Exactly like the reference image */}
       <section className="w-full mx-auto mb-20 lg:mb-32">
-        <div className="relative w-full min-h-[100svh] lg:min-h-[800px] bg-[#C62828] overflow-hidden flex flex-col pt-28 lg:pt-32">
+        <div className="relative w-full min-h-[100svh] h-auto pb-32 lg:pb-0 lg:min-h-[800px] bg-[#C62828] overflow-hidden flex flex-col pt-28 lg:pt-32">
             
             {/* Subtle background forest/texture (like the image) */}
             <div className="absolute inset-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }} />
@@ -45,8 +45,8 @@ const Home = () => {
 
                 {/* Main Content */}
                 <div className="w-full lg:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-left z-20 mt-10 lg:mt-0 relative">
-                    <h2 className="text-white/90 text-2xl lg:text-3xl font-medium tracking-wide mb-2 lg:mb-0">Mega Shopping Festival</h2>
-                    <h1 className="text-7xl lg:text-[130px] font-serif italic text-white font-bold tracking-tighter leading-[0.8] mb-8 lg:mb-12 drop-shadow-lg">
+                    <h2 className="text-white/90 text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide mb-2 lg:mb-0">Mega Shopping Festival</h2>
+                    <h1 className="text-6xl sm:text-7xl lg:text-[130px] font-serif italic text-white font-bold tracking-tighter leading-[0.8] mb-8 lg:mb-12 drop-shadow-lg">
                         ₹99 Store
                     </h1>
                     
@@ -66,7 +66,7 @@ const Home = () => {
                 </div>
 
                 {/* Center 3D Floating Element (Like the Christmas Tree) */}
-                <div className="w-full lg:w-[50%] h-[350px] lg:h-[600px] relative z-20 flex items-center justify-center mt-12 lg:mt-0 lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
+                <div className="w-full lg:w-[50%] h-[250px] sm:h-[350px] lg:h-[600px] relative z-20 flex items-center justify-center mt-12 lg:mt-0 lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
                     <motion.img 
                         initial={{ opacity: 0, y: 50, rotate: -5 }}
                         animate={{ opacity: 1, y: 0, rotate: 0 }}

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/cartSlice';
-import { ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Award, ChevronLeft } from 'lucide-react';
+import { ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Award, ChevronLeft, ZoomIn, X } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import databaseService from '../appwrite/db';
 
 const ProductDetail = () => {
@@ -12,6 +13,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
     fetchProduct();
@@ -75,6 +77,14 @@ const ProductDetail = () => {
       animate={{ opacity: 1 }}
       className="w-full min-h-screen bg-white pt-32 pb-24"
     >
+      <Helmet>
+        <title>{product.name} | Bytecores Mall</title>
+        <meta name="description" content={`Buy ${product.name} for ₹${product.price} at Bytecores Mall. 100% genuine products.`} />
+        <meta property="og:title" content={`${product.name} | Bytecores Mall`} />
+        <meta property="og:description" content={`Buy ${product.name} for ₹${product.price} at Bytecores Mall. 100% genuine products.`} />
+        <meta property="og:image" content={product.imageUrl || 'https://mall.bytecores.in/favicon.png'} />
+      </Helmet>
+
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12">
         <Link to="/products" className="inline-flex items-center gap-2 text-slate-500 hover:text-red-500 font-bold mb-12 transition-colors">
           <ChevronLeft size={20} />
@@ -86,7 +96,8 @@ const ProductDetail = () => {
           <motion.div 
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            className="relative aspect-square bg-slate-50 rounded-[3rem] overflow-hidden group shadow-2xl"
+            className="relative aspect-square bg-slate-50 rounded-[3rem] overflow-hidden group shadow-2xl cursor-zoom-in"
+            onClick={() => setIsZoomed(true)}
           >
             <img 
               src={product.imageUrl || '/placeholder.jpg'} 
@@ -98,6 +109,9 @@ const ProductDetail = () => {
                 -{product.discount}% OFF
               </div>
             )}
+            <div className="absolute bottom-8 right-8 w-12 h-12 bg-white/80 backdrop-blur-md rounded-2xl flex items-center justify-center text-slate-900 shadow-xl opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                <ZoomIn size={24} />
+            </div>
           </motion.div>
 
           {/* Product Details */}
@@ -180,6 +194,35 @@ const ProductDetail = () => {
           </motion.div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isZoomed && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-4 lg:p-12 cursor-zoom-out"
+            onClick={() => setIsZoomed(false)}
+          >
+            <button 
+              onClick={(e) => { e.stopPropagation(); setIsZoomed(false); }}
+              className="absolute top-8 right-8 lg:top-12 lg:right-12 w-12 h-12 lg:w-16 lg:h-16 bg-white/10 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-2xl z-50"
+            >
+              <X size={28} />
+            </button>
+            <motion.img 
+              initial={{ scale: 0.8, y: 50 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              src={product.imageUrl || '/placeholder.jpg'} 
+              alt={product.name}
+              className="w-full h-full object-contain max-h-[90vh] select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

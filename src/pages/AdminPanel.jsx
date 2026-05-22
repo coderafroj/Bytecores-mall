@@ -262,10 +262,10 @@ const AdminPanel = () => {
                 </div>
                 <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{user?.fullName || 'Admin User'}</p>
-                    <p className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1">
+                    <div className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                         Administrator
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>

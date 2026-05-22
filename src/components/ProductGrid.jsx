@@ -12,6 +12,7 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-50px" }}
+    whileHover={{ y: -8, scale: 1.02 }}
     transition={{ delay: (index % 6) * 0.05, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     className="group relative h-full"
   >
@@ -34,9 +35,9 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
         
         <button 
           onClick={(e) => handleAddToCart(e, product)}
-          className="absolute bottom-6 right-6 lg:bottom-10 lg:right-10 w-14 h-14 lg:w-20 lg:h-20 bg-slate-950 text-white rounded-[1.8rem] lg:rounded-[2.5rem] flex items-center justify-center shadow-2xl lg:opacity-0 lg:translate-y-6 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-500 hover:bg-red-600 active:scale-90 z-30"
+          className="absolute bottom-4 right-4 lg:bottom-8 lg:right-8 w-12 h-12 lg:w-16 lg:h-16 bg-white/80 backdrop-blur-xl text-slate-900 hover:text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-white/50 lg:opacity-0 lg:translate-y-8 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-500 hover:bg-red-600 active:scale-90 z-30"
         >
-          <ShoppingCart size={24} strokeWidth={3} />
+          <ShoppingCart size={20} className="lg:w-6 lg:h-6" strokeWidth={2.5} />
         </button>
       </Link>
       
@@ -74,10 +75,11 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
 
             <Link 
                 to={`/product/${product.$id}`}
-                className="w-full py-5 lg:py-6 bg-slate-950 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-red-600 transition-all duration-500 flex items-center justify-center gap-4 group/btn shadow-2xl shadow-slate-950/10 hover:shadow-red-600/20"
+                className="relative w-full py-4 lg:py-5 bg-slate-950 overflow-hidden text-white text-xs lg:text-sm font-black uppercase tracking-widest rounded-2xl lg:rounded-[1.5rem] transition-all duration-500 flex items-center justify-center gap-3 group/btn shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_rgba(220,38,38,0.3)] active:scale-95"
             >
-                <span>Initialize Inspection</span>
-                <ArrowRight size={16} className="group-hover/btn:translate-x-2 transition-transform" />
+                <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-rose-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+                <span className="relative z-10">Buy Now</span>
+                <ArrowRight size={18} className="relative z-10 group-hover/btn:translate-x-2 transition-transform duration-500" />
             </Link>
         </div>
       </div>

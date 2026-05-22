@@ -14,11 +14,12 @@ export class StorageService {
 
     async uploadFile(file) {
         try {
-            // Options for compression
+            // Options for extreme compression (allowing 50k+ photos)
             const options = {
-                maxSizeMB: 1,
-                maxWidthOrHeight: 1920,
+                maxSizeMB: 0.1,
+                maxWidthOrHeight: 800,
                 useWebWorker: true,
+                initialQuality: 0.7,
             };
 
             // Compress the image

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Filter, Search, ChevronRight, X } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import ProductGrid from '../components/ProductGrid';
 
 const Products = ({ addToCart }) => {
@@ -39,6 +40,13 @@ const Products = ({ addToCart }) => {
       exit={{ opacity: 0 }}
       className="w-full min-h-screen bg-slate-50 pt-20 lg:pt-32 pb-12"
     >
+      <Helmet>
+        <title>Shop Premium Tech & Gadgets | Bytecores Mall</title>
+        <meta name="description" content="Explore our curated collection of premium laptops, study kits, and electronics at unbeatable prices." />
+        <meta property="og:title" content="Shop Premium Tech & Gadgets | Bytecores Mall" />
+        <meta property="og:description" content="Explore our curated collection of premium laptops, study kits, and electronics at unbeatable prices." />
+      </Helmet>
+
       {/* Mobile Category Horizontal Scroll */}
       <div className="lg:hidden px-4 mb-6">
         <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
