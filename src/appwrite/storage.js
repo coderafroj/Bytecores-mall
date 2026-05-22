@@ -25,11 +25,16 @@ export class StorageService {
             const compressedFile = await imageCompression(file, options);
             console.log(`Original size: ${file.size / 1024 / 1024} MB`);
             console.log(`Compressed size: ${compressedFile.size / 1024 / 1024} MB`);
+            
+            // Appwrite requires a File object, but browser-image-compression might return a Blob or lack a name
+            const finalFile = new File([compressedFile], file.name || 'image.jpg', {
+                type: compressedFile.type || 'image/jpeg',
+            });
 
             return await this.storage.createFile(
                 import.meta.env.VITE_APPWRITE_BUCKET_ID,
                 ID.unique(),
-                compressedFile
+                finalFile
             );
         } catch (error) {
             console.log("Appwrite service :: uploadFile :: error", error);
