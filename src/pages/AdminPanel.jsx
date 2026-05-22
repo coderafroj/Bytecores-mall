@@ -300,22 +300,48 @@ const AdminPanel = () => {
         </div>
       </aside>
 
+      {/* Mobile Bottom Navigation (App-like) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-2xl border-t border-white/10 z-[100] px-6 py-4 rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.5)] flex items-center justify-between safe-area-pb">
+        {sidebarItems.slice(0, 4).map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`flex flex-col items-center gap-1.5 transition-all duration-300 ${
+              activeTab === item.id ? 'text-red-500 scale-110' : 'text-slate-500 hover:text-white'
+            }`}
+          >
+            <span className="relative">
+              {item.icon}
+              {activeTab === item.id && <motion.div layoutId="mobileTab" className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_8px_red]" />}
+            </span>
+            <span className="text-[9px] uppercase tracking-widest font-black mt-1">{item.label}</span>
+          </button>
+        ))}
+        <button 
+          onClick={handleLogout}
+          className="flex flex-col items-center gap-1.5 transition-all duration-300 text-slate-500 hover:text-red-500"
+        >
+          <LogOut size={24} />
+          <span className="text-[9px] uppercase tracking-widest font-black mt-1">Exit</span>
+        </button>
+      </nav>
+
       {/* Main Container */}
       <main className="flex-1 lg:ml-[300px] min-h-screen">
-        <header className="sticky top-0 bg-white/70 backdrop-blur-2xl border-b border-slate-100 px-12 py-8 flex items-center justify-between z-40">
+        <header className="sticky top-0 bg-white/70 backdrop-blur-2xl border-b border-slate-100 px-6 lg:px-12 py-6 lg:py-8 flex items-center justify-between z-40">
             <div>
                 <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
                     <span>Terminal</span>
                     <ChevronRight size={10} />
-                    <span className="text-red-600">{activeTab}</span>
+                    <span className="text-red-600 truncate max-w-[100px] sm:max-w-none">{activeTab}</span>
                 </div>
-                <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">
+                <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase">
                     {sidebarItems.find(i => i.id === activeTab)?.label}
                 </h2>
             </div>
 
-            <div className="flex items-center gap-4">
-                <div className="relative hidden md:block">
+            <div className="flex items-center gap-3 sm:gap-4">
+                <div className="relative hidden xl:block">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input 
                         type="text" 
@@ -333,14 +359,14 @@ const AdminPanel = () => {
                 </button>
                 <button 
                     onClick={() => { resetProductForm(); setShowAddForm(true); }}
-                    className="bg-slate-950 text-white font-black px-8 py-3.5 rounded-2xl shadow-2xl shadow-slate-950/20 hover:bg-red-600 hover:shadow-red-600/20 transition-all active:scale-95 flex items-center gap-3 text-xs uppercase tracking-widest"
+                    className="bg-slate-950 text-white font-black px-5 sm:px-8 py-3.5 rounded-2xl shadow-2xl shadow-slate-950/20 hover:bg-red-600 hover:shadow-red-600/20 transition-all active:scale-95 flex items-center gap-3 text-xs uppercase tracking-widest"
                 >
-                    <Plus size={18} strokeWidth={3} /> New Object
+                    <Plus size={18} strokeWidth={3} /> <span className="hidden sm:inline">New Object</span>
                 </button>
             </div>
         </header>
 
-        <div className="p-12 max-w-[1800px] mx-auto">
+        <div className="p-6 lg:p-12 pb-32 lg:pb-12 max-w-[1800px] mx-auto">
             {activeTab === 'dashboard' && (
                 <div className="space-y-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

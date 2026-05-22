@@ -36,8 +36,12 @@ const Navbar = ({ cartCount }) => {
         }`}>
           
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Bytecore Mall" className="h-10 lg:h-14 object-contain" />
+          <Link to="/" className="flex items-center gap-2 group">
+            <img 
+              src={logo} 
+              alt="Bytecore Mall" 
+              className="h-14 lg:h-20 object-contain transform group-hover:scale-105 transition-all duration-300 drop-shadow-2xl" 
+            />
           </Link>
 
           {/* Search Bar (Matches Image) */}
