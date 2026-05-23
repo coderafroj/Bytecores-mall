@@ -60,7 +60,7 @@ const Home = () => {
                     <div className="mt-12 lg:mt-24 max-w-sm hidden lg:block">
                         <h3 className="text-white text-xl lg:text-2xl font-serif mb-3">Grab the best deals...</h3>
                         <p className="text-white/80 text-sm lg:text-sm font-medium leading-relaxed">
-                            Discover premium quality products across all categories, exclusively curated and available at just ₹99. Don't miss out!
+                            Selling from ₹9 to ₹999. Discover premium quality products across all categories, exclusively curated and available for you. Don't miss out!
                         </p>
                     </div>
                 </div>

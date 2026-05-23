@@ -117,7 +117,7 @@ const AdminPanel = () => {
     e.preventDefault();
     setFormLoading(true);
     try {
-      let finalImageUrl = productForm.imageUrl;
+      let finalImageUrl = productForm.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80';
 
       if (imageFile) {
         const fileResponse = await storageService.uploadFile(imageFile);
@@ -129,11 +129,11 @@ const AdminPanel = () => {
       const productData = {
         ...productForm,
         imageUrl: finalImageUrl,
-        price: parseFloat(productForm.price),
-        originalPrice: parseFloat(productForm.originalPrice || productForm.price),
-        stock: parseInt(productForm.stock),
-        rating: parseFloat(productForm.rating),
-        reviews: parseInt(productForm.reviews)
+        price: parseFloat(productForm.price) || 0,
+        originalPrice: parseFloat(productForm.originalPrice || productForm.price) || 0,
+        stock: parseInt(productForm.stock) || 0,
+        rating: parseFloat(productForm.rating) || 4.5,
+        reviews: parseInt(productForm.reviews) || 0
       };
 
       if (editingProduct) {
