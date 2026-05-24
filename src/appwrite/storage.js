@@ -14,12 +14,12 @@ export class StorageService {
 
     async uploadFile(file) {
         try {
-            // Options for extreme compression (allowing 50k+ photos)
+            // Options for extreme compression but pro-level quality on website
             const options = {
-                maxSizeMB: 0.1,
-                maxWidthOrHeight: 800,
+                maxSizeMB: 0.3, // Max 300KB to save database size but keep quality high
+                maxWidthOrHeight: 1600, // Full HD resolution for pro-level display
                 useWebWorker: true,
-                initialQuality: 0.7,
+                initialQuality: 0.85, // Retain high visual quality
             };
 
             // Compress the image
@@ -59,7 +59,18 @@ export class StorageService {
     getFilePreview(fileId) {
         return this.storage.getFilePreview(
             import.meta.env.VITE_APPWRITE_BUCKET_ID,
-            fileId
+            fileId,
+            0, // width (original)
+            0, // height (original)
+            'center', // gravity
+            100, // quality for pro-level
+            0, // borderWidth
+            '', // borderColor
+            0, // borderRadius
+            1, // opacity
+            0, // rotation
+            '', // background
+            'webp' // modern format
         );
     }
 }

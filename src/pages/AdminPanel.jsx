@@ -122,7 +122,7 @@ const AdminPanel = () => {
       if (imageFile) {
         const fileResponse = await storageService.uploadFile(imageFile);
         if (fileResponse) {
-          finalImageUrl = storageService.getFilePreview(fileResponse.$id).href;
+          finalImageUrl = storageService.getFilePreview(fileResponse.$id);
         }
       }
 
