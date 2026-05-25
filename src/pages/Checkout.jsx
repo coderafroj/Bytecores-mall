@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from '../store/cartSlice';
 import { CreditCard, Truck, ShoppingBag, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
 import databaseService from '../appwrite/db';
+import { Helmet } from 'react-helmet-async';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -40,12 +41,24 @@ const Checkout = () => {
     e.preventDefault();
     setLoading(true);
 
+    let geoLoc = "";
+    if ("geolocation" in navigator) {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+        });
+        geoLoc = ` [GEO: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}]`;
+      } catch (err) {
+        console.warn("Geolocation permission denied or timeout", err);
+      }
+    }
+
     const orderData = {
       userId: user?.$id || 'guest',
       userName: formData.name,
       userEmail: formData.email,
       phone: formData.phone,
-      address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}`,
+      address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}${geoLoc}`,
       items: JSON.stringify(cart.map(item => ({
         id: item.$id,
         name: item.name,
@@ -137,6 +150,10 @@ const Checkout = () => {
       animate={{ opacity: 1 }}
       className="w-full min-h-screen bg-slate-50 pt-32 pb-24 px-6 lg:px-12"
     >
+      <Helmet>
+        <title>Secure Checkout | Bytecores Mall</title>
+        <meta name="description" content="Securely complete your purchase at Bytecores Mall. Fast checkout and order tracking." />
+      </Helmet>
       <div className="max-w-[1920px] mx-auto">
         <button onClick={() => navigate('/cart')} className="flex items-center gap-2 text-slate-500 hover:text-red-500 font-bold mb-12 transition-colors">
           <ArrowLeft size={20} /> Back to Cart

@@ -96,9 +96,14 @@ const Footer = () => {
 
         {/* Bottom Section */}
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-          <p className="text-slate-500 font-bold text-center md:text-left">
-            © 2024 ByteCore Computer Centre. All Rights Reserved. ByteCore Mall is a unit of ByteCore.
-          </p>
+          <div className="flex flex-col items-center md:items-start">
+            <p className="text-slate-500 font-bold text-center md:text-left mb-2">
+              © 2024 ByteCore Computer Centre. All Rights Reserved. ByteCore Mall is a unit of ByteCore.
+            </p>
+            <p className="text-red-500 text-sm font-black tracking-widest uppercase flex items-center gap-2">
+              Developed by coderafroj <Zap size={14} className="fill-current" />
+            </p>
+          </div>
           <div className="flex items-center gap-8">
             <img src="https://razorpay.com/assets/razorpay-logo-white.svg" alt="Razorpay" className="h-6 opacity-50 hover:opacity-100 transition-opacity" />
             <div className="flex gap-4">

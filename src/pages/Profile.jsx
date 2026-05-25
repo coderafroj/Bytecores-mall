@@ -11,6 +11,7 @@ import authService from '../appwrite/auth';
 import { logout as authLogout } from '../store/authSlice';
 import databaseService from '../appwrite/db';
 import { Query } from 'appwrite';
+import { Helmet } from 'react-helmet-async';
 
 const Profile = () => {
   const user = useSelector((state) => state.auth.userData);
@@ -106,6 +107,10 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 lg:pb-12">
+      <Helmet>
+        <title>My Account | Bytecores Mall</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Premium Header */}
       <div className="bg-slate-900 pt-12 pb-32 px-6 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-[100px] -mr-48 -mt-48" />
@@ -117,8 +122,8 @@ const Profile = () => {
             animate={{ scale: 1, opacity: 1 }}
             className="w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-red-500 to-red-600 p-1 shadow-2xl"
           >
-            <div className="w-full h-full rounded-[2.3rem] bg-slate-900 flex items-center justify-center text-4xl font-black text-white">
-              {user.name?.[0].toUpperCase()}
+            <div className="w-full h-full rounded-[2.3rem] bg-slate-900 flex items-center justify-center text-4xl font-black text-white uppercase">
+              {(user.name && user.name.length > 0) ? user.name[0] : 'U'}
             </div>
           </motion.div>
           
@@ -128,7 +133,7 @@ const Profile = () => {
               animate={{ y: 0, opacity: 1 }}
               className="text-4xl lg:text-5xl font-black text-white tracking-tighter uppercase"
             >
-              {user.name}
+              {user.name || 'Bytecore User'}
             </motion.h1>
             <p className="text-slate-400 font-bold mt-2 flex items-center justify-center md:justify-start gap-2">
               <Shield size={16} className="text-emerald-500" />

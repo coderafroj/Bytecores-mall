@@ -9,79 +9,66 @@ import { addToCart } from '../store/cartSlice';
 
 const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
   <motion.div
-    initial={{ opacity: 0, y: 30 }}
+    initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    whileHover={{ y: -5, scale: 1.02 }}
-    transition={{ delay: (index % 6) * 0.05, duration: 0.5, ease: "easeOut" }}
-    className="group relative h-full flex flex-col bg-white rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500"
+    viewport={{ once: true }}
+    whileHover={{ y: -5 }}
+    transition={{ duration: 0.3 }}
+    className="group relative bg-white rounded-3xl p-3 flex flex-col border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 h-full"
   >
-    {/* Image Area */}
-    <Link to={`/product/${product.$id}`} className="relative aspect-square overflow-hidden bg-slate-50/50 flex items-center justify-center p-6">
+    {/* Image Container */}
+    <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden bg-slate-50 mb-4 cursor-pointer" onClick={() => navigate(`/product/${product.$id}`)}>
       <img 
         src={product.imageUrl || '/placeholder.jpg'} 
         alt={product.name}
-        className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110"
+        className="w-full h-full object-contain mix-blend-multiply p-6 transition-transform duration-500 group-hover:scale-110"
       />
-        
-        {product.originalPrice > product.price && (
-            <div className="absolute top-6 left-6 lg:top-10 lg:left-10 bg-red-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-2xl uppercase tracking-tighter z-10 animate-reveal">
-                -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% Matrix Discount
-            </div>
-        )}
+      {product.originalPrice > product.price && (
+        <span className="absolute top-3 left-3 bg-red-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-md">
+          -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+        </span>
+      )}
+      <button 
+        onClick={(e) => { e.stopPropagation(); handleAddToCart(e, product); }}
+        className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm text-slate-900 rounded-full flex items-center justify-center shadow-lg lg:opacity-0 lg:group-hover:opacity-100 transition-all hover:bg-red-600 hover:text-white hover:scale-110 active:scale-95"
+      >
+        <ShoppingCart size={18} strokeWidth={2.5} />
+      </button>
+    </div>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700" />
-        
-        <button 
-          onClick={(e) => handleAddToCart(e, product)}
-          className="absolute bottom-4 right-4 w-12 h-12 lg:w-14 lg:h-14 bg-white/90 backdrop-blur-md text-slate-900 hover:text-white rounded-full flex items-center justify-center shadow-lg border border-white lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-300 hover:bg-red-600 active:scale-95 z-30"
-        >
-          <ShoppingCart size={20} className="lg:w-5 lg:h-5" strokeWidth={2.5} />
-        </button>
-      </Link>
-      
-      {/* Information Area */}
-      <div className="p-6 lg:p-8 flex-1 flex flex-col">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{product.category}</span>
-          </div>
-          <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
-            <Star size={10} className="text-amber-400" fill="currentColor" />
-            <span className="text-[11px] font-black text-slate-900">{product.rating || '4.8'}</span>
-          </div>
-        </div>
-        
-        <h3 className="text-base lg:text-xl font-black text-slate-900 line-clamp-2 mb-4 tracking-tighter group-hover:text-red-600 transition-colors uppercase leading-tight">
-          {product.name}
-        </h3>
-        
-        <div className="mt-auto">
-            <div className="flex flex-col mb-8">
-                {product.originalPrice > product.price && (
-                    <span className="text-[11px] font-bold text-slate-300 line-through mb-1">
-                        ₹{product.originalPrice}
-                    </span>
-                )}
-                <div className="flex items-baseline gap-2">
-                    <span className="text-3xl lg:text-5xl font-black text-slate-950 tracking-tighter leading-none">
-                        ₹{product.price}
-                    </span>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">INR</span>
-                </div>
-            </div>
-
-            <Link 
-                to={`/product/${product.$id}`}
-                className="relative w-full py-3 lg:py-4 bg-slate-950 overflow-hidden text-white text-xs font-black uppercase tracking-widest rounded-xl lg:rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-md hover:shadow-[0_10px_20px_rgba(220,38,38,0.2)] active:scale-95"
-            >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-rose-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                <span className="relative z-10">Buy Now</span>
-                <ArrowRight size={16} className="relative z-10 group-hover/btn:translate-x-1 transition-transform duration-300" />
-            </Link>
+    {/* Content Container */}
+    <div className="px-2 pb-2 flex flex-col flex-1">
+      <div className="flex justify-between items-center mb-2">
+        <p className="text-[10px] text-red-500 font-black uppercase tracking-widest">{product.category}</p>
+        <div className="flex items-center gap-1 text-amber-400 bg-amber-50 px-2 py-0.5 rounded-md">
+          <Star size={10} fill="currentColor" />
+          <span className="text-[10px] font-black text-amber-600">{product.rating || '4.8'}</span>
         </div>
       </div>
+      
+      <h3 
+        onClick={() => navigate(`/product/${product.$id}`)}
+        className="text-sm font-black text-slate-900 line-clamp-2 leading-tight cursor-pointer hover:text-red-600 transition-colors mb-4"
+      >
+        {product.name}
+      </h3>
+      
+      <div className="mt-auto flex flex-wrap items-end justify-between gap-2">
+        <div className="flex flex-col">
+          {product.originalPrice > product.price && (
+            <span className="text-[10px] text-slate-400 line-through font-bold">₹{product.originalPrice}</span>
+          )}
+          <span className="text-xl font-black text-slate-900 leading-none tracking-tight">₹{product.price}</span>
+        </div>
+        
+        <button 
+            onClick={(e) => { e.stopPropagation(); navigate(`/product/${product.$id}`); }}
+            className="px-4 py-2 bg-slate-950 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-colors shadow-md active:scale-95 flex-shrink-0"
+        >
+            Buy
+        </button>
+      </div>
+    </div>
   </motion.div>
 ));
 

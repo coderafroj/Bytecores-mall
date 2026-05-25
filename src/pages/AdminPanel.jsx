@@ -9,9 +9,11 @@ import {
   CheckCircle, Clock, Edit, Trash2, 
   Image as ImageIcon, DollarSign, Tag, Briefcase, ChevronRight, ArrowRight, Upload,
   X, Eye, FileText, Printer, Download, ExternalLink, RefreshCcw, MessageSquare,
-  Settings, Shield, Activity, Bell, HelpCircle
+  Settings, Shield, Activity, Bell, HelpCircle, Crop
 } from 'lucide-react';
 import { Query } from 'appwrite';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../utils/cropImage';
 
 const AdminPanel = () => {
   const { user } = useUser();
@@ -50,6 +52,11 @@ const AdminPanel = () => {
     reviews: 0
   });
   const [imageFile, setImageFile] = useState(null);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -167,6 +174,8 @@ const AdminPanel = () => {
       reviews: 0
     });
     setImageFile(null);
+    setImageSrc(null);
+    setShowCropper(false);
   };
 
   const startEditProduct = (product) => {
@@ -204,6 +213,41 @@ const AdminPanel = () => {
       fetchData();
     } catch (error) {
       console.error('Error deleting product:', error);
+    }
+  };
+
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handleFileChange = async (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      let imageDataUrl = await readFile(file);
+      setImageSrc(imageDataUrl);
+      setShowCropper(true);
+    }
+  };
+
+  const readFile = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => resolve(reader.result), false);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const saveCroppedImage = async () => {
+    try {
+      const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      // Create a new File from the blob
+      const croppedFile = new File([croppedImageBlob], 'cropped-image.jpg', { type: 'image/jpeg' });
+      setImageFile(croppedFile);
+      setShowCropper(false);
+      setImageSrc(null);
+    } catch (e) {
+      console.error(e);
+      alert('Error cropping image');
     }
   };
 
@@ -861,7 +905,7 @@ const AdminPanel = () => {
                     <div className="relative group overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 text-center hover:border-red-600 hover:bg-white transition-all cursor-pointer shadow-sm">
                         <Upload size={40} className="mx-auto text-slate-300 mb-6 group-hover:text-red-600 group-hover:scale-110 transition-all duration-500" />
                         <p className="font-black text-slate-400 text-sm group-hover:text-slate-900">{imageFile ? imageFile.name : 'Click to Upload High-Res Media'}</p>
-                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => setImageFile(e.target.files[0])} />
+                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileChange} />
                     </div>
                     <div className="relative">
                         <ImageIcon size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
@@ -900,6 +944,46 @@ const AdminPanel = () => {
                     </>
                   )}
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Image Cropper Modal */}
+      <AnimatePresence>
+        {showCropper && imageSrc && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-950/90 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-3xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+                <h3 className="text-2xl font-black text-slate-900 uppercase">Crop Image</h3>
+                <button onClick={() => { setShowCropper(false); setImageSrc(null); }} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-all"><X size={20} /></button>
+              </div>
+              <div className="relative w-full h-[50vh] bg-slate-950">
+                <Cropper
+                  image={imageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                />
+              </div>
+              <div className="p-8 bg-white border-t border-slate-50 flex items-center justify-between">
+                  <div className="flex-1 mr-8">
+                      <input type="range" min="1" max="3" step="0.1" value={zoom} onChange={(e) => setZoom(e.target.value)} className="w-full accent-red-600" />
+                  </div>
+                  <button onClick={saveCroppedImage} className="bg-slate-950 text-white font-black px-8 py-4 rounded-2xl flex items-center gap-2 uppercase text-xs hover:bg-red-600 transition-all">
+                      <Crop size={18} /> Apply Crop
+                  </button>
               </div>
             </motion.div>
           </div>
