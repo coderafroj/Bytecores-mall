@@ -57,21 +57,10 @@ export class StorageService {
     }
 
     getFilePreview(fileId) {
-        return this.storage.getFilePreview(
+        return this.storage.getFileView(
             import.meta.env.VITE_APPWRITE_BUCKET_ID,
-            fileId,
-            0, // width (original)
-            0, // height (original)
-            'center', // gravity
-            100, // quality for pro-level
-            0, // borderWidth
-            '', // borderColor
-            0, // borderRadius
-            1, // opacity
-            0, // rotation
-            '', // background
-            'webp' // modern format
-        ).href;
+            fileId
+        );
     }
 }
 
