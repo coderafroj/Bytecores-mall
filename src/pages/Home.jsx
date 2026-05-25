@@ -5,10 +5,9 @@ import { Link } from 'react-router-dom';
 import ProductGrid from '../components/ProductGrid';
 
 const CATS = [
-  { name: "Laptops", icon: <Monitor size={32} strokeWidth={1.5} />, path: "/products/laptops", img: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&q=80" },
-  { name: "Gadgets", icon: <HeadphonesIcon size={32} strokeWidth={1.5} />, path: "/products/electronics", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80" },
-  { name: "Study Kits", icon: <BookOpen size={32} strokeWidth={1.5} />, path: "/products/study-kits", img: "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?w=500&q=80" },
-  { name: "PC Parts", icon: <Cpu size={32} strokeWidth={1.5} />, path: "/products/pc-parts", img: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=500&q=80" },
+  { name: "Laptops", icon: <Monitor size={32} strokeWidth={1.5} />, path: "/products", img: "https://pngimg.com/uploads/laptop/laptop_PNG59177.png" },
+  { name: "Audio", icon: <HeadphonesIcon size={32} strokeWidth={1.5} />, path: "/products", img: "https://pngimg.com/uploads/headphones/headphones_PNG101979.png" },
+  { name: "Accessories", icon: <Cpu size={32} strokeWidth={1.5} />, path: "/products", img: "https://pngimg.com/uploads/gamepad/gamepad_PNG74.png" },
 ];
 
 const TRUST = [
@@ -106,10 +105,17 @@ const Home = () => {
              <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                  {CATS.slice(0,3).map((cat, i) => (
                     <Link key={i} to={cat.path} className="group flex flex-col items-center bg-white rounded-[2rem] p-4 lg:p-6 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all border border-slate-50">
-                        <div className="w-full aspect-square bg-slate-50 rounded-2xl mb-4 overflow-hidden p-4">
-                            <img src={cat.img} alt={cat.name} className="w-full h-full object-cover rounded-xl group-hover:scale-110 transition-transform" />
+                        <div className="w-full aspect-square bg-slate-50/80 rounded-2xl mb-4 overflow-hidden p-6 flex items-center justify-center">
+                            <motion.img 
+                                initial={{ y: 0 }}
+                                whileHover={{ y: -10, rotate: 2 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                                src={cat.img} 
+                                alt={cat.name} 
+                                className="w-[85%] h-[85%] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.15)]" 
+                            />
                         </div>
-                        <h3 className="text-sm lg:text-base font-bold text-slate-900">{cat.name}</h3>
+                        <h3 className="text-sm lg:text-base font-bold text-slate-900 tracking-tight uppercase">{cat.name}</h3>
                     </Link>
                  ))}
              </div>

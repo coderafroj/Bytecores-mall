@@ -12,18 +12,17 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: "-50px" }}
-    whileHover={{ y: -8, scale: 1.02 }}
-    transition={{ delay: (index % 6) * 0.05, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-    className="group relative h-full"
+    whileHover={{ y: -5, scale: 1.02 }}
+    transition={{ delay: (index % 6) * 0.05, duration: 0.5, ease: "easeOut" }}
+    className="group relative h-full flex flex-col bg-white rounded-[1.5rem] lg:rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500"
   >
-    <div className="relative h-full flex flex-col bg-white rounded-[2.5rem] lg:rounded-[3.5rem] overflow-hidden border border-slate-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700">
-      {/* Image Area */}
-      <Link to={`/product/${product.$id}`} className="relative aspect-[4/5] overflow-hidden bg-slate-50 flex items-center justify-center p-8 lg:p-12">
-        <img 
-          src={product.imageUrl || '/placeholder.jpg'} 
-          alt={product.name}
-          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-1000 group-hover:scale-110"
-        />
+    {/* Image Area */}
+    <Link to={`/product/${product.$id}`} className="relative aspect-square overflow-hidden bg-slate-50/50 flex items-center justify-center p-6">
+      <img 
+        src={product.imageUrl || '/placeholder.jpg'} 
+        alt={product.name}
+        className="w-full h-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-110"
+      />
         
         {product.originalPrice > product.price && (
             <div className="absolute top-6 left-6 lg:top-10 lg:left-10 bg-red-600 text-white px-4 py-1.5 rounded-xl text-[10px] font-black shadow-2xl uppercase tracking-tighter z-10 animate-reveal">
@@ -35,14 +34,14 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
         
         <button 
           onClick={(e) => handleAddToCart(e, product)}
-          className="absolute bottom-4 right-4 lg:bottom-8 lg:right-8 w-12 h-12 lg:w-16 lg:h-16 bg-white/80 backdrop-blur-xl text-slate-900 hover:text-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-white/50 lg:opacity-0 lg:translate-y-8 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-500 hover:bg-red-600 active:scale-90 z-30"
+          className="absolute bottom-4 right-4 w-12 h-12 lg:w-14 lg:h-14 bg-white/90 backdrop-blur-md text-slate-900 hover:text-white rounded-full flex items-center justify-center shadow-lg border border-white lg:opacity-0 lg:translate-y-4 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-300 hover:bg-red-600 active:scale-95 z-30"
         >
-          <ShoppingCart size={20} className="lg:w-6 lg:h-6" strokeWidth={2.5} />
+          <ShoppingCart size={20} className="lg:w-5 lg:h-5" strokeWidth={2.5} />
         </button>
       </Link>
       
       {/* Information Area */}
-      <div className="p-8 lg:p-12 flex-1 flex flex-col">
+      <div className="p-6 lg:p-8 flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -54,7 +53,7 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
           </div>
         </div>
         
-        <h3 className="text-lg lg:text-2xl font-black text-slate-900 line-clamp-2 mb-6 tracking-tighter group-hover:text-red-600 transition-colors uppercase leading-tight">
+        <h3 className="text-base lg:text-xl font-black text-slate-900 line-clamp-2 mb-4 tracking-tighter group-hover:text-red-600 transition-colors uppercase leading-tight">
           {product.name}
         </h3>
         
@@ -75,15 +74,14 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
 
             <Link 
                 to={`/product/${product.$id}`}
-                className="relative w-full py-4 lg:py-5 bg-slate-950 overflow-hidden text-white text-xs lg:text-sm font-black uppercase tracking-widest rounded-2xl lg:rounded-[1.5rem] transition-all duration-500 flex items-center justify-center gap-3 group/btn shadow-[0_10px_30px_rgba(0,0,0,0.1)] hover:shadow-[0_20px_40px_rgba(220,38,38,0.3)] active:scale-95"
+                className="relative w-full py-3 lg:py-4 bg-slate-950 overflow-hidden text-white text-xs font-black uppercase tracking-widest rounded-xl lg:rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 group/btn shadow-md hover:shadow-[0_10px_20px_rgba(220,38,38,0.2)] active:scale-95"
             >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-rose-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-rose-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
                 <span className="relative z-10">Buy Now</span>
-                <ArrowRight size={18} className="relative z-10 group-hover/btn:translate-x-2 transition-transform duration-500" />
+                <ArrowRight size={16} className="relative z-10 group-hover/btn:translate-x-1 transition-transform duration-300" />
             </Link>
         </div>
       </div>
-    </div>
   </motion.div>
 ));
 

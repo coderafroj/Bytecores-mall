@@ -96,7 +96,6 @@ export class DatabaseService {
                 ID.unique(),
                 {
                     ...orderData,
-                    createdAt: new Date().toISOString(),
                     paymentStatus: orderData.paymentMethod === 'cod' ? 'pending' : (orderData.paymentStatus || 'pending')
                 }
             );
@@ -148,8 +147,7 @@ export class DatabaseService {
                 import.meta.env.VITE_APPWRITE_FEEDBACK_COLLECTION_ID || 'feedbacks',
                 ID.unique(),
                 {
-                    ...feedbackData,
-                    createdAt: new Date().toISOString()
+                    ...feedbackData
                 }
             );
         } catch (error) {
