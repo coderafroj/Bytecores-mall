@@ -16,10 +16,10 @@ export class StorageService {
         try {
             // Options for extreme compression but pro-level quality on website
             const options = {
-                maxSizeMB: 0.3, // Max 300KB to save database size but keep quality high
-                maxWidthOrHeight: 1600, // Full HD resolution for pro-level display
+                maxSizeMB: 0.1, // Max 100KB (Extremely low KB for database)
+                maxWidthOrHeight: 1080, // Full HD width to maintain good quality
                 useWebWorker: true,
-                initialQuality: 0.85, // Retain high visual quality
+                initialQuality: 0.8, // Retain high visual quality
             };
 
             // Compress the image
@@ -71,7 +71,7 @@ export class StorageService {
             0, // rotation
             '', // background
             'webp' // modern format
-        );
+        ).href;
     }
 }
 
