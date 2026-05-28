@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { SignedIn, SignedOut, RedirectToSignIn, useUser } from '@clerk/clerk-react';
 import { useEffect } from 'react';
 import ReactGA from 'react-ga4';
+import TrackingProvider from './components/TrackingProvider';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
@@ -99,9 +100,10 @@ function App() {
 
   return (
     <Router>
-      <RouteTracker />
-      <div className="app">
-        <LayoutNavbar cartCount={cartCount} />
+      <TrackingProvider>
+        <RouteTracker />
+        <div className="app">
+          <LayoutNavbar cartCount={cartCount} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
@@ -141,7 +143,8 @@ function App() {
         </Routes>
         <LayoutFooter />
         <LayoutBottomNav cartCount={cartCount} />
-      </div>
+        </div>
+      </TrackingProvider>
     </Router>
   );
 }

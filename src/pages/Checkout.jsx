@@ -6,6 +6,8 @@ import { clearCart } from '../store/cartSlice';
 import { CreditCard, Truck, ShoppingBag, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
 import databaseService from '../appwrite/db';
 import { Helmet } from 'react-helmet-async';
+import ReactGA from 'react-ga4';
+import ReactPixel from 'react-facebook-pixel';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -105,6 +107,20 @@ const Checkout = () => {
                 paymentStatus: 'paid'
               };
               await databaseService.createOrder(finalOrderData);
+              
+              try {
+                  ReactGA.event("purchase", {
+                      transaction_id: response.razorpay_payment_id,
+                      value: total,
+                      currency: "INR",
+                      items: cart.map(item => ({ item_id: item.$id, item_name: item.name, price: item.price, quantity: item.quantity }))
+                  });
+                  ReactPixel.track('Purchase', {
+                      value: total,
+                      currency: 'INR'
+                  });
+              } catch(e) {}
+
               dispatch(clearCart());
               navigate('/order-success');
             } catch (err) {
@@ -140,6 +156,20 @@ const Checkout = () => {
           ...orderData,
           paymentStatus: 'pending'
         });
+        
+        try {
+            ReactGA.event("purchase", {
+                transaction_id: "COD_" + Date.now(),
+                value: total,
+                currency: "INR",
+                items: cart.map(item => ({ item_id: item.$id, item_name: item.name, price: item.price, quantity: item.quantity }))
+            });
+            ReactPixel.track('Purchase', {
+                value: total,
+                currency: 'INR'
+            });
+        } catch(e) {}
+
         dispatch(clearCart());
         navigate('/order-success');
       } catch (error) {

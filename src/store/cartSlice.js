@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import ReactGA from 'react-ga4';
+import ReactPixel from 'react-facebook-pixel';
 
 const initialState = {
     items: JSON.parse(localStorage.getItem('bytecore-mall-cart')) || [],
@@ -10,6 +12,22 @@ const cartSlice = createSlice({
     reducers: {
         addToCart: (state, action) => {
             const { product, quantity = 1 } = action.payload;
+            
+            try {
+                ReactGA.event("add_to_cart", {
+                    currency: "INR",
+                    value: product.price * quantity,
+                    items: [{ item_id: product.$id, item_name: product.name, price: product.price, quantity }]
+                });
+                ReactPixel.track('AddToCart', {
+                    content_name: product.name,
+                    content_ids: [product.$id],
+                    content_type: 'product',
+                    value: product.price * quantity,
+                    currency: 'INR'
+                });
+            } catch (e) {}
+
             const existing = state.items.find(item => item.$id === product.$id);
             
             if (existing) {
