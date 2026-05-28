@@ -636,7 +636,9 @@ const AdminPanel = () => {
                                             </td>
                                             <td className="px-10 py-8">
                                                 <span className={`px-4 py-2 rounded-2xl text-[9px] font-black uppercase tracking-widest border ${
-                                                    order.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
+                                                    order.status === 'delivered' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
+                                                    order.status === 'shipped' ? 'bg-blue-50 text-blue-600 border-blue-200' : 
+                                                    order.status === 'processing' ? 'bg-purple-50 text-purple-600 border-purple-200' : 
                                                     order.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-red-50 text-red-600 border-red-200'
                                                 }`}>
                                                     {order.status}
@@ -1022,7 +1024,9 @@ const AdminPanel = () => {
                     </div>
                     <div className="text-right space-y-3">
                         <div className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest border ${
-                            selectedOrder.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                            selectedOrder.status === 'delivered' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                            selectedOrder.status === 'shipped' ? 'bg-blue-50 text-blue-600 border-blue-100' : 
+                            selectedOrder.status === 'processing' ? 'bg-purple-50 text-purple-600 border-purple-100' : 
                             selectedOrder.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-red-50 text-red-600 border-red-100'
                         }`}>
                             {selectedOrder.status}
@@ -1097,7 +1101,7 @@ const AdminPanel = () => {
                 <div className="space-y-6">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update Matrix State</p>
                     <div className="grid grid-cols-1 gap-3">
-                        {['pending', 'processing', 'completed', 'cancelled'].map((status) => (
+                        {['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
                             <button 
                                 key={status}
                                 onClick={() => updateOrderStatus(selectedOrder.$id, status)}
@@ -1134,7 +1138,7 @@ const AdminPanel = () => {
                             <RefreshCcw size={18} /> Refund
                         </button>
                     </div>
-                    <button className="w-full bg-white border border-slate-200 p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-sm">
+                    <button onClick={() => window.print()} className="w-full bg-white border border-slate-200 p-5 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-sm">
                         <Printer size={18} /> Print Record
                     </button>
                     <button 

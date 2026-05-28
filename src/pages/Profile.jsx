@@ -5,13 +5,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
   User, Package, Settings, LogOut, ChevronRight, 
   ShoppingBag, CreditCard, MapPin, Bell, Shield,
-  ExternalLink, Clock, CheckCircle, ArrowLeft, Loader2, Save
+  ExternalLink, Clock, CheckCircle, ArrowLeft, Loader2, Save, Download
 } from 'lucide-react';
 import authService from '../appwrite/auth';
 import { logout as authLogout } from '../store/authSlice';
 import databaseService from '../appwrite/db';
 import { Query } from 'appwrite';
 import { Helmet } from 'react-helmet-async';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const Profile = () => {
   const user = useSelector((state) => state.auth.userData);
@@ -101,6 +103,32 @@ const Profile = () => {
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
+  };
+
+  const generatePDF = async (order) => {
+    const receiptElement = document.getElementById(`receipt-${order.$id}`);
+    if (!receiptElement) return;
+
+    try {
+      showToast("Generating Receipt...", "success");
+      receiptElement.style.display = 'block';
+      const canvas = await html2canvas(receiptElement, { scale: 2 });
+      receiptElement.style.display = 'none';
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`Bytecores_Receipt_${order.$id}.pdf`);
+      showToast("Receipt Downloaded Successfully!");
+    } catch (err) {
+      console.error("PDF Gen Error:", err);
+      showToast("Failed to generate receipt.", "error");
+    }
   };
 
   if (!user) return null;
@@ -227,7 +255,9 @@ const Profile = () => {
                                             <div className="flex items-center gap-2 mb-1">
                                                 <p className="font-black text-slate-900 text-sm uppercase">Order #{order.$id.slice(-8).toUpperCase()}</p>
                                                 <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                                    order.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 
+                                                    order.status === 'delivered' ? 'bg-emerald-100 text-emerald-600' : 
+                                                    order.status === 'shipped' ? 'bg-blue-100 text-blue-600' : 
+                                                    order.status === 'processing' ? 'bg-purple-100 text-purple-600' : 
                                                     order.status === 'pending' ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-600'
                                                 }`}>
                                                     {order.status}
@@ -236,8 +266,76 @@ const Profile = () => {
                                             <p className="text-xs font-bold text-slate-400">Placed on {new Date(order.$createdAt).toLocaleDateString()}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
+                                    <div className="text-right flex flex-col items-end gap-2">
                                         <p className="text-lg font-black text-slate-900 tracking-tighter">₹{order.total}</p>
+                                        {(order.status === 'delivered' || order.status === 'shipped' || order.status === 'completed') && (
+                                            <button 
+                                                onClick={() => generatePDF(order)}
+                                                className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1 hover:text-red-500 transition-colors"
+                                            >
+                                                <Download size={14} /> Download Receipt
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Hidden PDF Template */}
+                                <div id={`receipt-${order.$id}`} style={{ display: 'none', padding: '40px', backgroundColor: 'white', color: 'black', width: '800px' }}>
+                                    <h1 style={{ fontSize: '32px', fontWeight: '900', marginBottom: '8px' }}>BYTECORES MALL</h1>
+                                    <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '40px' }}>Official Transaction Receipt</p>
+                                    
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
+                                        <div>
+                                            <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8' }}>BILLED TO:</p>
+                                            <p style={{ fontSize: '16px', fontWeight: '900' }}>{order.userName}</p>
+                                            <p style={{ fontSize: '14px', color: '#64748b' }}>{order.userEmail}</p>
+                                            <p style={{ fontSize: '14px', color: '#64748b' }}>{order.address}</p>
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ fontSize: '12px', fontWeight: 'bold', color: '#94a3b8' }}>ORDER DETAILS:</p>
+                                            <p style={{ fontSize: '14px' }}><strong>ID:</strong> {order.$id}</p>
+                                            <p style={{ fontSize: '14px' }}><strong>Date:</strong> {new Date(order.$createdAt).toLocaleString()}</p>
+                                            <p style={{ fontSize: '14px' }}><strong>Status:</strong> {order.status.toUpperCase()}</p>
+                                        </div>
+                                    </div>
+
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '40px' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: '2px solid #f1f5f9', textAlign: 'left' }}>
+                                                <th style={{ padding: '12px 0', fontSize: '12px', color: '#94a3b8' }}>ITEM</th>
+                                                <th style={{ padding: '12px 0', fontSize: '12px', color: '#94a3b8', textAlign: 'right' }}>QTY</th>
+                                                <th style={{ padding: '12px 0', fontSize: '12px', color: '#94a3b8', textAlign: 'right' }}>PRICE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {JSON.parse(order.items || '[]').map((item, idx) => (
+                                                <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                                    <td style={{ padding: '16px 0', fontWeight: 'bold' }}>{item.name}</td>
+                                                    <td style={{ padding: '16px 0', textAlign: 'right' }}>{item.quantity}</td>
+                                                    <td style={{ padding: '16px 0', textAlign: 'right' }}>₹{item.price * item.quantity}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+
+                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                        <div style={{ width: '300px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#64748b' }}>
+                                                <span>Subtotal:</span>
+                                                <span>₹{order.subtotal}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', color: '#64748b' }}>
+                                                <span>Shipping:</span>
+                                                <span>₹{order.shipping}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '2px solid #f1f5f9', fontWeight: '900', fontSize: '24px' }}>
+                                                <span>TOTAL:</span>
+                                                <span>₹{order.total}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style={{ marginTop: '60px', textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
+                                        Thank you for shopping with Bytecores Mall!
                                     </div>
                                 </div>
                             ))}

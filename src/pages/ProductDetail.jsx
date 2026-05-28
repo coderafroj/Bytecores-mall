@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../store/cartSlice';
 import { ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Award, ChevronLeft, ZoomIn, X } from 'lucide-react';
+import ProductGrid from '../components/ProductGrid';
 import { Helmet } from 'react-helmet-async';
 import databaseService from '../appwrite/db';
 
@@ -193,6 +194,21 @@ const ProductDetail = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* Algorithm: Recommendation Engine - Related Products */}
+        {product.category && (
+          <div className="mt-32 pt-16 border-t border-slate-100">
+            <h2 className="text-4xl font-black text-slate-900 tracking-tighter mb-4 text-center">
+              You Might Also Like
+            </h2>
+            <p className="text-slate-500 font-bold text-center mb-12">
+              Explore more {product.category} products from our premium collection
+            </p>
+            <div className="-mx-6 lg:-mx-12">
+              <ProductGrid category={product.category} limit={4} />
+            </div>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>

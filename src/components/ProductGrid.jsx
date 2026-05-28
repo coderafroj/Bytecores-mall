@@ -21,6 +21,7 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
       <img 
         src={product.imageUrl || '/placeholder.jpg'} 
         alt={product.name}
+        loading="lazy"
         className="w-full h-full object-contain mix-blend-multiply p-6 transition-transform duration-500 group-hover:scale-110"
       />
       {product.originalPrice > product.price && (
@@ -72,7 +73,7 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
   </motion.div>
 ));
 
-const ProductGrid = ({ category = null, limit = null }) => {
+const ProductGrid = ({ category = null, limit = null, searchQuery = '', sortBy = 'newest' }) => {
   const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -125,6 +126,21 @@ const ProductGrid = ({ category = null, limit = null }) => {
     }, 2500);
   };
 
+  // Algorithm: Filter and Sort
+  const filteredAndSortedProducts = products
+    .filter(p => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return p.name.toLowerCase().includes(query) || (p.category && p.category.toLowerCase().includes(query));
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
+      if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      // 'newest' is default, which is already handled by the Appwrite orderDesc('$createdAt')
+      return 0;
+    });
+
   if (loading) {
     return (
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-6 lg:px-12 py-12">
@@ -135,7 +151,7 @@ const ProductGrid = ({ category = null, limit = null }) => {
     );
   }
 
-  if (products.length === 0) {
+  if (filteredAndSortedProducts.length === 0) {
     return (
       <div className="w-full py-32 flex flex-col items-center justify-center text-center px-6">
         <div className="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mb-10 animate-pulse">
@@ -156,7 +172,7 @@ const ProductGrid = ({ category = null, limit = null }) => {
   return (
     <div className="w-full px-6 lg:px-12 py-12">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-        {products.map((product, index) => (
+        {filteredAndSortedProducts.map((product, index) => (
           <ProductCard 
             key={product.$id} 
             product={product} 

@@ -10,6 +10,7 @@ const Products = ({ addToCart }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(urlCategory || 'all');
+  const [sortBy, setSortBy] = useState('newest');
 
   const categories = [
     { id: 'all', name: 'All Products', icon: '🛍️' },
@@ -105,23 +106,41 @@ const Products = ({ addToCart }) => {
               <p className="text-slate-500 font-bold">Discover our curated collection of amazing items.</p>
             </div>
 
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-12 font-bold focus:border-red-500 focus:bg-white outline-none transition-all"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-red-500 hover:text-white transition-colors"
-                  onClick={() => setSearchQuery('')}
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+              <div className="relative w-full sm:w-64 md:w-80">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-12 font-bold focus:border-red-500 focus:bg-white outline-none transition-all"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button 
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-red-500 hover:text-white transition-colors"
+                    onClick={() => setSearchQuery('')}
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              
+              <div className="relative w-full sm:w-48">
+                <select 
+                  className="w-full appearance-none bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 px-6 font-bold text-slate-700 focus:border-red-500 focus:bg-white outline-none transition-all cursor-pointer"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
                 >
-                  <X size={14} />
-                </button>
-              )}
+                  <option value="newest">Latest Arrivals</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="rating">Top Rated</option>
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <ChevronRight size={18} className="rotate-90" />
+                </div>
+              </div>
             </div>
           </header>
 
@@ -129,6 +148,8 @@ const Products = ({ addToCart }) => {
             <ProductGrid 
               addToCart={addToCart} 
               category={activeCategory === 'all' ? null : activeCategory} 
+              searchQuery={searchQuery}
+              sortBy={sortBy}
             />
           </div>
         </main>

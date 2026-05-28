@@ -83,8 +83,15 @@ const Checkout = () => {
           return;
         }
 
+        const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+        if (!razorpayKey) {
+          alert('Payment Gateway Configuration Missing! Please configure VITE_RAZORPAY_KEY_ID in your .env file. Please use Cash on Delivery for now.');
+          setLoading(false);
+          return;
+        }
+
         const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_your_key_id',
+          key: razorpayKey,
           amount: total * 100, // in paise
           currency: 'INR',
           name: "Bytecore's Mall",
