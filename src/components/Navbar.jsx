@@ -6,7 +6,7 @@ import {
   ShoppingBag, Search, MapPin
 } from 'lucide-react';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
-import logo from '../assets/bytecoreMall.png';
+
 
 const Navbar = ({ cartCount }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -36,12 +36,13 @@ const Navbar = ({ cartCount }) => {
         }`}>
           
           {/* Logo Section */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-3 group">
             <img 
-              src={logo} 
+              src="/favicon.png" 
               alt="Bytecore Mall" 
-              className="h-14 lg:h-20 object-contain transform group-hover:scale-105 transition-all duration-300 drop-shadow-2xl" 
+              className="h-10 lg:h-12 w-auto object-contain transform group-hover:scale-105 transition-all duration-300 drop-shadow-xl" 
             />
+            <span className={`font-black text-xl tracking-tighter hidden sm:block ${isTransparent ? 'text-white' : 'text-slate-900'}`}>Bytecores<span className="text-red-600">Mall</span></span>
           </Link>
 
           {/* Search Bar (Matches Image) */}

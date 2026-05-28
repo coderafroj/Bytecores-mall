@@ -81,9 +81,28 @@ const ProductDetail = () => {
       <Helmet>
         <title>{product.name} | Bytecores Mall</title>
         <meta name="description" content={`Buy ${product.name} for ₹${product.price} at Bytecores Mall. 100% genuine products.`} />
+        <link rel="canonical" href={`https://mall.bytecores.in/product/${product.$id}`} />
         <meta property="og:title" content={`${product.name} | Bytecores Mall`} />
         <meta property="og:description" content={`Buy ${product.name} for ₹${product.price} at Bytecores Mall. 100% genuine products.`} />
         <meta property="og:image" content={product.imageUrl || 'https://mall.bytecores.in/favicon.png'} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": product.name,
+            "image": [product.imageUrl || 'https://mall.bytecores.in/favicon.png'],
+            "description": product.description || `Buy ${product.name} at Bytecores Mall.`,
+            "sku": product.$id,
+            "offers": {
+              "@type": "Offer",
+              "url": `https://mall.bytecores.in/product/${product.$id}`,
+              "priceCurrency": "INR",
+              "price": product.price,
+              "itemCondition": "https://schema.org/NewCondition",
+              "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+            }
+          })}
+        </script>
       </Helmet>
 
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12">
