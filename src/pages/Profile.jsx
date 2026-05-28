@@ -246,7 +246,8 @@ const Profile = () => {
                     ) : orders.length > 0 ? (
                         <div className="space-y-6">
                             {orders.map((order) => (
-                                <div key={order.$id} className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100 group hover:border-red-500/20 transition-all flex flex-col sm:flex-row items-center justify-between gap-6">
+                                <div key={order.$id} className="relative">
+                                    <div className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100 group hover:border-red-500/20 transition-all flex flex-col sm:flex-row items-center justify-between gap-6">
                                     <div className="flex items-center gap-6">
                                         <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-slate-400 shadow-sm">
                                             <Package size={32} />
@@ -337,6 +338,7 @@ const Profile = () => {
                                     <div style={{ marginTop: '60px', textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
                                         Thank you for shopping with Bytecores Mall!
                                     </div>
+                                </div>
                                 </div>
                             ))}
                         </div>
