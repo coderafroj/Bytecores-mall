@@ -1,34 +1,43 @@
-import { useState, useEffect, memo } from 'react';
+import { useState, memo, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Star, ShoppingCart, ArrowRight, PackageX, Zap } from 'lucide-react';
+import { Star, ShoppingCart, ArrowRight, PackageX, Zap, Heart } from 'lucide-react';
 import databaseService from '../appwrite/db';
 import { Query } from 'appwrite';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/cartSlice';
+import { toggleWishlist } from '../store/wishlistSlice';
+import { useQuery } from '@tanstack/react-query';
+import Fuse from 'fuse.js';
 
-const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
+const ProductCard = memo(({ product, index, navigate, handleAddToCart, handleToggleWishlist, isWishlisted }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     whileHover={{ y: -5 }}
     transition={{ duration: 0.3 }}
-    className="group relative bg-white rounded-3xl p-3 flex flex-col border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 h-full"
+    className="group relative bg-white rounded-[1.5rem] sm:rounded-3xl p-2 sm:p-3 flex flex-col border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 h-full"
   >
     {/* Image Container */}
-    <div className="relative aspect-square w-full rounded-[1.5rem] overflow-hidden bg-slate-50 mb-4 cursor-pointer" onClick={() => navigate(`/product/${product.$id}`)}>
+    <div className="relative aspect-square w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 sm:mb-4 cursor-pointer" onClick={() => navigate(`/product/${product.$id}`)}>
       <img 
         src={product.imageUrl || '/placeholder.jpg'} 
         alt={product.name}
         loading="lazy"
-        className="w-full h-full object-contain mix-blend-multiply p-6 transition-transform duration-500 group-hover:scale-110"
+        className="w-full h-full object-contain mix-blend-multiply p-3 sm:p-6 transition-transform duration-500 group-hover:scale-110"
       />
       {product.originalPrice > product.price && (
         <span className="absolute top-3 left-3 bg-red-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-md">
           -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
         </span>
       )}
+      <button 
+        onClick={(e) => { e.stopPropagation(); handleToggleWishlist(e, product); }}
+        className={`absolute top-3 right-3 w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110 active:scale-95 ${isWishlisted ? 'bg-red-50 text-red-600' : 'bg-white/80 text-slate-400 hover:text-red-500'}`}
+      >
+        <Heart size={14} fill={isWishlisted ? 'currentColor' : 'none'} strokeWidth={isWishlisted ? 0 : 2} />
+      </button>
       <button 
         onClick={(e) => { e.stopPropagation(); handleAddToCart(e, product); }}
         className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm text-slate-900 rounded-full flex items-center justify-center shadow-lg lg:opacity-0 lg:group-hover:opacity-100 transition-all hover:bg-red-600 hover:text-white hover:scale-110 active:scale-95"
@@ -54,12 +63,12 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
         {product.name}
       </h3>
       
-      <div className="mt-auto flex flex-wrap items-end justify-between gap-2">
+      <div className="mt-auto flex flex-col sm:flex-row sm:items-end justify-between gap-2">
         <div className="flex flex-col">
           {product.originalPrice > product.price && (
             <span className="text-[10px] text-slate-400 line-through font-bold">₹{product.originalPrice}</span>
           )}
-          <span className="text-xl font-black text-slate-900 leading-none tracking-tight">₹{product.price}</span>
+          <span className="text-lg sm:text-xl font-black text-slate-900 leading-none tracking-tight">₹{product.price}</span>
         </div>
         
         <button 
@@ -75,39 +84,32 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart }) => (
 
 const ProductGrid = ({ category = null, limit = null, searchQuery = '', sortBy = 'newest' }) => {
   const dispatch = useDispatch();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const wishlistItems = useSelector(state => state.wishlist.items);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchProducts();
-  }, [category]);
-
   const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const queries = [Query.orderDesc('$createdAt')];
-      
-      if (category && category !== 'all') {
-        queries.push(Query.equal('category', category));
-      }
-      
-      if (limit) {
-        queries.push(Query.limit(limit));
-      } else {
-        queries.push(Query.limit(100));
-      }
-
-      const response = await databaseService.getProducts(queries);
-      
-      if (response) {
-        setProducts(response.documents);
-      }
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
+    const queries = [Query.orderDesc('$createdAt')];
+    if (category && category !== 'all') {
+      queries.push(Query.equal('category', category));
     }
+    if (limit) {
+      queries.push(Query.limit(limit));
+    } else {
+      queries.push(Query.limit(100));
+    }
+    const response = await databaseService.getProducts(queries);
+    return response.documents;
+  };
+
+  const { data: products = [], isLoading: loading } = useQuery({
+    queryKey: ['products', category, limit],
+    queryFn: fetchProducts,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const handleToggleWishlist = (e, product) => {
+    e.preventDefault();
+    dispatch(toggleWishlist(product));
   };
 
   const handleAddToCart = (e, product) => {
@@ -126,26 +128,31 @@ const ProductGrid = ({ category = null, limit = null, searchQuery = '', sortBy =
     }, 2500);
   };
 
-  // Algorithm: Filter and Sort
-  const filteredAndSortedProducts = products
-    .filter(p => {
-      if (!searchQuery) return true;
-      const query = searchQuery.toLowerCase();
-      return p.name.toLowerCase().includes(query) || (p.category && p.category.toLowerCase().includes(query));
-    })
-    .sort((a, b) => {
+  // Algorithm: Fuzzy Filter and Sort
+  const filteredAndSortedProducts = useMemo(() => {
+    let result = [...products];
+
+    if (searchQuery) {
+      const fuse = new Fuse(result, {
+        keys: ['name', 'category'],
+        threshold: 0.3,
+      });
+      result = fuse.search(searchQuery).map(res => res.item);
+    }
+
+    return result.sort((a, b) => {
       if (sortBy === 'price-low') return (a.price || 0) - (b.price || 0);
       if (sortBy === 'price-high') return (b.price || 0) - (a.price || 0);
       if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
-      // 'newest' is default, which is already handled by the Appwrite orderDesc('$createdAt')
       return 0;
     });
+  }, [products, searchQuery, sortBy]);
 
   if (loading) {
     return (
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 px-6 lg:px-12 py-12">
+      <div className="w-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-10 px-4 sm:px-6 lg:px-12 py-6 sm:py-12">
         {[...Array(limit || 8)].map((_, i) => (
-          <div key={i} className="aspect-[4/6] bg-slate-100 animate-pulse rounded-[3rem]" />
+          <div key={i} className="aspect-[4/6] bg-slate-100 animate-pulse rounded-[1.5rem] sm:rounded-[3rem]" />
         ))}
       </div>
     );
@@ -170,15 +177,17 @@ const ProductGrid = ({ category = null, limit = null, searchQuery = '', sortBy =
   }
 
   return (
-    <div className="w-full px-6 lg:px-12 py-12">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+    <div className="w-full px-4 sm:px-6 lg:px-12 py-6 sm:py-12">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-10">
         {filteredAndSortedProducts.map((product, index) => (
           <ProductCard 
             key={product.$id} 
             product={product} 
             index={index} 
             navigate={navigate} 
-            handleAddToCart={handleAddToCart} 
+            handleAddToCart={handleAddToCart}
+            handleToggleWishlist={handleToggleWishlist}
+            isWishlisted={wishlistItems.some(item => item.$id === product.$id)}
           />
         ))}
       </div>

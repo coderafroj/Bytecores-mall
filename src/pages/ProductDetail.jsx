@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/cartSlice';
-import { ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Award, ChevronLeft, ZoomIn, X } from 'lucide-react';
+import { addRecentlyViewed, toggleWishlist } from '../store/wishlistSlice';
+import { ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Award, ChevronLeft, ZoomIn, X, Heart } from 'lucide-react';
 import ProductGrid from '../components/ProductGrid';
 import { Helmet } from 'react-helmet-async';
 import databaseService from '../appwrite/db';
@@ -11,6 +12,8 @@ import databaseService from '../appwrite/db';
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const wishlistItems = useSelector(state => state.wishlist?.items || []);
+  const recentlyViewed = useSelector(state => state.wishlist?.recentlyViewed || []);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -25,6 +28,7 @@ const ProductDetail = () => {
       setLoading(true);
       const response = await databaseService.getProduct(id);
       setProduct(response);
+      dispatch(addRecentlyViewed(response));
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
@@ -144,9 +148,17 @@ const ProductDetail = () => {
               <span className="inline-block px-4 py-1.5 bg-red-100 text-red-500 rounded-full text-xs font-black uppercase tracking-widest mb-6">
                 {product.category}
               </span>
-              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter leading-none mb-6">
-                {product.name}
-              </h1>
+              <div className="flex justify-between items-start mb-6">
+                  <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter leading-none">
+                    {product.name}
+                  </h1>
+                  <button 
+                      onClick={() => dispatch(toggleWishlist(product))}
+                      className={`w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center transition-all shadow-sm hover:shadow-md active:scale-95 border ${wishlistItems.some(i => i.$id === product.$id) ? 'bg-red-50 text-red-600 border-red-100' : 'bg-white text-slate-400 hover:text-red-500 border-slate-200'}`}
+                  >
+                      <Heart size={24} fill={wishlistItems.some(i => i.$id === product.$id) ? 'currentColor' : 'none'} strokeWidth={wishlistItems.some(i => i.$id === product.$id) ? 0 : 2} />
+                  </button>
+              </div>
               
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-1 text-yellow-400">
@@ -225,6 +237,29 @@ const ProductDetail = () => {
             </p>
             <div className="-mx-6 lg:-mx-12">
               <ProductGrid category={product.category} limit={4} />
+            </div>
+          </div>
+        )}
+
+        {/* Algorithm: Recently Viewed Items */}
+        {recentlyViewed.filter(p => p.$id !== product.$id).length > 0 && (
+          <div className="mt-20 pt-16 border-t border-slate-100">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tighter mb-4 text-center">
+              Recently Viewed
+            </h2>
+            <p className="text-slate-500 font-bold text-center mb-12">
+              Pick up right where you left off
+            </p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                {recentlyViewed.filter(p => p.$id !== product.$id).slice(0, 4).map(item => (
+                    <Link to={`/product/${item.$id}`} key={item.$id} className="group bg-white rounded-3xl p-3 border border-slate-100 shadow-sm hover:shadow-xl transition-all">
+                        <div className="aspect-square bg-slate-50 rounded-[1.5rem] p-4 mb-4">
+                            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform" />
+                        </div>
+                        <h3 className="font-bold text-slate-900 text-sm line-clamp-2 px-2">{item.name}</h3>
+                        <p className="text-red-600 font-black px-2 mt-2">₹{item.price}</p>
+                    </Link>
+                ))}
             </div>
           </div>
         )}

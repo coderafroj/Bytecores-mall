@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { 
   User, Package, Settings, LogOut, ChevronRight, 
   ShoppingBag, CreditCard, MapPin, Bell, Shield,
-  ExternalLink, Clock, CheckCircle, ArrowLeft, Loader2, Save, Download
+  ExternalLink, Clock, CheckCircle, ArrowLeft, Loader2, Save, Download, Heart
 } from 'lucide-react';
 import authService from '../appwrite/auth';
 import { logout as authLogout } from '../store/authSlice';
@@ -17,6 +17,7 @@ import html2canvas from 'html2canvas';
 
 const Profile = () => {
   const user = useSelector((state) => state.auth.userData);
+  const wishlistItems = useSelector((state) => state.wishlist?.items || []);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -194,6 +195,7 @@ const Profile = () => {
                     {[
                         { id: 'details', icon: <User size={20} />, label: 'Profile Details' },
                         { id: 'orders', icon: <Package size={20} />, label: 'My Orders' },
+                        { id: 'wishlist', icon: <Heart size={20} />, label: 'My Wishlist' },
                         { id: 'address', icon: <MapPin size={20} />, label: 'Addresses' },
                         { id: 'security', icon: <Shield size={20} />, label: 'Privacy & Security' }
                     ].map((item) => (
@@ -348,6 +350,48 @@ const Profile = () => {
                                 <ShoppingBag size={40} />
                             </div>
                             <p className="font-bold text-slate-400">No orders found yet.</p>
+                            <Link to="/products" className="inline-block mt-6 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 transition-all">Start Shopping</Link>
+                        </div>
+                    )}
+                </motion.div>
+              )}
+
+              {activeTab === 'wishlist' && (
+                <motion.div 
+                  key="wishlist"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="bg-white rounded-[2.5rem] p-10 shadow-xl shadow-slate-200/50 border border-slate-100"
+                >
+                    <div className="flex items-center justify-between mb-10">
+                        <div>
+                            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">My Wishlist</h2>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Saved items for later</p>
+                        </div>
+                    </div>
+
+                    {wishlistItems.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {wishlistItems.map((item) => (
+                                <div key={item.$id} className="flex gap-4 p-4 border border-slate-100 rounded-2xl bg-slate-50 relative group">
+                                    <div className="w-24 h-24 bg-white rounded-xl overflow-hidden flex-shrink-0">
+                                        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform mix-blend-multiply" />
+                                    </div>
+                                    <div className="pr-12">
+                                        <h3 className="font-bold text-sm text-slate-900 line-clamp-2">{item.name}</h3>
+                                        <p className="text-red-600 font-black mt-2">₹{item.price}</p>
+                                    </div>
+                                    <Link to={`/product/${item.$id}`} className="absolute bottom-4 right-4 bg-slate-900 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-colors">View</Link>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-12 text-center">
+                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                                <Heart size={40} />
+                            </div>
+                            <p className="font-bold text-slate-400">Your wishlist is empty.</p>
                             <Link to="/products" className="inline-block mt-6 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-600 transition-all">Start Shopping</Link>
                         </div>
                     )}

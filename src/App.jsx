@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { SignedIn, SignedOut, RedirectToSignIn, useUser } from '@clerk/clerk-react';
+import { useEffect } from 'react';
+import ReactGA from 'react-ga4';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
@@ -18,6 +20,14 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import RefundPolicy from './pages/RefundPolicy';
 import Footer from './components/Footer';
+
+const RouteTracker = () => {
+  const location = useLocation();
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+  }, [location]);
+  return null;
+};
 
 const LayoutNavbar = ({ cartCount }) => {
   const location = useLocation();
@@ -80,8 +90,16 @@ function App() {
   const cartItems = useSelector((state) => state.cart.items);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  useEffect(() => {
+    const TRACKING_ID = import.meta.env.VITE_GA_TRACKING_ID;
+    if (TRACKING_ID) {
+      ReactGA.initialize(TRACKING_ID);
+    }
+  }, []);
+
   return (
     <Router>
+      <RouteTracker />
       <div className="app">
         <LayoutNavbar cartCount={cartCount} />
         <Routes>
