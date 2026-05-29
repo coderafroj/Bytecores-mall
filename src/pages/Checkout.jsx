@@ -6,8 +6,11 @@ import { clearCart } from '../store/cartSlice';
 import { CreditCard, Truck, ShoppingBag, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
 import databaseService from '../appwrite/db';
 import { Helmet } from 'react-helmet-async';
-import ReactGA from 'react-ga4';
-import ReactPixel from 'react-facebook-pixel';
+import ReactGALib from 'react-ga4';
+import ReactPixelLib from 'react-facebook-pixel';
+
+const ReactGA = ReactGALib.default || ReactGALib;
+const ReactPixel = ReactPixelLib.default || ReactPixelLib;
 
 const Checkout = () => {
   const navigate = useNavigate();

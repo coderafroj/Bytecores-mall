@@ -1,6 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import ReactGA from 'react-ga4';
-import ReactPixel from 'react-facebook-pixel';
+import ReactGALib from 'react-ga4';
+import ReactPixelLib from 'react-facebook-pixel';
+
+const ReactGA = ReactGALib.default || ReactGALib;
+const ReactPixel = ReactPixelLib.default || ReactPixelLib;
 
 const initialState = {
     items: JSON.parse(localStorage.getItem('bytecore-mall-cart')) || [],
