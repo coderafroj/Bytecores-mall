@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'sonner';
 import { clearCart } from '../store/cartSlice';
 import { CreditCard, Truck, ShoppingBag, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
 import databaseService from '../appwrite/db';
@@ -83,14 +84,14 @@ const Checkout = () => {
         const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
 
         if (!res) {
-          alert('Razorpay SDK failed to load. Are you online?');
+          toast.error('Razorpay SDK failed to load. Are you online?');
           setLoading(false);
           return;
         }
 
         const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
         if (!razorpayKey) {
-          alert('Payment Gateway Configuration Missing! Please configure VITE_RAZORPAY_KEY_ID in your .env file. Please use Cash on Delivery for now.');
+          toast.error('Payment Gateway Configuration Missing! Please use Cash on Delivery for now.');
           setLoading(false);
           return;
         }
@@ -128,7 +129,7 @@ const Checkout = () => {
               navigate('/order-success');
             } catch (err) {
               console.error('Error saving order after payment:', err);
-              alert('Payment successful but order saving failed. Please contact support with Payment ID: ' + response.razorpay_payment_id);
+              toast.error(`Order saving failed. Payment ID: ${response.razorpay_payment_id}. Contact support.`);
             }
           },
           prefill: {
@@ -149,7 +150,7 @@ const Checkout = () => {
         setLoading(false);
       } catch (error) {
         console.error('Razorpay Error:', error);
-        alert('Could not initialize Razorpay. Please try again.');
+        toast.error('Could not initialize Razorpay. Please try again.');
         setLoading(false);
       }
     } else {
@@ -177,7 +178,7 @@ const Checkout = () => {
         navigate('/order-success');
       } catch (error) {
         console.error('Error placing order:', error);
-        alert('Failed to place order. Please try again.');
+        toast.error('Failed to place order. Please try again.');
       } finally {
         setLoading(false);
       }

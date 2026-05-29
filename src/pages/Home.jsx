@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, ArrowLeft, Heart, Monitor, Cpu, Wifi, BookOpen, ShoppingBag, ShieldCheck, Truck, HeadphonesIcon, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProductGrid from '../components/ProductGrid';
@@ -18,6 +18,11 @@ const TRUST = [
 ];
 
 const Home = () => {
+  const { scrollY } = useScroll();
+  const textY = useTransform(scrollY, [0, 800], [0, 200]);
+  const imageY = useTransform(scrollY, [0, 800], [0, -150]);
+  const backgroundY = useTransform(scrollY, [0, 800], [0, 100]);
+
   return (
     <div className="w-full bg-[#FAFAFA] font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#C62828] selection:text-white pb-20 lg:pb-0">
       <Helmet>
@@ -30,7 +35,13 @@ const Home = () => {
         <div className="relative w-full min-h-[100svh] h-auto pb-32 lg:pb-0 lg:min-h-[800px] bg-[#C62828] overflow-hidden flex flex-col pt-28 lg:pt-32">
             
             {/* Subtle background forest/texture (like the image) */}
-            <div className="absolute inset-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }} />
+            <motion.div 
+              className="absolute inset-0 w-full h-full opacity-[0.03]" 
+              style={{ 
+                backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
+                y: backgroundY 
+              }} 
+            />
 
             <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between w-full h-full max-w-[1400px] mx-auto px-6 lg:px-20 pb-10">
                 
@@ -43,7 +54,10 @@ const Home = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="w-full lg:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-left z-20 mt-10 lg:mt-0 relative">
+                <motion.div 
+                    className="w-full lg:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-left z-20 mt-10 lg:mt-0 relative"
+                    style={{ y: textY }}
+                >
                     <h2 className="text-white/90 text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide mb-2 lg:mb-0">Mega Shopping Festival</h2>
                     <h1 className="text-6xl sm:text-7xl lg:text-[130px] font-serif italic text-white font-bold tracking-tighter leading-[0.8] mb-8 lg:mb-12 drop-shadow-lg">
                         ₹99 Store
@@ -62,7 +76,7 @@ const Home = () => {
                             Selling from ₹9 to ₹999. Discover premium quality products across all categories, exclusively curated and available for you. Don't miss out!
                         </p>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Center 3D Floating Element (Like the Christmas Tree) */}
                 <div className="w-full lg:w-[50%] h-[250px] sm:h-[350px] lg:h-[600px] relative z-20 flex items-center justify-center mt-12 lg:mt-0 lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
@@ -70,6 +84,7 @@ const Home = () => {
                         initial={{ opacity: 0, y: 50, rotate: -5 }}
                         animate={{ opacity: 1, y: 0, rotate: 0 }}
                         transition={{ duration: 1, ease: "easeOut" }}
+                        style={{ y: imageY }}
                         src="https://pngimg.com/uploads/shopping_cart/shopping_cart_PNG38.png" 
                         alt="99 Mall Shopping" 
                         className="w-[90%] lg:w-full max-w-[700px] h-auto object-contain drop-shadow-[0_40px_40px_rgba(0,0,0,0.5)]"

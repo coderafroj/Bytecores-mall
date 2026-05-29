@@ -15,8 +15,8 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart, handleTog
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    whileHover={{ y: -5 }}
-    transition={{ duration: 0.3 }}
+    whileHover={{ y: -10, rotateX: 5, rotateY: 5, scale: 1.02 }}
+    transition={{ duration: 0.4, type: 'spring', stiffness: 200 }}
     className="group relative bg-white rounded-[1.5rem] sm:rounded-3xl p-2 sm:p-3 flex flex-col border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 h-full"
   >
     {/* Image Container */}

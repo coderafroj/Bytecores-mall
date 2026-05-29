@@ -4,6 +4,8 @@ import { SignedIn, SignedOut, RedirectToSignIn, useUser } from '@clerk/clerk-rea
 import { useEffect } from 'react';
 import ReactGA from 'react-ga4';
 import TrackingProvider from './components/TrackingProvider';
+import { Toaster } from 'sonner';
+import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
@@ -102,6 +104,8 @@ function App() {
     <Router>
       <TrackingProvider>
         <RouteTracker />
+        <CustomCursor />
+        <Toaster position="bottom-right" richColors />
         <div className="app">
           <LayoutNavbar cartCount={cartCount} />
         <Routes>

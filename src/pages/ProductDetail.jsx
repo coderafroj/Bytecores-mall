@@ -8,6 +8,7 @@ import { ShoppingCart, Star, Minus, Plus, Truck, Shield, RotateCcw, Award, Chevr
 import ProductGrid from '../components/ProductGrid';
 import { Helmet } from 'react-helmet-async';
 import databaseService from '../appwrite/db';
+import { toast } from 'sonner';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -46,17 +47,7 @@ const ProductDetail = () => {
 
   const onAddToCart = () => {
     dispatch(addToCart({ product, quantity }));
-    
-    const toast = document.createElement('div');
-    toast.className = 'fixed bottom-8 right-8 bg-green-500 text-white px-8 py-4 rounded-full font-bold shadow-2xl z-[9999] transition-all transform translate-y-0 opacity-100';
-    toast.textContent = `Added ${quantity} item${quantity > 1 ? 's' : ''} to cart! 🛒`;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(20px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 2000);
+    toast.success(`Added ${quantity} item${quantity > 1 ? 's' : ''} to cart!`);
   };
 
   if (loading) {

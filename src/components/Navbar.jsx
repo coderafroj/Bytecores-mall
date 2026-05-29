@@ -31,7 +31,7 @@ const Navbar = ({ cartCount }) => {
       <div className="max-w-[1920px] mx-auto px-4 lg:px-12">
         <div className={`relative flex items-center justify-between rounded-full lg:rounded-full px-6 lg:px-10 h-16 lg:h-20 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-white/95 backdrop-blur-md shadow-sm border border-slate-200' 
+            ? 'bg-white/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/40' 
             : 'bg-transparent'
         }`}>
           
