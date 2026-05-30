@@ -50,6 +50,16 @@
   .btn-premium:hover::after {
     @apply translate-y-0;
   }
+
+  .aurora-bg {
+    background: linear-gradient(120deg, rgba(239, 68, 68, 0.1) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(239, 68, 68, 0.1) 100%);
+    background-size: 200% 200%;
+    animation: aurora 10s ease infinite;
+  }
+
+  .island-nav {
+    @apply bg-white/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white/50 rounded-full mx-auto;
+  }
 }
 
 /* Advanced Animations */
@@ -66,6 +76,12 @@
 @keyframes pulse-glow {
   0%, 100% { opacity: 0.5; transform: scale(1); }
   50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes aurora {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .animate-reveal { animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -95,4 +111,91 @@
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-slate-200 rounded-full hover:bg-slate-300;
+}
+
+/* POS Print Styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .hide-on-print {
+    display: none !important;
+  }
+  #print-section, #print-section * {
+    visibility: visible;
+  }
+  #print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: block !important;
+  }
+
+  .print-receipt {
+    width: 300px;
+    margin: 0 auto;
+    font-family: monospace;
+    color: #000;
+  }
+
+  .print-header {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .print-header h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+  }
+  .print-header p {
+    font-size: 12px;
+    margin: 2px 0;
+  }
+
+  .print-divider {
+    border-top: 1px dashed #000;
+    margin: 10px 0;
+  }
+
+  .print-info p {
+    font-size: 12px;
+    margin: 2px 0;
+  }
+
+  .print-table {
+    width: 100%;
+    font-size: 12px;
+  }
+  .print-table th {
+    text-align: left;
+    border-bottom: 1px solid #000;
+    padding-bottom: 5px;
+  }
+  .print-table td {
+    padding: 5px 0;
+  }
+  .print-table .item-name {
+    width: 50%;
+  }
+
+  .print-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 14px;
+    margin: 10px 0;
+  }
+
+  .print-footer {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 20px;
+  }
+
+  .print-barcode {
+    font-size: 16px;
+    margin-top: 10px;
+    letter-spacing: 2px;
+  }
 }

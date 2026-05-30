@@ -14,6 +14,7 @@ import {
 import { Query } from 'appwrite';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
+import POSSystem from '../components/POSSystem';
 
 const AdminPanel = () => {
   const { user } = useUser();
@@ -49,7 +50,9 @@ const AdminPanel = () => {
     imageUrl: '',
     stock: 100,
     rating: 4.5,
-    reviews: 0
+    reviews: 0,
+    sizes: [],
+    colors: []
   });
   const [imageFile, setImageFile] = useState(null);
   const [imageSrc, setImageSrc] = useState(null);
@@ -140,7 +143,9 @@ const AdminPanel = () => {
         originalPrice: parseFloat(productForm.originalPrice || productForm.price) || 0,
         stock: parseInt(productForm.stock) || 0,
         rating: parseFloat(productForm.rating) || 4.5,
-        reviews: parseInt(productForm.reviews) || 0
+        reviews: parseInt(productForm.reviews) || 0,
+        sizes: productForm.sizes,
+        colors: productForm.colors
       };
 
       if (editingProduct) {
@@ -253,6 +258,7 @@ const AdminPanel = () => {
 
   const sidebarItems = [
     { id: 'dashboard', icon: <LayoutDashboard />, label: 'Overview' },
+    { id: 'pos', icon: <Printer />, label: 'Point of Sale' },
     { id: 'products', icon: <Package />, label: 'Inventory' },
     { id: 'orders', icon: <ShoppingCart />, label: 'Orders' },
     { id: 'customers', icon: <Users />, label: 'Customers' },
@@ -411,6 +417,10 @@ const AdminPanel = () => {
         </header>
 
         <div className="p-6 lg:p-12 pb-32 lg:pb-12 max-w-[1800px] mx-auto">
+            {activeTab === 'pos' && (
+                <POSSystem products={products} refreshData={fetchData} />
+            )}
+
             {activeTab === 'dashboard' && (
                 <div className="space-y-12">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -897,6 +907,27 @@ const AdminPanel = () => {
                             type="number" required placeholder="Units" 
                             className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
                             value={productForm.stock} onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Sizes (Comma separated)</label>
+                        <input 
+                            type="text" placeholder="e.g. S, M, L, XL" 
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
+                            value={productForm.sizes?.join(', ')} 
+                            onChange={(e) => setProductForm({...productForm, sizes: e.target.value.split(',').map(s => s.trim()).filter(Boolean)})}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Colors (Comma separated)</label>
+                        <input 
+                            type="text" placeholder="e.g. Red, Blue, Black" 
+                            className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-6 font-black text-slate-900 focus:border-red-600 focus:bg-white outline-none transition-all shadow-sm"
+                            value={productForm.colors?.join(', ')} 
+                            onChange={(e) => setProductForm({...productForm, colors: e.target.value.split(',').map(c => c.trim()).filter(Boolean)})}
                         />
                     </div>
                 </div>

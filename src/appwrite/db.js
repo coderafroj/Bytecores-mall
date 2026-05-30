@@ -12,13 +12,13 @@ export class DatabaseService {
     }
 
     // Products
-    async createProduct({ name, price, originalPrice, description, imageUrl, category, stock, rating, reviews }) {
+    async createProduct({ name, price, originalPrice, description, imageUrl, category, stock, rating, reviews, sizes = [], colors = [] }) {
         try {
             return await this.databases.createDocument(
                 import.meta.env.VITE_APPWRITE_DATABASE_ID,
                 import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products',
                 ID.unique(),
-                { name, price, originalPrice, description, imageUrl, category, stock, rating, reviews }
+                { name, price, originalPrice, description, imageUrl, category, stock, rating, reviews, sizes, colors }
             );
         } catch (error) {
             console.log("Appwrite service :: createProduct :: error", error);
@@ -26,13 +26,13 @@ export class DatabaseService {
         }
     }
 
-    async updateProduct(id, { name, price, originalPrice, description, imageUrl, category, stock, rating, reviews }) {
+    async updateProduct(id, { name, price, originalPrice, description, imageUrl, category, stock, rating, reviews, sizes = [], colors = [] }) {
         try {
             return await this.databases.updateDocument(
                 import.meta.env.VITE_APPWRITE_DATABASE_ID,
                 import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products',
                 id,
-                { name, price, originalPrice, description, imageUrl, category, stock, rating, reviews }
+                { name, price, originalPrice, description, imageUrl, category, stock, rating, reviews, sizes, colors }
             );
         } catch (error) {
             console.log("Appwrite service :: updateProduct :: error", error);

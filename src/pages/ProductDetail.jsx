@@ -9,6 +9,11 @@ import ProductGrid from '../components/ProductGrid';
 import { Helmet } from 'react-helmet-async';
 import databaseService from '../appwrite/db';
 import { toast } from 'sonner';
+import ReactGALib from 'react-ga4';
+import ReactPixelLib from 'react-facebook-pixel';
+
+const ReactGA = ReactGALib.default || ReactGALib;
+const ReactPixel = ReactPixelLib.default || ReactPixelLib;
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -19,6 +24,8 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
 
   useEffect(() => {
     fetchProduct();
@@ -29,7 +36,23 @@ const ProductDetail = () => {
       setLoading(true);
       const response = await databaseService.getProduct(id);
       setProduct(response);
+      if (response.sizes && response.sizes.length > 0) setSelectedSize(response.sizes[0]);
+      if (response.colors && response.colors.length > 0) setSelectedColor(response.colors[0]);
       dispatch(addRecentlyViewed(response));
+      try {
+        ReactGA.event("view_item", {
+            currency: "INR",
+            value: response.price,
+            items: [{ item_id: response.$id, item_name: response.name, price: response.price }]
+        });
+        ReactPixel.track('ViewContent', {
+            content_name: response.name,
+            content_ids: [response.$id],
+            content_type: 'product',
+            value: response.price,
+            currency: 'INR'
+        });
+      } catch (e) {}
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
@@ -46,7 +69,15 @@ const ProductDetail = () => {
   };
 
   const onAddToCart = () => {
-    dispatch(addToCart({ product, quantity }));
+    if (product.sizes?.length > 0 && !selectedSize) return toast.error('Please select a size');
+    if (product.colors?.length > 0 && !selectedColor) return toast.error('Please select a color');
+    
+    dispatch(addToCart({ 
+      product, 
+      quantity,
+      selectedSize,
+      selectedColor
+    }));
     toast.success(`Added ${quantity} item${quantity > 1 ? 's' : ''} to cart!`);
   };
 
@@ -177,6 +208,44 @@ const ProductDetail = () => {
             <p className="text-xl text-slate-500 leading-relaxed font-medium">
               {product.description || "Experience the pinnacle of quality with Bytecore's Mall. This premium selection offers unmatched value and style for your everyday needs."}
             </p>
+
+            {/* Variants Selection */}
+            {(product.sizes?.length > 0 || product.colors?.length > 0) && (
+              <div className="space-y-6 pb-6 border-b border-slate-100">
+                {product.sizes?.length > 0 && (
+                  <div className="space-y-3">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Size</span>
+                    <div className="flex flex-wrap gap-3">
+                      {product.sizes.map(size => (
+                        <button 
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`px-6 py-3 rounded-2xl font-black text-sm transition-all ${selectedSize === size ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-slate-50 text-slate-900 hover:bg-slate-100 border border-transparent hover:border-slate-200'}`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {product.colors?.length > 0 && (
+                  <div className="space-y-3">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Color</span>
+                    <div className="flex flex-wrap gap-3">
+                      {product.colors.map(color => (
+                        <button 
+                          key={color}
+                          onClick={() => setSelectedColor(color)}
+                          className={`px-6 py-3 rounded-2xl font-black text-sm transition-all ${selectedColor === color ? 'bg-red-500 text-white shadow-lg shadow-red-500/30' : 'bg-slate-50 text-slate-900 hover:bg-slate-100 border border-transparent hover:border-slate-200'}`}
+                        >
+                          {color}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="bg-slate-50 p-10 rounded-[2.5rem] space-y-8">
               <div className="flex items-center gap-8">

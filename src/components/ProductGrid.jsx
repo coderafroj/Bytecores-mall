@@ -1,6 +1,6 @@
-import { useState, memo, useMemo } from 'react';
+import { useState, memo, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Star, ShoppingCart, ArrowRight, PackageX, Zap, Heart } from 'lucide-react';
 import databaseService from '../appwrite/db';
 import { Query } from 'appwrite';
@@ -10,14 +10,43 @@ import { toggleWishlist } from '../store/wishlistSlice';
 import { useQuery } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
 
-const ProductCard = memo(({ product, index, navigate, handleAddToCart, handleToggleWishlist, isWishlisted }) => (
+const ProductCard = memo(({ product, index, navigate, handleAddToCart, handleToggleWishlist, isWishlisted }) => {
+  const ref = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["4deg", "-4deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-4deg", "4deg"]);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
   <motion.div
+    ref={ref}
+    onMouseMove={handleMouseMove}
+    onMouseLeave={handleMouseLeave}
+    style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    whileHover={{ y: -10, rotateX: 5, rotateY: 5, scale: 1.02 }}
-    transition={{ duration: 0.4, type: 'spring', stiffness: 200 }}
-    className="group relative bg-white rounded-[1.5rem] sm:rounded-3xl p-2 sm:p-3 flex flex-col border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 h-full"
+    className="group relative bg-white rounded-[1.5rem] sm:rounded-3xl p-2 sm:p-3 flex flex-col border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 h-full"
   >
     {/* Image Container */}
     <div className="relative aspect-square w-full rounded-xl sm:rounded-[1.5rem] overflow-hidden bg-slate-50 mb-3 sm:mb-4 cursor-pointer" onClick={() => navigate(`/product/${product.$id}`)}>
@@ -80,7 +109,7 @@ const ProductCard = memo(({ product, index, navigate, handleAddToCart, handleTog
       </div>
     </div>
   </motion.div>
-));
+)});
 
 const ProductGrid = ({ category = null, limit = null, searchQuery = '', sortBy = 'newest' }) => {
   const dispatch = useDispatch();

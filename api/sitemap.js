@@ -1,4 +1,4 @@
-import { Client, Databases } from 'appwrite';
+import { Client, Databases } from 'node-appwrite';
 
 export default async function handler(req, res) {
   const client = new Client()

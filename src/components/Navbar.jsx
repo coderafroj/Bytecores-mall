@@ -25,13 +25,15 @@ const Navbar = ({ cartCount }) => {
   const textColor = isTransparent ? 'text-white' : 'text-slate-900';
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[5000] transition-all duration-300 ${
-      isScrolled ? 'py-2' : isHome ? 'py-4 lg:py-6' : 'py-4'
+    <nav className={`fixed top-0 left-0 right-0 z-[5000] transition-all duration-500 flex justify-center ${
+      isScrolled ? 'pt-4' : isHome ? 'pt-4 lg:pt-6' : 'pt-4'
     }`}>
-      <div className="max-w-[1920px] mx-auto px-4 lg:px-12">
-        <div className={`relative flex items-center justify-between rounded-full lg:rounded-full px-6 lg:px-10 h-16 lg:h-20 transition-all duration-300 ${
+      <div className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        isScrolled ? 'w-[95%] lg:w-[800px] xl:w-[1000px]' : 'w-full max-w-[1920px] px-4 lg:px-12'
+      }`}>
+        <div className={`relative flex items-center justify-between rounded-[2rem] lg:rounded-full px-6 lg:px-10 h-16 lg:h-20 transition-all duration-500 ${
           isScrolled 
-            ? 'bg-white/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/40' 
+            ? 'island-nav' 
             : 'bg-transparent'
         }`}>
           

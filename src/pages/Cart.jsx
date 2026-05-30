@@ -4,6 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart, updateQuantity } from '../store/cartSlice';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Truck } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
+import ReactGALib from 'react-ga4';
+import ReactPixelLib from 'react-facebook-pixel';
+
+const ReactGA = ReactGALib.default || ReactGALib;
+const ReactPixel = ReactPixelLib.default || ReactPixelLib;
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -59,7 +64,7 @@ const Cart = () => {
             <AnimatePresence>
               {cart.map((item) => (
                 <motion.div 
-                  key={item.$id} 
+                  key={item.cartId} 
                   layout
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -75,6 +80,12 @@ const Cart = () => {
                     <Link to={`/product/${item.$id}`} className="text-2xl font-black text-slate-900 hover:text-red-500 transition-colors tracking-tight">
                       {item.name}
                     </Link>
+                    {(item.selectedSize || item.selectedColor) && (
+                      <div className="flex gap-3 mt-1">
+                        {item.selectedSize && <span className="text-xs font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">Size: {item.selectedSize}</span>}
+                        {item.selectedColor && <span className="text-xs font-black text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">Color: {item.selectedColor}</span>}
+                      </div>
+                    )}
                     <span className="text-2xl font-black text-slate-900 mt-2">₹{item.price}</span>
                   </div>
 
@@ -82,7 +93,7 @@ const Cart = () => {
                     <div className="flex items-center bg-slate-50 rounded-2xl border-2 border-slate-100 overflow-hidden">
                       <button 
                         className="p-3 hover:bg-white text-slate-900 transition-colors disabled:opacity-30" 
-                        onClick={() => dispatch(updateQuantity({ productId: item.$id, quantity: Math.max(1, item.quantity - 1) }))}
+                        onClick={() => dispatch(updateQuantity({ cartId: item.cartId, quantity: Math.max(1, item.quantity - 1) }))}
                         disabled={item.quantity <= 1}
                       >
                         <Minus size={20} strokeWidth={3} />
@@ -90,7 +101,7 @@ const Cart = () => {
                       <span className="w-12 text-center font-black text-lg">{item.quantity}</span>
                       <button 
                         className="p-3 hover:bg-white text-slate-900 transition-colors" 
-                        onClick={() => dispatch(updateQuantity({ productId: item.$id, quantity: item.quantity + 1 }))}
+                        onClick={() => dispatch(updateQuantity({ cartId: item.cartId, quantity: item.quantity + 1 }))}
                       >
                         <Plus size={20} strokeWidth={3} />
                       </button>
@@ -98,7 +109,7 @@ const Cart = () => {
                     
                     <button 
                       className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                      onClick={() => dispatch(removeFromCart(item.$id))}
+                      onClick={() => dispatch(removeFromCart(item.cartId))}
                     >
                       <Trash2 size={24} />
                     </button>
@@ -144,7 +155,22 @@ const Cart = () => {
               <div className="space-y-4 relative z-10">
                 <button 
                   className="w-full bg-red-600 hover:bg-red-700 text-white font-black text-xl py-6 rounded-3xl transition-all shadow-xl shadow-red-900/40 flex items-center justify-center gap-4 active:scale-95 group/btn"
-                  onClick={() => navigate('/checkout')}
+                  onClick={() => {
+                    try {
+                        ReactGA.event("begin_checkout", {
+                            currency: "INR",
+                            value: total,
+                            items: cart.map(item => ({ item_id: item.$id, item_name: item.name, price: item.price, quantity: item.quantity }))
+                        });
+                        ReactPixel.track('InitiateCheckout', {
+                            content_ids: cart.map(item => item.$id),
+                            content_type: 'product',
+                            value: total,
+                            currency: 'INR'
+                        });
+                    } catch(e) {}
+                    navigate('/checkout');
+                  }}
                 >
                   Confirm Order
                   <ArrowRight size={24} strokeWidth={3} className="group-hover/btn:translate-x-2 transition-transform" />

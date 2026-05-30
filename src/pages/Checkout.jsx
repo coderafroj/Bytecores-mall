@@ -68,9 +68,12 @@ const Checkout = () => {
       shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}${geoLoc}`,
       items: JSON.stringify(cart.map(item => ({
         id: item.$id,
+        cartId: item.cartId,
         name: item.name,
         price: item.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        size: item.selectedSize || null,
+        color: item.selectedColor || null
       }))),
       subtotal,
       shipping,
@@ -121,6 +124,8 @@ const Checkout = () => {
                       items: cart.map(item => ({ item_id: item.$id, item_name: item.name, price: item.price, quantity: item.quantity }))
                   });
                   ReactPixel.track('Purchase', {
+                      content_ids: cart.map(item => item.$id),
+                      content_type: 'product',
                       value: total,
                       currency: 'INR'
                   });
@@ -169,10 +174,12 @@ const Checkout = () => {
                 currency: "INR",
                 items: cart.map(item => ({ item_id: item.$id, item_name: item.name, price: item.price, quantity: item.quantity }))
             });
-            ReactPixel.track('Purchase', {
-                value: total,
-                currency: 'INR'
-            });
+                  ReactPixel.track('Purchase', {
+                      content_ids: cart.map(item => item.$id),
+                      content_type: 'product',
+                      value: total,
+                      currency: 'INR'
+                  });
         } catch(e) {}
 
         dispatch(clearCart());
@@ -290,13 +297,18 @@ const Checkout = () => {
               
               <div className="max-h-[300px] overflow-y-auto space-y-4 pr-2">
                 {cart.map(item => (
-                  <div key={item.$id} className="flex gap-4 items-center">
+                  <div key={item.cartId} className="flex gap-4 items-center">
                     <div className="w-16 h-16 bg-slate-50 rounded-xl overflow-hidden shrink-0">
                       <img src={item.imageUrl || '/placeholder.jpg'} alt={item.name} className="w-full h-full object-contain p-2" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-black text-slate-900 text-sm truncate">{item.name}</h4>
-                      <p className="text-xs font-bold text-slate-400">{item.quantity} × ₹{item.price}</p>
+                      {(item.selectedSize || item.selectedColor) && (
+                        <p className="text-[10px] font-black text-slate-400 mt-0.5">
+                          {item.selectedSize && `Size: ${item.selectedSize}`} {item.selectedSize && item.selectedColor && '| '} {item.selectedColor && `Color: ${item.selectedColor}`}
+                        </p>
+                      )}
+                      <p className="text-xs font-bold text-slate-400 mt-1">{item.quantity} × ₹{item.price}</p>
                     </div>
                   </div>
                 ))}

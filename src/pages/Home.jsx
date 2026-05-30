@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Heart, Monitor, Cpu, Wifi, BookOpen, ShoppingBag, ShieldCheck, Truck, HeadphonesIcon, RotateCcw } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Heart, Monitor, Cpu, Wifi, BookOpen, ShoppingBag, ShieldCheck, Truck, HeadphonesIcon, RotateCcw, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProductGrid from '../components/ProductGrid';
 
@@ -30,76 +30,91 @@ const Home = () => {
         <meta name="description" content="Discover premium tech, laptops, study kits, and gadgets." />
       </Helmet>
       
-      {/* 99 Mall Style E-commerce Hero - Exactly like the reference image */}
-      <section className="w-full mx-auto mb-20 lg:mb-32">
-        <div className="relative w-full min-h-[100svh] h-auto pb-32 lg:pb-0 lg:min-h-[800px] bg-[#C62828] overflow-hidden flex flex-col pt-28 lg:pt-32">
+      {/* Cinematic Bento Grid Hero */}
+      <section className="w-full max-w-[1920px] mx-auto px-4 lg:px-8 pt-28 lg:pt-32 pb-16 lg:pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-4 lg:grid-rows-2 gap-4 lg:gap-6 min-h-[auto] lg:min-h-[750px]">
+          
+          {/* Main Large Bento Box */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-3 lg:row-span-2 rounded-[2.5rem] lg:rounded-[3.5rem] relative overflow-hidden flex flex-col justify-end p-8 lg:p-16 group min-h-[500px] aurora-bg shadow-2xl"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent z-10" />
             
-            {/* Subtle background forest/texture (like the image) */}
-            <motion.div 
-              className="absolute inset-0 w-full h-full opacity-[0.03]" 
-              style={{ 
-                backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")',
-                y: backgroundY 
-              }} 
+            {/* Dynamic floating elements */}
+            <motion.img 
+              style={{ y: imageY }}
+              src="https://pngimg.com/uploads/macbook/macbook_PNG8.png" 
+              alt="Premium Tech" 
+              className="absolute right-[-10%] top-[10%] lg:right-[5%] lg:top-1/2 lg:-translate-y-1/2 w-[80%] lg:w-[65%] object-contain drop-shadow-[0_30px_30px_rgba(0,0,0,0.4)] z-0 group-hover:scale-105 transition-transform duration-1000 ease-out"
             />
 
-            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between w-full h-full max-w-[1400px] mx-auto px-6 lg:px-20 pb-10">
-                
-                {/* Left Navigation Arrow (Like image) */}
-                <div className="hidden lg:flex items-center gap-4 text-white/50 hover:text-white transition-colors cursor-pointer absolute left-10 top-1/2 -translate-y-1/2 z-30">
-                    <div className="w-12 h-12 rounded-full border border-current flex items-center justify-center">
-                        <ArrowLeft size={20} />
-                    </div>
-                    <span className="text-sm font-medium">Previous</span>
-                </div>
-
-                {/* Main Content */}
-                <motion.div 
-                    className="w-full lg:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-left z-20 mt-10 lg:mt-0 relative"
-                    style={{ y: textY }}
-                >
-                    <h2 className="text-white/90 text-xl sm:text-2xl lg:text-3xl font-medium tracking-wide mb-2 lg:mb-0">Mega Shopping Festival</h2>
-                    <h1 className="text-6xl sm:text-7xl lg:text-[130px] font-serif italic text-white font-bold tracking-tighter leading-[0.8] mb-8 lg:mb-12 drop-shadow-lg">
-                        ₹99 Store
-                    </h1>
-                    
-                    <div className="flex flex-col lg:flex-row items-center gap-6">
-                        <Link to="/products" className="group flex items-center gap-3 bg-white text-[#C62828] px-8 py-4 lg:px-10 lg:py-5 rounded-full font-bold text-sm lg:text-base hover:shadow-2xl hover:scale-105 transition-all">
-                            Shop This Collection
-                            <Heart size={18} className="text-[#C62828] group-hover:fill-current transition-colors" />
-                        </Link>
-                    </div>
-
-                    <div className="mt-12 lg:mt-24 max-w-sm hidden lg:block">
-                        <h3 className="text-white text-xl lg:text-2xl font-serif mb-3">Grab the best deals...</h3>
-                        <p className="text-white/80 text-sm lg:text-sm font-medium leading-relaxed">
-                            Selling from ₹9 to ₹999. Discover premium quality products across all categories, exclusively curated and available for you. Don't miss out!
-                        </p>
-                    </div>
-                </motion.div>
-
-                {/* Center 3D Floating Element (Like the Christmas Tree) */}
-                <div className="w-full lg:w-[50%] h-[250px] sm:h-[350px] lg:h-[600px] relative z-20 flex items-center justify-center mt-12 lg:mt-0 lg:absolute lg:right-20 lg:top-1/2 lg:-translate-y-1/2">
-                    <motion.img 
-                        initial={{ opacity: 0, y: 50, rotate: -5 }}
-                        animate={{ opacity: 1, y: 0, rotate: 0 }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                        style={{ y: imageY }}
-                        src="https://pngimg.com/uploads/shopping_cart/shopping_cart_PNG38.png" 
-                        alt="99 Mall Shopping" 
-                        className="w-[90%] lg:w-full max-w-[700px] h-auto object-contain drop-shadow-[0_40px_40px_rgba(0,0,0,0.5)]"
-                    />
-                </div>
-
-                {/* Right Navigation Arrow (Like image) */}
-                <div className="hidden lg:flex items-center gap-4 text-white hover:text-white transition-colors cursor-pointer absolute right-10 top-1/2 -translate-y-1/2 z-30">
-                    <span className="text-sm font-medium">Next</span>
-                    <div className="w-12 h-12 rounded-full border border-current flex items-center justify-center">
-                        <ArrowRight size={20} />
-                    </div>
-                </div>
-
+            <div className="relative z-20 w-full lg:w-[60%]">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full text-white text-xs font-bold uppercase tracking-widest mb-6">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Live Now
+              </div>
+              <h1 className="text-6xl sm:text-7xl lg:text-[110px] font-black text-white leading-[0.9] tracking-tighter mb-6 drop-shadow-lg">
+                Future <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">Tech.</span>
+              </h1>
+              <p className="text-slate-300 text-lg lg:text-xl font-medium mb-10 max-w-md leading-relaxed">
+                Experience the pinnacle of innovation. Curated premium gadgets and exclusive tech essentials starting at ₹99.
+              </p>
+              <Link to="/products" className="btn-premium inline-flex items-center gap-4 bg-white text-slate-900 px-10 py-5 rounded-full font-black text-sm lg:text-base hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all z-20">
+                Explore Collection <ArrowRight size={20} />
+              </Link>
             </div>
+          </motion.div>
+
+          {/* Top Right Small Bento Box */}
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-red-600 rounded-[2.5rem] lg:rounded-[3rem] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden group min-h-[300px] shadow-xl"
+          >
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700" />
+            <div className="relative z-10 flex justify-between items-start">
+              <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white">
+                <Zap size={28} />
+              </div>
+              <div className="bg-white text-red-600 font-bold px-3 py-1 rounded-full text-xs">-80%</div>
+            </div>
+            <div className="relative z-10 mt-auto">
+              <h3 className="text-white font-black text-3xl mb-2 tracking-tight">Flash Sale</h3>
+              <p className="text-red-100 font-medium text-sm">Grab electronics at unbeatable prices today.</p>
+            </div>
+          </motion.div>
+
+          {/* Bottom Right Small Bento Box */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-white border-2 border-slate-100 rounded-[2.5rem] lg:rounded-[3rem] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden group min-h-[300px] shadow-sm hover:shadow-2xl transition-all duration-500"
+          >
+            <div className="relative z-10 flex justify-between items-start">
+              <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900 border border-slate-100 group-hover:bg-red-500 group-hover:text-white transition-colors">
+                <ShoppingBag size={28} />
+              </div>
+            </div>
+            
+            <img 
+              src="https://pngimg.com/uploads/headphones/headphones_PNG101979.png" 
+              alt="Audio" 
+              className="absolute -right-4 -bottom-4 w-48 object-contain opacity-50 group-hover:opacity-100 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700"
+            />
+
+            <div className="relative z-10 mt-auto">
+              <h3 className="text-slate-900 font-black text-3xl mb-2 tracking-tight">New Audio</h3>
+              <Link to="/products" className="text-red-500 font-bold text-sm hover:text-red-700 flex items-center gap-1">
+                Shop Now <ArrowRight size={14} />
+              </Link>
+            </div>
+          </motion.div>
+
         </div>
       </section>
 
