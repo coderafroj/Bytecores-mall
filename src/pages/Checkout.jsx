@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import { clearCart } from '../store/cartSlice';
 import { CreditCard, Truck, ShoppingBag, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
+import { useUser } from '@clerk/clerk-react';
 import databaseService from '../appwrite/db';
 import { Helmet } from 'react-helmet-async';
 import ReactGALib from 'react-ga4';
@@ -17,17 +18,17 @@ const Checkout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart.items);
-  const user = useSelector((state) => state.auth.userData);
+  const { user } = useUser();
   
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: '',
-    address: '',
-    city: '',
-    zipCode: '',
+    name: user?.fullName || '',
+    email: user?.primaryEmailAddress?.emailAddress || '',
+    phone: user?.unsafeMetadata?.phone || '',
+    address: user?.unsafeMetadata?.address || '',
+    city: user?.unsafeMetadata?.city || '',
+    zipCode: user?.unsafeMetadata?.pincode || '',
     state: ''
   });
 
@@ -60,7 +61,7 @@ const Checkout = () => {
     }
 
     const orderData = {
-      userId: user?.$id || 'guest',
+      userId: user?.id || 'guest',
       userName: formData.name,
       userEmail: formData.email,
       address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode} | Phone: ${formData.phone}${geoLoc}`,
