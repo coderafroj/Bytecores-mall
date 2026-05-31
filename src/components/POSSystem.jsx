@@ -70,7 +70,6 @@ const POSSystem = ({ products, refreshData }) => {
                 userId: user?.id || 'pos_admin',
                 userName: 'Walk-in Customer',
                 userEmail: user?.primaryEmailAddress?.emailAddress || 'pos@bytecores.in',
-                phone: 'N/A',
                 address: 'In-Store Purchase',
                 shippingAddress: 'In-Store Purchase',
                 items: JSON.stringify(cart.map(item => ({

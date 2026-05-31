@@ -63,9 +63,8 @@ const Checkout = () => {
       userId: user?.$id || 'guest',
       userName: formData.name,
       userEmail: formData.email,
-      phone: formData.phone,
-      address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}${geoLoc}`,
-      shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode}${geoLoc}`,
+      address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode} | Phone: ${formData.phone}${geoLoc}`,
+      shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode} | Phone: ${formData.phone}${geoLoc}`,
       items: JSON.stringify(cart.map(item => ({
         id: item.$id,
         cartId: item.cartId,
