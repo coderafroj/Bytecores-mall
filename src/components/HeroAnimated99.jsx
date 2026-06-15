@@ -19,18 +19,8 @@ const HeroAnimated99 = () => {
   return (
     <div className="relative w-full h-[100svh] overflow-hidden bg-slate-950 flex items-center justify-center">
       
-      {/* 1. Video Background */}
+      {/* 1. Video Background Removed (Blocked by Pixabay) */}
       <div className="absolute inset-0 w-full h-full z-0">
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          className="w-full h-full object-cover opacity-30 scale-105"
-        >
-          {/* A cool dark abstract/tech looping video */}
-          <source src="https://cdn.pixabay.com/video/2016/09/21/5398-183786400_large.mp4" type="video/mp4" />
-        </video>
         {/* Gradient overlays for cinematic effect */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/20 to-slate-950/80 hidden lg:block" />

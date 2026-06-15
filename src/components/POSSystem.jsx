@@ -192,7 +192,7 @@ const POSSystem = ({ products, refreshData }) => {
     };
 
     return (
-        <div className="flex h-[calc(100vh-120px)] gap-6 pos-container">
+        <div className="flex flex-col lg:flex-row h-full lg:h-[calc(100vh-120px)] gap-6 pos-container">
             {/* Left Side: Product Grid */}
             <div className="flex-1 flex flex-col bg-white rounded-[3rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] overflow-hidden hide-on-print">
                 <div className="p-8 border-b border-slate-50">
@@ -246,7 +246,7 @@ const POSSystem = ({ products, refreshData }) => {
             </div>
 
             {/* Right Side: Bill/Cart */}
-            <div className="w-[450px] bg-slate-950 rounded-[3rem] shadow-2xl flex flex-col relative overflow-hidden text-white border border-white/5 hide-on-print">
+            <div className="w-full lg:w-[450px] h-[500px] lg:h-auto bg-slate-950 rounded-[3rem] shadow-2xl flex flex-col relative overflow-hidden text-white border border-white/5 hide-on-print">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/20 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none" />
                 
                 <div className="p-8 border-b border-white/10 relative z-10 flex items-center gap-4">

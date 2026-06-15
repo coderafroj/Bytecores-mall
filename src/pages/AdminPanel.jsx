@@ -9,7 +9,7 @@ import {
   CheckCircle, Clock, Edit, Trash2, 
   Image as ImageIcon, DollarSign, Tag, Briefcase, ChevronRight, ArrowRight, Upload,
   X, Eye, FileText, Printer, Download, ExternalLink, RefreshCcw, MessageSquare,
-  Settings, Shield, Activity, Bell, HelpCircle, Crop
+  Settings, Shield, Activity, Bell, HelpCircle, Crop, AlertTriangle
 } from 'lucide-react';
 import { Query } from 'appwrite';
 import Cropper from 'react-easy-crop';
@@ -788,7 +788,7 @@ const AdminPanel = () => {
                                                 </div>
                                                 <div>
                                                     <p className="font-black text-sm text-slate-900 uppercase">{customer.name}</p>
-                                                    <p className="text-[10px] text-slate-400 font-bold">{customer.email}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold">{customer.email.replace('@pos.local', '')}</p>
                                                 </div>
                                             </div>
                                         </td>
