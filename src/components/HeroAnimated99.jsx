@@ -1,244 +1,172 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Zap, ShoppingBag, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const BASE_ITEMS = [
-  "https://pngimg.com/uploads/necklace/necklace_PNG68.png",
-  "https://pngimg.com/uploads/earrings/earrings_PNG32.png",
-  "https://pngimg.com/uploads/watches/watches_PNG9859.png",
-  "https://pngimg.com/uploads/perfume/perfume_PNG10287.png",
-  "https://pngimg.com/uploads/teapot/teapot_PNG28.png",
-  "https://pngimg.com/uploads/handbag/handbag_PNG8009.png",
-];
-
-// Create 30 items for a dense background effect
-const HERO_ITEMS = [...BASE_ITEMS, ...BASE_ITEMS, ...BASE_ITEMS, ...BASE_ITEMS, ...BASE_ITEMS];
+import { ShoppingBag, ArrowRight, ArrowLeft, Instagram, Twitter, Facebook } from 'lucide-react';
 
 const HeroAnimated99 = () => {
   return (
-    <div className="relative w-full h-[100svh] overflow-hidden bg-slate-950 flex items-center justify-center">
-      
-      {/* 1. Video Background Removed (Blocked by Pixabay) */}
-      <div className="absolute inset-0 w-full h-full z-0">
-        {/* Gradient overlays for cinematic effect */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/20 to-slate-950/80 hidden lg:block" />
-        <div className="absolute inset-0 bg-red-900/10 mix-blend-overlay" />
-      </div>
-
-      {/* 2. Floating 99-Store Items (Desktop & Mobile) - Dense Particle Field */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden perspective-[2000px] opacity-70">
-        {HERO_ITEMS.map((item, i) => {
-          const isFar = i % 3 === 0;
-          const isClose = i % 3 === 1;
-          const blurAmount = isFar ? 12 : (isClose ? 2 : 6);
-          const opacityMax = isFar ? 0.2 : (isClose ? 0.6 : 0.4);
-          const sizeBase = isFar ? 60 : (isClose ? 180 : 100);
-
-          return (
-            <motion.img
-              key={i}
-              src={item}
-              alt="Product"
-              className="absolute object-contain drop-shadow-[0_20px_30px_rgba(255,0,0,0.15)]"
-              initial={{ 
-                opacity: 0, 
-                scale: 0.1,
-                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920),
-                y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 1080)
-              }}
-              animate={{ 
-                opacity: [0, opacityMax, 0],
-                scale: [0.5, 1.2, 0.5],
-                x: [
-                  Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920), 
-                  (Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920)) + (i % 2 === 0 ? 400 : -400),
-                  Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1920)
-                ],
-                y: [
-                  (typeof window !== 'undefined' ? window.innerHeight : 1080) + 200, 
-                  (typeof window !== 'undefined' ? window.innerHeight : 1080) / 2, 
-                  -300
-                ],
-                rotate: [0, 180, 360],
-                rotateY: [0, i % 2 === 0 ? 180 : -180, 0] // Adds 3D rotation
-              }}
-              transition={{
-                duration: 25 + Math.random() * 20,
-                repeat: Infinity,
-                ease: "linear",
-                delay: i * 0.8
-              }}
-              style={{
-                width: `${sizeBase + Math.random() * 50}px`,
-                filter: `blur(${blurAmount}px)`,
-                zIndex: isClose ? 2 : (isFar ? 0 : 1)
-              }}
-            />
-          );
-        })}
-      </div>
-
-      {/* 3. Main Glassmorphic UI Content */}
-      <div className="relative z-50 w-full max-w-[1920px] mx-auto px-6 lg:px-12 h-full flex flex-col justify-center">
+    <div className="min-h-screen bg-[#E5E7EB] p-4 md:p-8 font-sans overflow-hidden flex flex-col">
+      {/* Main Framed Container */}
+      <div className="flex-1 border border-slate-300 rounded-[2rem] relative flex flex-col overflow-hidden bg-[#E5E7EB] shadow-2xl">
         
-        {/* Desktop Layout */}
-        <div className="hidden lg:grid grid-cols-12 gap-8 items-center pt-24 xl:pt-16">
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
+        {/* Background Grid Lines */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute left-[25%] top-0 bottom-0 w-[1px] bg-slate-300/50" />
+          <div className="absolute left-[75%] top-0 bottom-0 w-[1px] bg-slate-300/50" />
+          <div className="absolute left-0 right-0 bottom-[100px] h-[1px] bg-slate-300/50" />
+        </div>
+
+        {/* --- Top Navigation Bar --- */}
+        <div className="relative z-50 flex justify-between items-center px-8 py-6">
+          {/* Logo */}
+          <div className="w-1/4">
+            <div className="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center text-white font-black text-xl tracking-tighter shadow-lg">
+              99
+            </div>
+          </div>
+          
+          {/* Center Nav */}
+          <div className="w-2/4 flex justify-center gap-6">
+            <Link to="/" className="px-6 py-2 bg-slate-900 text-white rounded-full text-sm font-bold shadow-md">Home</Link>
+            <Link to="/products" className="px-6 py-2 text-slate-600 hover:text-slate-900 rounded-full text-sm font-bold transition-colors">Shop</Link>
+            <Link to="/about" className="px-6 py-2 text-slate-600 hover:text-slate-900 rounded-full text-sm font-bold transition-colors">About</Link>
+          </div>
+
+          {/* Right Action */}
+          <div className="w-1/4 flex justify-end">
+            <Link to="/products" className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-full hover:bg-slate-800 transition-colors shadow-lg">
+              <ShoppingBag size={18} />
+              <span className="font-bold text-sm">Store</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* --- Main Content Area --- */}
+        <div className="flex-1 relative flex items-center justify-center">
+          
+          {/* Giant Typography */}
+          <motion.h1 
+            initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="col-span-7 pl-10 relative z-50"
+            className="absolute top-[10%] left-[5%] text-[12vw] font-black text-slate-800 leading-none tracking-tighter z-10"
           >
-            <div className="inline-flex items-center gap-3 bg-slate-950/60 border border-red-500/30 backdrop-blur-2xl px-6 py-3 rounded-full mb-8 shadow-2xl">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
-              <span className="text-red-400 font-black tracking-[0.2em] uppercase text-sm drop-shadow-md">Mega Sale Is Live</span>
-            </div>
-            
-            <h1 className="text-[120px] font-black text-white leading-[0.85] tracking-tighter mb-8 drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)] relative z-50">
-              THE 99 <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-400 to-orange-500">
-                STORE.
-              </span>
-            </h1>
-            
-            <p className="text-slate-200 text-2xl font-medium mb-12 max-w-2xl leading-relaxed border-l-4 border-red-500 pl-6 drop-shadow-xl bg-slate-950/20 backdrop-blur-sm py-4 pr-4 rounded-r-3xl">
-              Premium jewelry, fashion, and stunning accessories. Experience the absolute best prices starting at just <strong className="text-white">₹99</strong>. Unbeatable quality, undeniable value.
-            </p>
-            
-            <div className="flex items-center gap-6">
-              <Link to="/products" className="group relative inline-flex items-center justify-center gap-4 bg-white text-slate-950 px-10 py-5 rounded-full font-black text-lg hover:scale-105 transition-all duration-300 overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.2)]">
-                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-white via-slate-200 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative z-10">Shop Everything</span>
-                <ArrowRight size={24} className="relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
-              </Link>
-              
-              <Link to="/products" className="inline-flex items-center justify-center gap-3 text-white px-8 py-5 rounded-full font-bold text-lg bg-slate-950/40 backdrop-blur-xl border border-white/10 hover:bg-white/10 transition-all duration-300 shadow-xl">
-                <Tag size={24} className="text-red-500" />
-                View Offers
-              </Link>
-            </div>
-          </motion.div>
-          
-          {/* Right side massive floating product (No Box) */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
-            className="col-span-5 relative flex items-center justify-center pointer-events-none"
-          >
-            {/* Huge Glow Behind the Object */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/30 rounded-full blur-[120px] animate-pulse mix-blend-screen" />
-            
-            {/* Massive Floating Text Behind Product */}
-            <motion.div 
-              animate={{ y: [-10, 10, -10], rotate: [-2, 2, -2] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute z-0 text-[200px] font-black text-white/5 whitespace-nowrap tracking-tighter"
-            >
-              PRO
-            </motion.div>
-
-            {/* The 3D Object Itself */}
-            <motion.div
-               animate={{ y: [-20, 20, -20], rotateY: [-10, 10, -10], rotateZ: [-5, 5, -5] }}
-               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-               className="relative z-10 w-full"
-            >
-              <img 
-                src="https://pngimg.com/uploads/headphones/headphones_PNG101979.png"
-                alt="Featured Product"
-                className="w-full h-[500px] object-contain drop-shadow-[0_40px_50px_rgba(0,0,0,0.6)]"
-              />
-            </motion.div>
-            
-            {/* Floating Price Tag */}
-            <motion.div 
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0, y: [-5, 5, -5] }}
-              transition={{ 
-                duration: 0.8, 
-                delay: 1,
-                y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-              }}
-              className="absolute bottom-10 -right-10 z-20 bg-white/10 backdrop-blur-xl border border-white/20 px-8 py-4 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
-            >
-              <p className="text-slate-300 font-bold text-sm uppercase tracking-widest mb-1">Wireless Audio</p>
-              <p className="text-white font-black text-4xl">₹599</p>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Mobile Layout */}
-        <div className="flex lg:hidden flex-col items-center justify-center text-center h-full pt-20">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/30 backdrop-blur-md px-4 py-2 rounded-full mb-6"
-          >
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-white font-bold tracking-widest uppercase text-[10px]">Mega Sale</span>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-[70px] sm:text-[90px] font-black text-white leading-[0.9] tracking-tighter mb-6 drop-shadow-2xl"
-          >
-            THE 99 <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400">
-              STORE.
-            </span>
+            BYTECORES
           </motion.h1>
           
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-slate-300 text-base sm:text-lg font-medium mb-10 px-4 leading-relaxed max-w-sm"
+          <motion.h1 
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+            className="absolute bottom-[20%] right-[5%] text-[12vw] font-black text-slate-800 leading-none tracking-tighter z-10"
           >
-            Premium tech essentials and gadgets starting at just <strong className="text-white">₹99</strong>. Unbeatable value.
-          </motion.p>
-          
+            99 MALL
+          </motion.h1>
+
+          <div className="absolute right-[10%] top-[30%] text-slate-400 font-bold tracking-widest uppercase text-xl z-0">
+            Tech Store
+          </div>
+
+          {/* Massive 3D Central Object */}
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col sm:flex-row w-full max-w-sm gap-4 px-6"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1, y: [-15, 15, -15] }}
+            transition={{ 
+              scale: { duration: 1.5, ease: "easeOut" },
+              opacity: { duration: 1.5 },
+              y: { duration: 6, repeat: Infinity, ease: "easeInOut" }
+            }}
+            className="relative z-30 w-full max-w-2xl lg:max-w-4xl pointer-events-none mt-10"
           >
-            <Link to="/products" className="w-full bg-white text-slate-950 px-8 py-4 rounded-full font-black text-base hover:scale-105 transition-transform flex items-center justify-center gap-2">
-              <ShoppingBag size={20} /> Shop Now
-            </Link>
-            <Link to="/products" className="w-full bg-white/10 text-white border border-white/20 backdrop-blur-md px-8 py-4 rounded-full font-bold text-base hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
-              <Tag size={20} /> Offers
-            </Link>
+            <img 
+              src="https://pngimg.com/uploads/headphones/headphones_PNG101979.png" 
+              alt="Premium Tech" 
+              className="w-full h-auto object-contain drop-shadow-[0_50px_50px_rgba(0,0,0,0.3)] mix-blend-multiply"
+            />
           </motion.div>
 
-          {/* Mobile floating product */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="mt-12 w-full max-w-[280px] relative"
-          >
-             <div className="absolute inset-0 bg-red-500/20 rounded-full blur-[60px] animate-pulse" />
-             <motion.img 
-                animate={{ y: [-5, 5, -5] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                src="https://pngimg.com/uploads/headphones/headphones_PNG101979.png"
-                alt="Mobile Featured"
-                className="w-full h-[200px] object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] relative z-10"
-              />
-          </motion.div>
+          {/* Left Column Floating Cards */}
+          <div className="absolute left-[5%] top-[40%] flex flex-col gap-6 z-40 w-[240px]">
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="bg-white/40 backdrop-blur-xl border border-white/50 p-3 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.05)]"
+            >
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=400" alt="Product 1" className="w-full h-40 object-cover rounded-2xl" />
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="bg-[#7C8B9E]/20 backdrop-blur-2xl border border-white/30 p-6 rounded-3xl shadow-xl flex flex-col gap-4"
+            >
+              <h3 className="text-3xl font-black text-slate-800">+500</h3>
+              <p className="text-slate-600 text-sm font-medium">Premium gadgets added every single day to our store.</p>
+              <Link to="/products" className="bg-white text-slate-900 font-bold py-3 px-6 rounded-full text-center text-sm shadow-md hover:scale-105 transition-transform">
+                Explore Now
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Right Column Floating Card */}
+          <div className="absolute right-[5%] bottom-[15%] z-40 w-[260px]">
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="bg-white/40 backdrop-blur-xl border border-white/50 p-4 rounded-3xl shadow-[0_20px_40px_rgba(0,0,0,0.1)] relative overflow-hidden group cursor-pointer"
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+              <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=400" alt="Smart Watch" className="w-full h-56 object-cover rounded-2xl" />
+              <div className="absolute top-6 right-6 text-right z-20 mix-blend-difference text-white">
+                <p className="font-black text-sm uppercase tracking-widest">New Set</p>
+                <p className="font-bold opacity-80">(₹599.00)</p>
+              </div>
+              <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end z-20 translate-y-10 group-hover:translate-y-0 transition-transform text-white">
+                <p className="font-black uppercase tracking-widest text-sm">Smart Watch</p>
+                <p className="font-bold">₹599</p>
+              </div>
+            </motion.div>
+          </div>
+
+        </div>
+
+        {/* --- Bottom Footer Row --- */}
+        <div className="h-[100px] relative z-50 flex items-center justify-between px-10">
+          <div className="w-1/4">
+            <p className="text-slate-500 font-medium text-sm">© Bytecores Mall Reserved</p>
+          </div>
+          
+          <div className="w-2/4 flex justify-center gap-4">
+            <a href="#" className="px-5 py-2 bg-white/50 hover:bg-white backdrop-blur-md rounded-full text-slate-700 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
+              <Instagram size={14} /> Instagram
+            </a>
+            <a href="#" className="px-5 py-2 bg-white/50 hover:bg-white backdrop-blur-md rounded-full text-slate-700 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
+              <Twitter size={14} /> Twitter
+            </a>
+            <a href="#" className="px-5 py-2 bg-white/50 hover:bg-white backdrop-blur-md rounded-full text-slate-700 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
+              <Facebook size={14} /> Facebook
+            </a>
+          </div>
+
+          <div className="w-1/4 flex justify-end items-center gap-6">
+            <div className="flex gap-2">
+              <button className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all">
+                <ArrowLeft size={18} />
+              </button>
+              <button className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all">
+                <ArrowRight size={18} />
+              </button>
+            </div>
+            <div className="w-32 h-1 bg-slate-300 rounded-full overflow-hidden">
+              <div className="w-1/3 h-full bg-slate-900 rounded-full" />
+            </div>
+          </div>
         </div>
 
       </div>
-
-      {/* Decorative Bottom Fade to seamlessly blend with the next section */}
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#FAFAFA] to-transparent z-20 pointer-events-none" />
     </div>
   );
 };
