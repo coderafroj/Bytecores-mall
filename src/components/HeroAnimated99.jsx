@@ -5,9 +5,9 @@ import { ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
 
 const HeroAnimated99 = () => {
   return (
-    <div className="min-h-screen bg-[#E5E7EB] p-4 md:p-8 font-sans overflow-hidden flex flex-col">
+    <div className="min-h-screen w-full bg-[#E5E7EB] font-sans overflow-hidden flex flex-col relative">
       {/* Main Framed Container */}
-      <div className="flex-1 border border-slate-300 rounded-[2rem] relative flex flex-col overflow-hidden bg-[#E5E7EB] shadow-2xl">
+      <div className="flex-1 relative flex flex-col overflow-hidden bg-[#E5E7EB]">
         
         {/* Background Grid Lines */}
         <div className="absolute inset-0 pointer-events-none">
