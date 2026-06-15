@@ -15,6 +15,7 @@ const POSSystem = ({ products, refreshData }) => {
     const [customerName, setCustomerName] = useState('');
     const [customerPhone, setCustomerPhone] = useState('');
     const [discount, setDiscount] = useState(0);
+    const [paymentMethod, setPaymentMethod] = useState('CASH');
 
     // Fuse.js for typo-tolerant search
     const filteredProducts = useMemo(() => {
@@ -75,6 +76,51 @@ const POSSystem = ({ products, refreshData }) => {
     const subtotal = useMemo(() => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0), [cart]);
     const total = useMemo(() => Math.max(0, subtotal - discount), [subtotal, discount]);
 
+    const handleHoldBill = () => {
+        if (cart.length === 0) return;
+        const holdData = { cart, customerName, customerPhone, discount, timestamp: new Date().getTime() };
+        const existingHolds = JSON.parse(localStorage.getItem('pos_holds') || '[]');
+        localStorage.setItem('pos_holds', JSON.stringify([...existingHolds, holdData]));
+        toast.success('Bill placed on hold!');
+        setCart([]);
+        setCustomerName('');
+        setCustomerPhone('');
+        setDiscount(0);
+    };
+
+    const handleResumeBill = () => {
+        const existingHolds = JSON.parse(localStorage.getItem('pos_holds') || '[]');
+        if (existingHolds.length === 0) {
+            toast.error('No bills on hold!');
+            return;
+        }
+        const lastHold = existingHolds.pop();
+        setCart(lastHold.cart);
+        setCustomerName(lastHold.customerName);
+        setCustomerPhone(lastHold.customerPhone);
+        setDiscount(lastHold.discount);
+        localStorage.setItem('pos_holds', JSON.stringify(existingHolds));
+        toast.success('Bill resumed!');
+    };
+
+    useEffect(() => {
+        const handleGlobalKeyDown = (e) => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('pos-search-input')?.focus();
+            }
+            if (e.key === 'Enter' && e.shiftKey) {
+                e.preventDefault();
+                if (cart.length > 0) handleCheckout();
+            }
+            if (e.key === 'Escape') {
+                setCart([]);
+            }
+        };
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, [cart, customerName, customerPhone, discount, paymentMethod]);
+
     const handleCheckout = async () => {
         if (cart.length === 0) return;
         setIsProcessing(true);
@@ -95,8 +141,8 @@ const POSSystem = ({ products, refreshData }) => {
                 subtotal,
                 shipping: 0,
                 total,
-                paymentMethod: 'pos_cash',
                 status: 'delivered',
+                paymentMethod: paymentMethod,
                 paymentStatus: 'paid'
             };
 
@@ -119,7 +165,8 @@ const POSSystem = ({ products, refreshData }) => {
                 discount,
                 total,
                 customerName: customerName || 'Walk-in Customer',
-                customerPhone: customerPhone || 'N/A'
+                customerPhone: customerPhone || 'N/A',
+                paymentMethod: paymentMethod
             });
 
             toast.success('Bill generated successfully!');
@@ -127,6 +174,7 @@ const POSSystem = ({ products, refreshData }) => {
             setCustomerName('');
             setCustomerPhone('');
             setDiscount(0);
+            setPaymentMethod('CASH');
             if (refreshData) refreshData();
 
             // Trigger print dialog slightly after setting print data
@@ -151,6 +199,7 @@ const POSSystem = ({ products, refreshData }) => {
                     <div className="relative">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={24} />
                         <input 
+                            id="pos-search-input"
                             type="text" 
                             placeholder="Search products by name, SKU, or scan barcode..." 
                             value={searchQuery}
@@ -207,6 +256,10 @@ const POSSystem = ({ products, refreshData }) => {
                     <div>
                         <h2 className="text-2xl font-black uppercase tracking-tighter">Current Bill</h2>
                         <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{cart.length} items queued</p>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                        <button onClick={handleHoldBill} className="bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors border border-amber-500/20">Hold Bill</button>
+                        <button onClick={handleResumeBill} className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors border border-emerald-500/20">Resume</button>
                     </div>
                 </div>
 
@@ -291,16 +344,32 @@ const POSSystem = ({ products, refreshData }) => {
                                 <span>-₹{discount.toLocaleString()}</span>
                             </div>
                         )}
-                        <div className="flex justify-between items-center text-xl font-black mt-4 pt-4 border-t border-white/10">
+                        <div className="flex justify-between items-center text-xl font-black mt-4 pt-4 border-t border-white/10 mb-4">
                             <span>Total</span>
                             <span>₹{total.toLocaleString()}</span>
+                        </div>
+
+                        <div className="flex gap-2 mb-6">
+                            {['CASH', 'UPI', 'CARD'].map(method => (
+                                <button
+                                    key={method}
+                                    onClick={() => setPaymentMethod(method)}
+                                    className={`flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                        paymentMethod === method 
+                                        ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' 
+                                        : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                                    }`}
+                                >
+                                    {method}
+                                </button>
+                            ))}
                         </div>
                     </div>
                     
                     <button 
                         disabled={cart.length === 0 || isProcessing}
                         onClick={handleCheckout}
-                        className="w-full bg-white text-slate-950 font-black py-5 rounded-2xl flex items-center justify-center gap-3 text-sm uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-red-600 text-white font-black text-xl py-6 rounded-2xl hover:bg-red-500 transition-all shadow-2xl shadow-red-600/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 active:scale-95 group"
                     >
                         {isProcessing ? <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" /> : <Printer size={20} />}
                         {isProcessing ? 'Processing...' : 'Checkout & Print'}
@@ -325,6 +394,7 @@ const POSSystem = ({ products, refreshData }) => {
                             <p>Customer: {printData.customerName}</p>
                             {printData.customerPhone !== 'N/A' && <p>Phone: {printData.customerPhone}</p>}
                             <p>Cashier: POS_ADMIN</p>
+                            <p style={{ marginTop: '5px', fontWeight: 'bold' }}>Payment Mode: {printData.paymentMethod}</p>
                         </div>
                         
                         <div className="print-divider"></div>

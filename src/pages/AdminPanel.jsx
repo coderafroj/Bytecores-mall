@@ -32,6 +32,7 @@ const AdminPanel = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [printData, setPrintData] = useState(null);
   
   const [formLoading, setFormLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -151,6 +152,39 @@ const AdminPanel = () => {
         .sort((a, b) => b.sold - a.sold)
         .slice(0, 5);
   }, [orders]);
+
+  const paymentStats = useMemo(() => {
+    let cash = 0, upi = 0, card = 0;
+    const today = new Date().toISOString().split('T')[0];
+    orders.filter(o => o.$createdAt.startsWith(today)).forEach(order => {
+        if (order.paymentMethod === 'CASH') cash += order.total;
+        else if (order.paymentMethod === 'UPI') upi += order.total;
+        else if (order.paymentMethod === 'CARD') card += order.total;
+        else cash += order.total; // Default legacy
+    });
+    return { cash, upi, card, total: cash + upi + card };
+  }, [orders]);
+
+  const lowStockProducts = useMemo(() => {
+    return products.filter(p => p.stock < 5).sort((a, b) => a.stock - b.stock);
+  }, [products]);
+
+  const handlePrintOrder = (order) => {
+    setPrintData({
+        orderId: order.$id,
+        date: new Date(order.$createdAt).toLocaleString('en-IN'),
+        items: JSON.parse(order.items || '[]'),
+        subtotal: order.subtotal || order.total,
+        discount: order.discount || 0,
+        total: order.total,
+        customerName: order.userName || 'Walk-in Customer',
+        customerPhone: order.userEmail || 'N/A'
+    });
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => setPrintData(null), 1000);
+    }, 100);
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -461,7 +495,14 @@ const AdminPanel = () => {
                             { label: 'Revenue', value: `₹${stats.totalSales.toLocaleString()}`, icon: <DollarSign size={24} />, color: 'text-emerald-600', bg: 'bg-emerald-500/10', trend: '+18.2%' },
                             { label: 'Transactions', value: stats.totalOrders, icon: <ShoppingCart size={24} />, color: 'text-blue-600', bg: 'bg-blue-500/10', trend: '+5.4%' },
                             { label: 'Products', value: stats.totalProducts, icon: <Package size={24} />, color: 'text-violet-600', bg: 'bg-violet-500/10', trend: 'Optimal' },
-                            { label: 'Pending', value: stats.pendingOrders, icon: <Clock size={24} />, color: 'text-red-600', bg: 'bg-red-500/10', trend: 'Attention' }
+                            { 
+                                label: 'Today\'s Register', 
+                                value: `₹${paymentStats.total.toLocaleString()}`, 
+                                icon: <Clock size={24} />, 
+                                color: 'text-amber-600', 
+                                bg: 'bg-amber-500/10', 
+                                trend: `C: ₹${paymentStats.cash} | U: ₹${paymentStats.upi}` 
+                            }
                         ].map((stat, i) => (
                             <motion.div 
                                 key={i} 
@@ -566,6 +607,36 @@ const AdminPanel = () => {
                                         <button onClick={() => setActiveTab('products')} className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest shadow-2xl">
                                             <Package size={16} /> Manage Inventory
                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Low Stock Alerts */}
+                            <div className="bg-red-600 rounded-[3rem] p-8 text-white relative overflow-hidden flex flex-col shadow-2xl shadow-red-600/40 mt-8 flex-1">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none" />
+                                <div className="relative z-10 flex flex-col h-full">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
+                                                <AlertTriangle size={20} className="text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-black uppercase tracking-tight">Low Stock</h3>
+                                                <p className="text-[8px] font-black text-red-200 uppercase tracking-[0.3em]">{lowStockProducts.length} items critical</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3 flex-1 overflow-y-auto max-h-[150px] custom-scrollbar pr-2">
+                                        {lowStockProducts.length === 0 ? (
+                                            <p className="text-sm font-bold text-red-200">Inventory looks good.</p>
+                                        ) : (
+                                            lowStockProducts.map(p => (
+                                                <div key={p.$id} className="flex justify-between items-center bg-black/20 p-3 rounded-xl backdrop-blur-sm">
+                                                    <span className="font-bold text-sm truncate w-[150px]">{p.name}</span>
+                                                    <span className="font-black text-white bg-black/40 px-3 py-1 rounded-lg">{p.stock} left</span>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -954,6 +1025,7 @@ const AdminPanel = () => {
                     <div className="relative group overflow-hidden bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 text-center hover:border-red-600 hover:bg-white transition-all cursor-pointer shadow-sm">
                         <Upload size={40} className="mx-auto text-slate-300 mb-6 group-hover:text-red-600 group-hover:scale-110 transition-all duration-500" />
                         <p className="font-black text-slate-400 text-sm group-hover:text-slate-900">{imageFile ? imageFile.name : 'Click to Upload High-Res Media'}</p>
+                        <p className="text-[10px] font-bold text-emerald-500 mt-2 uppercase tracking-widest">Image will auto-compress to ~20KB for DB</p>
                         <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileChange} />
                     </div>
                     <div className="relative">
@@ -1148,22 +1220,25 @@ const AdminPanel = () => {
                 <div className="space-y-6">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update Matrix State</p>
                     <div className="grid grid-cols-1 gap-3">
-                        {['pending', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
-                            <button 
-                                key={status}
-                                onClick={() => updateOrderStatus(selectedOrder.$id, status)}
-                                className={`w-full text-left p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all border-2 ${
-                                    selectedOrder.status === status 
-                                    ? 'bg-slate-950 text-white border-slate-950 shadow-2xl' 
-                                    : 'bg-white text-slate-400 border-white hover:border-red-500/20 shadow-sm'
-                                }`}
-                            >
-                                <div className="flex items-center justify-between">
-                                    <span>{status}</span>
-                                    {selectedOrder.status === status && <div className="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_8px_red]"></div>}
-                                </div>
-                            </button>
-                        ))}
+                        <select 
+                            value={selectedOrder.status}
+                            onChange={(e) => updateOrderStatus(selectedOrder.$id, e.target.value)}
+                            className="w-full bg-white border border-slate-100 rounded-2xl p-5 font-black text-slate-900 focus:border-red-600 outline-none shadow-sm cursor-pointer"
+                        >
+                            <option value="pending">PENDING</option>
+                            <option value="processing">PROCESSING</option>
+                            <option value="shipped">SHIPPED</option>
+                            <option value="delivered">DELIVERED</option>
+                            <option value="cancelled">CANCELLED</option>
+                        </select>
+                        
+                        <button 
+                            onClick={() => handlePrintOrder(selectedOrder)}
+                            className="w-full bg-slate-950 text-white font-black py-5 rounded-2xl flex justify-center items-center gap-2 hover:bg-red-600 transition-colors shadow-lg"
+                        >
+                            <FileText size={18} />
+                            REPRINT RECEIPT
+                        </button>
                     </div>
                 </div>
 
@@ -1200,6 +1275,81 @@ const AdminPanel = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Hidden Print Receipt for Admin */}
+      {printData && (
+          <div className="print-receipt-container">
+              <style type="text/css" media="print">
+                  {`
+                      @page { size: 80mm auto; margin: 0; }
+                      body { margin: 0; padding: 0; background: #fff; font-family: 'Courier New', Courier, monospace; }
+                      #root { display: none !important; }
+                      .print-receipt-container { display: block !important; position: absolute; left: 0; top: 0; width: 80mm; padding: 10px; background: #fff; color: #000; z-index: 99999; }
+                      .print-header { text-align: center; margin-bottom: 15px; border-bottom: 2px dashed #000; padding-bottom: 10px; }
+                      .print-header h2 { margin: 0 0 5px 0; font-size: 1.5em; font-weight: bold; }
+                      .print-info { margin-bottom: 15px; font-size: 0.9em; }
+                      .print-info p { margin: 2px 0; }
+                      .print-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                      .print-table th { border-bottom: 1px solid #000; text-align: left; padding: 4px 0; font-size: 0.8em; }
+                      .print-table td { padding: 4px 0; font-size: 0.9em; border-bottom: 1px dotted #ccc; }
+                      .print-footer { text-align: center; margin-top: 20px; font-size: 0.8em; border-top: 2px dashed #000; padding-top: 10px; }
+                  `}
+              </style>
+              <div className="print-header">
+                  <h2>BYTECORE MALL</h2>
+                  <p>A unit of ByteCore Computer Centre</p>
+              </div>
+              
+              <div className="print-info">
+                  <p>Date: {printData.date}</p>
+                  <p>Bill No: {printData.orderId.substring(0, 8).toUpperCase()}</p>
+                  <p>Customer: {printData.customerName}</p>
+                  {printData.customerPhone !== 'N/A' && <p>Phone: {printData.customerPhone}</p>}
+                  <p>Reprint: YES</p>
+              </div>
+              
+              <table className="print-table">
+                  <thead>
+                      <tr>
+                          <th>Item</th>
+                          <th>Qty</th>
+                          <th style={{textAlign: 'right'}}>Amount</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {printData.items.map((item, idx) => (
+                          <tr key={idx}>
+                              <td>{item.name.substring(0, 15)}</td>
+                              <td>{item.quantity}</td>
+                              <td style={{textAlign: 'right'}}>₹{item.price * item.quantity}</td>
+                          </tr>
+                      ))}
+                  </tbody>
+              </table>
+              
+              <div className="print-total" style={{ borderTop: '2px dashed #000', paddingTop: '10px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                      <span>Subtotal:</span>
+                      <span>₹{printData.subtotal?.toLocaleString()}</span>
+                  </div>
+                  {printData.discount > 0 && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                          <span>Discount:</span>
+                          <span>-₹{printData.discount?.toLocaleString()}</span>
+                      </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.2em', marginTop: '10px' }}>
+                      <span>Total:</span>
+                      <span>₹{printData.total.toLocaleString()}</span>
+                  </div>
+              </div>
+
+              <div className="print-footer">
+                  <p>Thank you for shopping with us!</p>
+                  <p>Duplicate Copy</p>
+              </div>
+          </div>
+      )}
     </div>
   );
 };

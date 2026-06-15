@@ -58,14 +58,37 @@ export default async function getCroppedImg(
     pixelCrop.height
   )
 
-  canvas.width = pixelCrop.width
-  canvas.height = pixelCrop.height
+  // Max width/height to ensure 20KB-50KB size
+  const MAX_DIMENSION = 600;
+  let targetWidth = pixelCrop.width;
+  let targetHeight = pixelCrop.height;
 
-  ctx.putImageData(data, 0, 0)
+  if (targetWidth > MAX_DIMENSION || targetHeight > MAX_DIMENSION) {
+      if (targetWidth > targetHeight) {
+          targetHeight = (targetHeight / targetWidth) * MAX_DIMENSION;
+          targetWidth = MAX_DIMENSION;
+      } else {
+          targetWidth = (targetWidth / targetHeight) * MAX_DIMENSION;
+          targetHeight = MAX_DIMENSION;
+      }
+  }
+
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = targetWidth;
+  finalCanvas.height = targetHeight;
+  const finalCtx = finalCanvas.getContext('2d');
+
+  const extractCanvas = document.createElement('canvas');
+  extractCanvas.width = pixelCrop.width;
+  extractCanvas.height = pixelCrop.height;
+  const extractCtx = extractCanvas.getContext('2d');
+  extractCtx.putImageData(data, 0, 0);
+
+  finalCtx.drawImage(extractCanvas, 0, 0, targetWidth, targetHeight);
 
   return new Promise((resolve) => {
-    canvas.toBlob((file) => {
+    finalCanvas.toBlob((file) => {
       resolve(file)
-    }, 'image/jpeg', 1)
+    }, 'image/jpeg', 0.6)
   })
 }
