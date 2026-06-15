@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, ArrowLeft, Instagram, Twitter, Facebook } from 'lucide-react';
+import { ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
 
 const HeroAnimated99 = () => {
   return (
@@ -141,13 +141,13 @@ const HeroAnimated99 = () => {
           
           <div className="w-2/4 flex justify-center gap-4">
             <a href="#" className="px-5 py-2 bg-white/50 hover:bg-white backdrop-blur-md rounded-full text-slate-700 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
-              <Instagram size={14} /> Instagram
+              Instagram
             </a>
             <a href="#" className="px-5 py-2 bg-white/50 hover:bg-white backdrop-blur-md rounded-full text-slate-700 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
-              <Twitter size={14} /> Twitter
+              Twitter
             </a>
             <a href="#" className="px-5 py-2 bg-white/50 hover:bg-white backdrop-blur-md rounded-full text-slate-700 text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2">
-              <Facebook size={14} /> Facebook
+              Facebook
             </a>
           </div>
 
