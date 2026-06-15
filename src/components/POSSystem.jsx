@@ -12,6 +12,9 @@ const POSSystem = ({ products, refreshData }) => {
     const [cart, setCart] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [printData, setPrintData] = useState(null);
+    const [customerName, setCustomerName] = useState('');
+    const [customerPhone, setCustomerPhone] = useState('');
+    const [discount, setDiscount] = useState(0);
 
     // Fuse.js for typo-tolerant search
     const filteredProducts = useMemo(() => {
@@ -58,8 +61,19 @@ const POSSystem = ({ products, refreshData }) => {
         setCart(prev => prev.filter(item => item.$id !== id));
     };
 
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const total = subtotal;
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            if (filteredProducts.length === 1) {
+                addToCart(filteredProducts[0]);
+                setSearchQuery('');
+            } else if (filteredProducts.length === 0) {
+                toast.error('No product found!');
+            }
+        }
+    };
+
+    const subtotal = useMemo(() => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0), [cart]);
+    const total = useMemo(() => Math.max(0, subtotal - discount), [subtotal, discount]);
 
     const handleCheckout = async () => {
         if (cart.length === 0) return;
@@ -68,8 +82,8 @@ const POSSystem = ({ products, refreshData }) => {
             // 1. Create Order
             const orderData = {
                 userId: user?.id || 'pos_admin',
-                userName: 'Walk-in Customer',
-                userEmail: user?.primaryEmailAddress?.emailAddress || 'pos@bytecores.in',
+                userName: customerName || 'Walk-in Customer',
+                userEmail: customerPhone ? `${customerPhone}@pos.local` : (user?.primaryEmailAddress?.emailAddress || 'pos@bytecores.in'),
                 address: 'In-Store Purchase',
                 shippingAddress: 'In-Store Purchase',
                 items: JSON.stringify(cart.map(item => ({
@@ -101,11 +115,18 @@ const POSSystem = ({ products, refreshData }) => {
                 orderId: newOrder.$id,
                 date: new Date().toLocaleString('en-IN'),
                 items: cart,
-                total
+                subtotal,
+                discount,
+                total,
+                customerName: customerName || 'Walk-in Customer',
+                customerPhone: customerPhone || 'N/A'
             });
 
             toast.success('Bill generated successfully!');
             setCart([]);
+            setCustomerName('');
+            setCustomerPhone('');
+            setDiscount(0);
             if (refreshData) refreshData();
 
             // Trigger print dialog slightly after setting print data
@@ -131,9 +152,10 @@ const POSSystem = ({ products, refreshData }) => {
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={24} />
                         <input 
                             type="text" 
-                            placeholder="Search products by name, SKU, or category..." 
+                            placeholder="Search products by name, SKU, or scan barcode..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={handleSearchKeyDown}
                             className="w-full bg-slate-50 border-2 border-transparent focus:border-red-500/20 focus:bg-white rounded-full py-5 pl-16 pr-8 font-black text-lg outline-none transition-all shadow-inner placeholder:text-slate-300"
                         />
                     </div>
@@ -188,6 +210,33 @@ const POSSystem = ({ products, refreshData }) => {
                     </div>
                 </div>
 
+                <div className="px-6 py-4 border-b border-white/10 relative z-10 flex flex-col gap-3">
+                    <input 
+                        type="text" 
+                        placeholder="Customer Name (Optional)" 
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-red-500 transition-colors"
+                    />
+                    <input 
+                        type="tel" 
+                        placeholder="Phone Number (Optional)" 
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-red-500 transition-colors"
+                    />
+                    <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+                        <input 
+                            type="number" 
+                            placeholder="Discount Amount" 
+                            value={discount || ''}
+                            onChange={(e) => setDiscount(Number(e.target.value))}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 pl-8 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-red-500 transition-colors"
+                        />
+                    </div>
+                </div>
+
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 relative z-10">
                     <AnimatePresence>
                         {cart.length === 0 ? (
@@ -232,17 +281,19 @@ const POSSystem = ({ products, refreshData }) => {
 
                 <div className="p-8 border-t border-white/10 bg-black/20 relative z-10 backdrop-blur-xl">
                     <div className="space-y-3 mb-6">
-                        <div className="flex justify-between text-slate-400 font-bold text-sm">
+                        <div className="flex justify-between items-center text-sm font-bold text-slate-300 mb-2">
                             <span>Subtotal</span>
-                            <span className="text-white">₹{subtotal}</span>
+                            <span>₹{subtotal.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between text-slate-400 font-bold text-sm">
-                            <span>Tax (Included)</span>
-                            <span className="text-white">₹0</span>
-                        </div>
-                        <div className="pt-4 border-t border-white/10 flex justify-between items-end">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Amount</span>
-                            <span className="text-4xl font-black tracking-tighter text-white">₹{total}</span>
+                        {discount > 0 && (
+                            <div className="flex justify-between items-center text-sm font-bold text-emerald-400 mb-2">
+                                <span>Discount</span>
+                                <span>-₹{discount.toLocaleString()}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center text-xl font-black mt-4 pt-4 border-t border-white/10">
+                            <span>Total</span>
+                            <span>₹{total.toLocaleString()}</span>
                         </div>
                     </div>
                     
@@ -271,6 +322,8 @@ const POSSystem = ({ products, refreshData }) => {
                         <div className="print-info">
                             <p>Date: {printData.date}</p>
                             <p>Bill No: {printData.orderId.substring(0, 8).toUpperCase()}</p>
+                            <p>Customer: {printData.customerName}</p>
+                            {printData.customerPhone !== 'N/A' && <p>Phone: {printData.customerPhone}</p>}
                             <p>Cashier: POS_ADMIN</p>
                         </div>
                         
@@ -297,14 +350,22 @@ const POSSystem = ({ products, refreshData }) => {
                             </tbody>
                         </table>
                         
-                        <div className="print-divider"></div>
-                        
-                        <div className="print-total">
-                            <span>TOTAL:</span>
-                            <span>Rs. {printData.total}</span>
+                        <div className="print-total" style={{ borderTop: '2px dashed #000', paddingTop: '10px', marginTop: '10px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                <span>Subtotal:</span>
+                                <span>₹{printData.subtotal?.toLocaleString()}</span>
+                            </div>
+                            {printData.discount > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                    <span>Discount:</span>
+                                    <span>-₹{printData.discount?.toLocaleString()}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '1.2em', marginTop: '10px' }}>
+                                <span>Total:</span>
+                                <span>₹{printData.total.toLocaleString()}</span>
+                            </div>
                         </div>
-                        
-                        <div className="print-divider"></div>
                         
                         <div className="print-footer">
                             <p>Thank you for shopping with us!</p>

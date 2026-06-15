@@ -15,6 +15,7 @@ import { Query } from 'appwrite';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
 import POSSystem from '../components/POSSystem';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const AdminPanel = () => {
   const { user } = useUser();
@@ -117,6 +118,38 @@ const AdminPanel = () => {
       uniqueUsers[order.userEmail].totalSpent += order.total;
     });
     return Object.values(uniqueUsers);
+  }, [orders]);
+
+  const salesData = useMemo(() => {
+    const data = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateString = d.toISOString().split('T')[0];
+      const dayName = d.toLocaleDateString('en-IN', { weekday: 'short' });
+      const daySales = orders.filter(o => o.$createdAt.startsWith(dateString)).reduce((sum, order) => sum + (order.total || 0), 0);
+      data.push({ name: dayName, date: dateString, sales: daySales });
+    }
+    return data;
+  }, [orders]);
+
+  const topSellingProducts = useMemo(() => {
+    const counts = {};
+    orders.forEach(order => {
+        if (order.items) {
+            try {
+                const items = JSON.parse(order.items);
+                items.forEach(item => {
+                    counts[item.name] = (counts[item.name] || 0) + item.quantity;
+                });
+            } catch (e) {}
+        }
+    });
+    return Object.entries(counts)
+        .map(([name, sold]) => ({ name: name.substring(0, 15), sold }))
+        .sort((a, b) => b.sold - a.sold)
+        .slice(0, 5);
   }, [orders]);
 
   const handleLogout = async () => {
@@ -463,94 +496,77 @@ const AdminPanel = () => {
                                 </div>
                             </div>
                             
-                            {/* Pro CSS Chart */}
-                            <div className="flex-1 p-10 min-h-[400px] flex flex-col justify-end">
-                                <div className="flex items-end justify-between gap-4 h-[300px] mb-8">
-                                    {[65, 45, 78, 52, 90, 70, 85].map((h, i) => (
-                                        <div key={i} className="flex-1 flex flex-col items-center group relative">
-                                            <div className="absolute -top-10 bg-slate-950 text-white px-3 py-1.5 rounded-lg text-[9px] font-black opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                                                ₹{(h * 1000).toLocaleString()}
-                                            </div>
-                                            <motion.div 
-                                                initial={{ height: 0 }}
-                                                animate={{ height: `${h}%` }}
-                                                transition={{ delay: i * 0.1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                                                className={`w-full max-w-[40px] rounded-t-2xl transition-all duration-500 group-hover:bg-red-500 shadow-2xl ${i === 4 ? 'bg-red-600' : 'bg-slate-900'}`}
+                            {/* Recharts Analytics */}
+                            <div className="flex-1 p-10 min-h-[400px] flex flex-col justify-end w-full">
+                                <div className="h-[300px] w-full mb-8">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={salesData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 900 }} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 900 }} tickFormatter={(val) => `₹${val}`} />
+                                            <RechartsTooltip 
+                                                cursor={{ stroke: '#f1f5f9', strokeWidth: 2 }}
+                                                contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                                                itemStyle={{ color: '#0f172a', fontWeight: 900 }}
                                             />
-                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-4">Day {i+1}</span>
-                                        </div>
-                                    ))}
+                                            <Line type="monotone" dataKey="sales" stroke="#dc2626" strokeWidth={4} activeDot={{ r: 8, fill: '#dc2626', stroke: 'white', strokeWidth: 4 }} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
                                 </div>
                                 <div className="pt-8 border-t border-slate-50 flex items-center justify-between">
                                     <div className="flex gap-8">
                                         <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Peak Load</p>
-                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹90,000</p>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">7D Peak</p>
+                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹{Math.max(...salesData.map(d => d.sales)).toLocaleString()}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Mean Value</p>
-                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹62,400</p>
+                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">7D Total</p>
+                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹{salesData.reduce((a, b) => a + b.sales, 0).toLocaleString()}</p>
                                         </div>
                                     </div>
                                     <button onClick={() => setActiveTab('orders')} className="group flex items-center gap-3 text-[10px] font-black text-red-600 uppercase tracking-widest">
-                                        Exfiltrate Full Logs <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                        View Full Logs <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 </div>
                             </div>
                         </div>
 
                         <div className="space-y-8 flex flex-col">
-                            {/* Live Terminal */}
+                            {/* Top Products Chart */}
                             <div className="bg-slate-950 rounded-[3rem] p-10 text-white relative overflow-hidden flex-1 flex flex-col shadow-2xl shadow-slate-950/40 border border-white/5">
-                                <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-[100px] -mr-40 -mt-40" />
+                                <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none" />
                                 <div className="relative z-10 flex flex-col h-full">
                                     <div className="flex items-center justify-between mb-8">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center animate-pulse">
-                                                <Activity size={20} />
+                                            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
+                                                <TrendingUp size={20} />
                                             </div>
                                             <div>
-                                                <h3 className="text-lg font-black uppercase tracking-tight">Live Terminal</h3>
-                                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Protocol v2.4.0 Active</p>
+                                                <h3 className="text-lg font-black uppercase tracking-tight">Top Movers</h3>
+                                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Highest volume units</p>
                                             </div>
                                         </div>
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></div>
                                     </div>
                                     
-                                    <div className="flex-1 font-mono text-[9px] space-y-3 opacity-80 custom-scrollbar overflow-y-auto pr-4">
-                                        <p className="text-emerald-500">[12:44:01] AUTH_SYNC: Admin connection established</p>
-                                        <p className="text-blue-400">[12:44:05] DB_PULL: Fetched {products.length} products successfully</p>
-                                        <p className="text-slate-500">[12:44:12] SYS_STATUS: All nodes healthy (latency 42ms)</p>
-                                        <p className="text-emerald-500">[12:44:15] ORDER_FETCH: Syncing {orders.length} transaction records</p>
-                                        <p className="text-amber-400">[12:44:20] CACHE_HIT: Global dashboard analytics ready</p>
-                                        <p className="text-red-500 animate-pulse">[12:44:25] ACTION: Admin viewed Overview Matrix</p>
-                                        <p className="text-slate-500">[12:44:30] SECURITY: Layer 7 protection active</p>
+                                    <div className="flex-1 w-full h-[250px] mt-4">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={topSellingProducts} layout="vertical" margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                                                <XAxis type="number" hide />
+                                                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 900 }} width={80} />
+                                                <RechartsTooltip 
+                                                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                                                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}
+                                                />
+                                                <Bar dataKey="sold" fill="#dc2626" radius={[0, 4, 4, 0]} barSize={20} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
                                     </div>
 
-                                    <div className="mt-8 pt-8 border-t border-white/10 space-y-6">
-                                        <div>
-                                            <div className="flex justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">
-                                                <span>Core Processing</span>
-                                                <span className="text-emerald-500">Optimum</span>
-                                            </div>
-                                            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                                <motion.div initial={{ width: 0 }} animate={{ width: '38%' }} transition={{ duration: 2 }} className="h-full bg-emerald-500" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="flex justify-between text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3">
-                                                <span>Memory Utilization</span>
-                                                <span className="text-blue-500">12GB / 32GB</span>
-                                            </div>
-                                            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                                <motion.div initial={{ width: 0 }} animate={{ width: '62%' }} transition={{ duration: 2 }} className="h-full bg-blue-500" />
-                                            </div>
-                                        </div>
+                                    <div className="mt-8 pt-8 border-t border-white/10">
+                                        <button onClick={() => setActiveTab('products')} className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest shadow-2xl">
+                                            <Package size={16} /> Manage Inventory
+                                        </button>
                                     </div>
-                                    
-                                    <button className="relative z-10 w-full bg-white text-slate-950 font-black py-4 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest mt-10 shadow-2xl">
-                                        <Shield size={16} /> Encryption Key Verified
-                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -27,10 +27,10 @@ const AboutUs = () => {
             Our Story
           </motion.div>
           <h1 className="text-6xl lg:text-9xl font-black text-slate-900 tracking-tighter mb-8 uppercase leading-[0.9]">
-            A Legacy of <br /><span className="text-red-500">Excellence</span>
+            Student Resource <br /><span className="text-red-500">Portal</span>
           </h1>
           <p className="text-2xl text-slate-500 font-bold max-w-3xl mx-auto leading-relaxed">
-            ByteCore Computer Centre, Bareilly, is a premier institution dedicated to technology education and digital empowerment. ByteCore Mall was established to provide our students at Nariyawal and Thiriya campuses, as well as the wider Bareilly tech community, with reliable, high-quality computer hardware, software, and study materials.
+            Welcome to the official internal resource portal of ByteCore Computer Centre (<a href="https://bytecores.in" target="_blank" rel="noreferrer" className="text-red-500 hover:underline">bytecores.in</a>). This platform is exclusively designed to provide necessary educational hardware, software, laptops, and study materials to our enrolled students at the Nariyawal and Thiriya campuses to support their learning journey.
           </p>
         </div>
 
@@ -55,9 +55,9 @@ const AboutUs = () => {
             <h2 className="text-5xl font-black text-slate-900 mb-12 tracking-tight uppercase">Our Mission</h2>
             <div className="space-y-12">
               {[
-                { icon: <Target className="text-red-500" />, title: "Empowering People", desc: "Our core goal at ByteCore Computer Centre is to empower individuals with the skills and tools they need to succeed in the digital age." },
-                { icon: <Shield className="text-emerald-500" />, title: "Quality Assurance", desc: "Every product at ByteCore Mall undergoes rigorous quality checks to ensure our customers get only the best." },
-                { icon: <Users className="text-blue-500" />, title: "Community Driven", desc: "We are more than just a business; we are a part of Bareilly's growing tech ecosystem." }
+                { icon: <Target className="text-red-500" />, title: "Empowering Students", desc: "Our core goal at ByteCore Computer Centre is to empower our students with the skills and tools they need to succeed in the digital age." },
+                { icon: <Shield className="text-emerald-500" />, title: "Educational Resources", desc: "Every study material and hardware provided undergoes checks to ensure our learners get the best tools." },
+                { icon: <Users className="text-blue-500" />, title: "Student Community", desc: "We are more than just an institute; we are a dedicated tech ecosystem for learning." }
               ].map((item, i) => (
                 <div key={i} className="flex gap-8">
                   <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 shadow-sm">

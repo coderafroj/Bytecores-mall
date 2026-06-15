@@ -28,7 +28,7 @@ const PrivacyPolicy = () => {
                 1. Introduction
               </h2>
               <p className="text-lg font-bold leading-relaxed mb-4">
-                Welcome to ByteCore Mall, a division of ByteCore Computer Centre. Your privacy is critically important to us. It is ByteCore Computer Centre's policy to respect your privacy regarding any information we may collect while operating our website.
+                Welcome to ByteCore Mall, the official internal student resource portal operated by ByteCore Computer Centre. Your privacy is critically important to us. It is ByteCore Computer Centre's policy to respect your privacy regarding any information we may collect while operating this educational resource platform.
               </p>
               <p className="text-lg font-bold leading-relaxed">
                 This Privacy Policy applies to <a href="https://mall.bytecores.in" className="text-red-500">mall.bytecores.in</a>. We respect your privacy and are committed to protecting personally identifiable information you may provide us through the Website.

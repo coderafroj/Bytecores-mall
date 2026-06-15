@@ -27,7 +27,7 @@ const TermsConditions = () => {
                 1. Acceptance of Terms
               </h2>
               <p className="text-lg font-bold leading-relaxed">
-                By accessing the website at <a href="https://mall.bytecores.in" className="text-blue-500">mall.bytecores.in</a>, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws.
+                By accessing the student resource portal at <a href="https://mall.bytecores.in" className="text-blue-500">mall.bytecores.in</a>, you are agreeing to be bound by these terms of service, all applicable laws and regulations. This platform is strictly an internal resource portal for enrolled students of ByteCore Computer Centre to procure educational materials and hardware.
               </p>
             </section>
 

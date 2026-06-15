@@ -30,7 +30,7 @@ const RefundPolicy = () => {
                 Orders can be cancelled within 24 hours of placement or until they are shipped, whichever is earlier. Once the order is shipped, cancellation is not possible.
               </p>
               <p className="text-lg font-bold leading-relaxed">
-                To cancel an order, please contact us at <span className="text-emerald-500">bytecore.info@gmail.com</span> with your order ID.
+                To cancel an educational resource or hardware order, please contact student support at <span className="text-emerald-500">info@bytecores.in</span> with your order ID.
               </p>
             </section>
 

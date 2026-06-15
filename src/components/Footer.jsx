@@ -19,10 +19,10 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-xl text-slate-400 font-bold leading-relaxed max-w-md">
-              ByteCore Mall is the official tech retail and student supply division of ByteCore Computer Centre, serving our Nariyawal and Thiriya campuses.
+              ByteCore Mall is the official internal student resource portal operated by ByteCore Computer Centre (bytecores.in). We provide necessary study materials and hardware exclusively to our enrolled students.
             </p>
             <div className="flex gap-4">
-              <a href="mailto:bytecore.mall@gmail.com" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-lg hover:-translate-y-1">
+              <a href="mailto:info@bytecores.in" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-lg hover:-translate-y-1">
                 <Mail size={20} />
               </a>
               <a href="tel:+916396835709" className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-lg hover:-translate-y-1">
@@ -86,7 +86,7 @@ const Footer = () => {
                 </div>
                 <div>
                   <p className="text-lg font-bold text-white">Email Us</p>
-                  <p className="text-slate-400 font-bold">bytecore.mall@gmail.com</p>
+                  <p className="text-slate-400 font-bold">info@bytecores.in</p>
                 </div>
               </div>
             </div>

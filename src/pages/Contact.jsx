@@ -45,10 +45,10 @@ const Contact = () => {
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12">
         <div className="text-center mb-20">
           <h1 className="text-5xl lg:text-8xl font-black text-slate-900 tracking-tighter mb-6 uppercase">
-            Let's <span className="text-red-500 text-stroke-red">Connect</span>
+            Student <span className="text-red-500 text-stroke-red">Support</span>
           </h1>
           <p className="text-xl text-slate-500 font-bold max-w-2xl mx-auto">
-            Have a question or just want to say hi? Our team is always ready to help you with your shopping journey.
+            Have a question about your learning resources? Our student support team is ready to assist you.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ const Contact = () => {
           <div className="space-y-12">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {[
-                { icon: <Mail />, title: "Email Us", detail: "bytecore.mall@gmail.com", sub: "Response within 24h" },
+                { icon: <Mail />, title: "Email Us", detail: "info@bytecores.in", sub: "Response within 24h" },
                 { icon: <Phone />, title: "Call Us", detail: "+91 63968 35709", sub: "Mon-Sat, 9am-6pm" },
                 { icon: <MessageSquare />, title: "Live Chat", detail: "Active Now", sub: "Average wait: 2 mins" },
                 { icon: <Clock />, title: "Working Hours", detail: "24/7 Online", sub: "Orders processed daily" }
