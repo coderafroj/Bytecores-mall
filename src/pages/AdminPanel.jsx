@@ -361,103 +361,109 @@ const AdminPanel = () => {
   return (
     <div className="flex min-h-screen bg-[#FBFCFE] text-slate-900 font-sans selection:bg-red-500/10 selection:text-red-600">
       {/* Premium Sidebar */}
-      <aside className="w-[300px] bg-slate-950 text-white fixed h-screen hidden lg:flex flex-col border-r border-white/5 z-50">
-        <div className="p-10">
-            <div className="flex items-center gap-4 mb-12">
-                <div className="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-600/40">
-                    <Shield size={24} className="text-white" />
+      <aside className="w-[300px] bg-[#0A0A0A] text-white fixed h-screen hidden lg:flex flex-col border-r border-white/5 z-50 shadow-[20px_0_60px_rgba(0,0,0,0.2)]">
+        <div className="p-8">
+            <div className="flex items-center gap-4 mb-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.3)] border border-red-400/20">
+                    <Shield size={24} className="text-white drop-shadow-lg" />
                 </div>
                 <div>
-                    <h1 className="font-black text-2xl tracking-tighter uppercase leading-none">ByteCore Mall</h1>
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">A Division of ByteCore Computer Centre</p>
+                    <h1 className="font-black text-2xl tracking-tighter uppercase leading-none bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">ByteCore</h1>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">Command Center</p>
                 </div>
             </div>
             
-            <div className="bg-white/5 p-5 rounded-3xl border border-white/5 flex items-center gap-4">
-                <div className="w-11 h-11 bg-slate-800 rounded-2xl flex items-center justify-center font-black text-red-500 border border-white/10 shadow-inner">
+            <div className="bg-white/5 hover:bg-white/10 transition-colors p-4 rounded-3xl border border-white/5 flex items-center gap-4 cursor-pointer">
+                <div className="w-10 h-10 bg-slate-800 rounded-2xl flex items-center justify-center font-black text-white border border-white/10 shadow-inner">
                     {user?.firstName?.[0] || 'A'}
                 </div>
                 <div className="min-w-0">
                     <p className="font-bold text-sm truncate">{user?.fullName || 'Admin User'}</p>
-                    <div className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                        Administrator
+                    <div className="text-[10px] text-emerald-400 font-black uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse"></div>
+                        System Owner
                     </div>
                 </div>
             </div>
         </div>
 
-        <nav className="flex-1 px-6 space-y-2">
+        <nav className="flex-1 px-5 space-y-1 overflow-y-auto custom-scrollbar">
           {sidebarItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 font-black group ${
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 font-black group relative overflow-hidden ${
                 activeTab === item.id 
-                  ? 'bg-red-600 text-white shadow-2xl shadow-red-600/30' 
+                  ? 'text-white' 
                   : 'text-slate-500 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-110'}`}>
+              {activeTab === item.id && (
+                  <motion.div layoutId="activeTabBg" className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-transparent border-l-4 border-red-500 rounded-r-2xl" />
+              )}
+              <span className={`relative z-10 transition-all duration-300 ${activeTab === item.id ? 'text-red-500 scale-110 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]' : 'group-hover:scale-110'}`}>
                 {item.icon}
               </span>
-              <span className="text-xs uppercase tracking-widest">{item.label}</span>
-              {activeTab === item.id && <motion.div layoutId="activeTab" className="ml-auto w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_white]" />}
+              <span className="relative z-10 text-[11px] uppercase tracking-widest">{item.label}</span>
             </button>
           ))}
         </nav>
 
-        <div className="p-10 border-t border-white/5">
+        <div className="p-8 border-t border-white/5 bg-gradient-to-t from-black/50 to-transparent">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 p-4 rounded-2xl text-slate-500 font-black text-xs uppercase tracking-widest hover:text-red-500 hover:bg-red-500/10 transition-all"
+            className="w-full flex items-center justify-center gap-3 p-4 rounded-2xl text-slate-400 font-black text-xs uppercase tracking-widest hover:text-white hover:bg-red-500 hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all"
           >
-            <LogOut size={20} /> Sign Out
+            <LogOut size={18} /> Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Mobile Bottom Navigation (App-like) */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-slate-950/95 backdrop-blur-2xl border-t border-white/10 z-[100] px-6 py-4 rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.5)] flex items-center justify-between safe-area-pb">
+      {/* iOS-Style Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-3xl border-t border-slate-200/50 z-[100] px-6 py-4 pb-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex items-center justify-between safe-area-pb">
         {sidebarItems.slice(0, 4).map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 ${
-              activeTab === item.id ? 'text-red-500 scale-110' : 'text-slate-500 hover:text-white'
+            className={`relative flex flex-col items-center gap-1 transition-all duration-300 ${
+              activeTab === item.id ? 'text-red-600 scale-110' : 'text-slate-400 hover:text-slate-900'
             }`}
           >
-            <span className="relative">
+            <div className="relative p-2">
               {item.icon}
-              {activeTab === item.id && <motion.div layoutId="mobileTab" className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_8px_red]" />}
+              {activeTab === item.id && (
+                  <motion.div layoutId="mobileTabIndicator" className="absolute inset-0 bg-red-100 rounded-xl -z-10" />
+              )}
+            </div>
+            <span className={`text-[9px] uppercase tracking-widest font-black transition-all ${activeTab === item.id ? 'opacity-100 h-auto mt-1' : 'opacity-0 h-0 overflow-hidden'}`}>
+              {item.label}
             </span>
-            <span className="text-[9px] uppercase tracking-widest font-black mt-1">{item.label}</span>
           </button>
         ))}
         <button 
           onClick={handleLogout}
-          className="flex flex-col items-center gap-1.5 transition-all duration-300 text-slate-500 hover:text-red-500"
+          className="relative flex flex-col items-center gap-1 transition-all duration-300 text-slate-400 hover:text-red-600 p-2"
         >
           <LogOut size={24} />
-          <span className="text-[9px] uppercase tracking-widest font-black mt-1">Exit</span>
+          <span className="text-[9px] uppercase tracking-widest font-black opacity-0 h-0 overflow-hidden mt-1">Exit</span>
         </button>
       </nav>
 
       {/* Main Container */}
       <main className="flex-1 lg:ml-[300px] min-h-screen">
-        <header className="sticky top-0 bg-white/70 backdrop-blur-2xl border-b border-slate-100 px-6 lg:px-12 py-6 lg:py-8 flex items-center justify-between z-40">
-            <div>
-                <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+        <header className="sticky top-0 bg-white/80 backdrop-blur-3xl border-b border-slate-100 px-6 lg:px-10 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-40">
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
                     <span>Terminal</span>
                     <ChevronRight size={10} />
-                    <span className="text-red-600 truncate max-w-[100px] sm:max-w-none">{activeTab}</span>
+                    <span className="text-red-600 truncate">{activeTab}</span>
                 </div>
-                <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase">
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter uppercase truncate">
                     {sidebarItems.find(i => i.id === activeTab)?.label}
                 </h2>
             </div>
 
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-3">
                 <div className="relative hidden xl:block">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input 
@@ -465,184 +471,173 @@ const AdminPanel = () => {
                         placeholder="Master Search..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-slate-100/50 border border-transparent focus:border-red-500/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-6 font-bold text-sm outline-none transition-all w-80" 
+                        className="bg-slate-100 border border-transparent focus:border-red-500/20 focus:bg-white rounded-2xl py-3 pl-12 pr-6 font-bold text-sm outline-none transition-all w-72" 
                     />
                 </div>
                 <button 
                     onClick={fetchData}
-                    className="p-3.5 bg-slate-100 text-slate-900 rounded-2xl hover:bg-slate-200 transition-all flex items-center gap-2"
+                    className="p-3 bg-slate-100 text-slate-900 rounded-2xl hover:bg-slate-200 transition-all flex-shrink-0"
                 >
                     <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
                 </button>
                 <button 
                     onClick={() => { resetProductForm(); setShowAddForm(true); }}
-                    className="bg-slate-950 text-white font-black px-5 sm:px-8 py-3.5 rounded-2xl shadow-2xl shadow-slate-950/20 hover:bg-red-600 hover:shadow-red-600/20 transition-all active:scale-95 flex items-center gap-3 text-xs uppercase tracking-widest"
+                    className="bg-slate-950 text-white font-black px-5 py-3 rounded-2xl shadow-xl shadow-slate-950/20 hover:bg-red-600 hover:shadow-red-600/20 transition-all active:scale-95 flex items-center gap-2 text-[10px] uppercase tracking-widest whitespace-nowrap"
                 >
-                    <Plus size={18} strokeWidth={3} /> <span className="hidden sm:inline">New Object</span>
+                    <Plus size={16} strokeWidth={3} /> <span className="hidden sm:inline">New Object</span>
                 </button>
             </div>
         </header>
 
         <div className="p-6 lg:p-12 pb-32 lg:pb-12 max-w-[1800px] mx-auto">
             {activeTab === 'pos' && (
-                <POSSystem products={products} refreshData={fetchData} />
+                <POSSystem products={products} refreshData={fetchData} onClose={() => setActiveTab('overview')} />
             )}
 
             {activeTab === 'dashboard' && (
-                <div className="space-y-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[
-                            { label: 'Revenue', value: `₹${stats.totalSales.toLocaleString()}`, icon: <DollarSign size={24} />, color: 'text-emerald-600', bg: 'bg-emerald-500/10', trend: '+18.2%' },
-                            { label: 'Transactions', value: stats.totalOrders, icon: <ShoppingCart size={24} />, color: 'text-blue-600', bg: 'bg-blue-500/10', trend: '+5.4%' },
-                            { label: 'Products', value: stats.totalProducts, icon: <Package size={24} />, color: 'text-violet-600', bg: 'bg-violet-500/10', trend: 'Optimal' },
-                            { 
-                                label: 'Today\'s Register', 
-                                value: `₹${paymentStats.total.toLocaleString()}`, 
-                                icon: <Clock size={24} />, 
-                                color: 'text-amber-600', 
-                                bg: 'bg-amber-500/10', 
-                                trend: `C: ₹${paymentStats.cash} | U: ₹${paymentStats.upi}` 
-                            }
-                        ].map((stat, i) => (
-                            <motion.div 
-                                key={i} 
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="bg-white p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100 group hover:border-red-500/20 transition-all"
-                            >
-                                <div className="flex items-center justify-between mb-8">
-                                    <div className={`${stat.bg} ${stat.color} w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner`}>
-                                        {stat.icon}
-                                    </div>
-                                    <span className="text-[10px] font-black bg-slate-50 text-slate-500 px-3 py-1.5 rounded-full uppercase tracking-widest border border-slate-100">{stat.trend}</span>
-                                </div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                                <h4 className="text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</h4>
-                            </motion.div>
-                        ))}
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                    {/* Offline Shop Quick Stats */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 lg:p-8 rounded-[2rem] text-white shadow-xl shadow-emerald-500/20 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
+                            <div className="flex items-center justify-between mb-4 lg:mb-8 relative z-10">
+                                <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md"><DollarSign size={24} /></div>
+                                <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-md">Total</span>
+                            </div>
+                            <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest mb-1 relative z-10">Today's Revenue</p>
+                            <h4 className="text-3xl lg:text-4xl font-black tracking-tighter relative z-10">₹{stats.totalSales.toLocaleString()}</h4>
+                        </motion.div>
+
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white p-6 lg:p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 border border-slate-100 group hover:border-blue-500/30 transition-all">
+                            <div className="flex items-center justify-between mb-4 lg:mb-8">
+                                <div className="bg-blue-50 text-blue-600 p-3 rounded-xl"><Clock size={24} /></div>
+                                <span className="text-[10px] font-black bg-slate-50 text-slate-500 px-3 py-1 rounded-full border border-slate-100 uppercase tracking-widest">Register</span>
+                            </div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cash Collection</p>
+                            <h4 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter mb-2">₹{paymentStats.cash.toLocaleString()}</h4>
+                            <p className="text-[10px] font-bold text-slate-500">UPI: <span className="text-blue-600">₹{paymentStats.upi.toLocaleString()}</span></p>
+                        </motion.div>
+
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-white p-6 lg:p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 border border-slate-100 group hover:border-violet-500/30 transition-all">
+                            <div className="flex items-center justify-between mb-4 lg:mb-8">
+                                <div className="bg-violet-50 text-violet-600 p-3 rounded-xl"><ShoppingCart size={24} /></div>
+                                <span className="text-[10px] font-black bg-violet-50 text-violet-600 px-3 py-1 rounded-full uppercase tracking-widest">Bills</span>
+                            </div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Orders Today</p>
+                            <h4 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter mb-2">{orders.filter(o => o.$createdAt.startsWith(new Date().toISOString().split('T')[0])).length}</h4>
+                            <p className="text-[10px] font-bold text-slate-500">Total All Time: {stats.totalOrders}</p>
+                        </motion.div>
+
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-gradient-to-br from-red-500 to-rose-600 p-6 lg:p-8 rounded-[2rem] text-white shadow-xl shadow-red-500/20 relative overflow-hidden group hover:shadow-red-500/40 transition-shadow cursor-pointer" onClick={() => setActiveTab('products')}>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-150 duration-700" />
+                            <div className="flex items-center justify-between mb-4 lg:mb-8 relative z-10">
+                                <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md"><AlertTriangle size={24} className="animate-pulse" /></div>
+                                <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-md">Alerts</span>
+                            </div>
+                            <p className="text-[10px] font-black text-red-100 uppercase tracking-widest mb-1 relative z-10">Critical Stock</p>
+                            <h4 className="text-3xl lg:text-4xl font-black tracking-tighter relative z-10">{lowStockProducts.length} Items</h4>
+                        </motion.div>
                     </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-                        <div className="xl:col-span-2 bg-white rounded-[3rem] shadow-[0_8px_60px_rgb(0,0,0,0.03)] border border-slate-100 overflow-hidden flex flex-col">
-                            <div className="p-10 border-b border-slate-50 flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase mb-1">Matrix Revenue Flux</h3>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Real-time financial synchronization</p>
-                                </div>
-                                <div className="flex gap-2">
-                                    {['7D', '1M', '1Y'].map(t => (
-                                        <button key={t} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${t === '7D' ? 'bg-slate-950 text-white shadow-xl' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}>{t}</button>
-                                    ))}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-8">
+                        {/* Live Recent Orders Feed (For Remote Shop Monitoring) */}
+                        <div className="xl:col-span-2 bg-white rounded-[3rem] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-slate-100 overflow-hidden flex flex-col">
+                            <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+                                        <Activity size={20} className="text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase mb-1">Live Shop Activity</h3>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Latest transactions from the counter</p>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            {/* Recharts Analytics */}
-                            <div className="flex-1 p-10 min-h-[400px] flex flex-col justify-end w-full">
-                                <div className="h-[300px] w-full mb-8">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={salesData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 900 }} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 900 }} tickFormatter={(val) => `₹${val}`} />
-                                            <RechartsTooltip 
-                                                cursor={{ stroke: '#f1f5f9', strokeWidth: 2 }}
-                                                contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                                                itemStyle={{ color: '#0f172a', fontWeight: 900 }}
-                                            />
-                                            <Line type="monotone" dataKey="sales" stroke="#dc2626" strokeWidth={4} activeDot={{ r: 8, fill: '#dc2626', stroke: 'white', strokeWidth: 4 }} />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="pt-8 border-t border-slate-50 flex items-center justify-between">
-                                    <div className="flex gap-8">
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">7D Peak</p>
-                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹{Math.max(...salesData.map(d => d.sales)).toLocaleString()}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">7D Total</p>
-                                            <p className="text-xl font-black text-slate-900 tracking-tighter">₹{salesData.reduce((a, b) => a + b.sales, 0).toLocaleString()}</p>
-                                        </div>
+                            <div className="flex-1 overflow-x-auto p-0">
+                                <table className="w-full text-left">
+                                    <tbody className="divide-y divide-slate-50">
+                                        {orders.slice(0, 6).map((order, idx) => (
+                                            <motion.tr initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} key={order.$id} className="hover:bg-slate-50/80 transition-colors group">
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center font-black text-xs text-slate-600 uppercase">
+                                                            {order.userName?.[0] || 'C'}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-black text-xs text-slate-900 uppercase">{order.userName || 'Walk-in Customer'}</p>
+                                                            <p className="text-[10px] text-slate-400 font-bold tracking-tight">{new Date(order.$createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute:'2-digit' })}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <span className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
+                                                        order.paymentMethod === 'UPI' ? 'bg-purple-50 text-purple-600 border-purple-200' : 
+                                                        order.paymentMethod === 'CARD' ? 'bg-blue-50 text-blue-600 border-blue-200' : 
+                                                        'bg-emerald-50 text-emerald-600 border-emerald-200'
+                                                    }`}>
+                                                        {order.paymentMethod || 'CASH'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-8 py-5 text-right font-black text-slate-900">
+                                                    ₹{order.total}
+                                                </td>
+                                            </motion.tr>
+                                        ))}
+                                        {orders.length === 0 && (
+                                            <tr><td colSpan="3" className="px-8 py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">No sales yet today</td></tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="p-4 border-t border-slate-50 bg-slate-50/30 text-center">
+                                <button onClick={() => setActiveTab('orders')} className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:text-blue-800 transition-colors">View All Transactions &rarr;</button>
+                            </div>
+                        </div>
+
+                        {/* Critical Stock Radar */}
+                        <div className="bg-[#0A0A0A] rounded-[3rem] p-8 text-white relative overflow-hidden flex flex-col shadow-2xl shadow-slate-950/40 border border-white/10">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/20 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none" />
+                            <div className="relative z-10 flex flex-col h-full">
+                                <div className="flex items-center gap-4 mb-8 border-b border-white/10 pb-6">
+                                    <div className="w-12 h-12 bg-red-600/20 border border-red-500/50 rounded-2xl flex items-center justify-center backdrop-blur-md text-red-500">
+                                        <Package size={20} />
                                     </div>
-                                    <button onClick={() => setActiveTab('orders')} className="group flex items-center gap-3 text-[10px] font-black text-red-600 uppercase tracking-widest">
-                                        View Full Logs <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                    <div>
+                                        <h3 className="text-xl font-black uppercase tracking-tight text-white">Stock Radar</h3>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Items needing restock</p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3 flex-1 overflow-y-auto max-h-[350px] custom-scrollbar pr-2">
+                                    {lowStockProducts.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center h-[200px] opacity-50">
+                                            <CheckCircle size={40} className="mb-4 text-emerald-500" />
+                                            <p className="text-sm font-bold text-center">Inventory is completely healthy.</p>
+                                        </div>
+                                    ) : (
+                                        lowStockProducts.map(p => (
+                                            <div key={p.$id} className="flex justify-between items-center bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors">
+                                                <div className="min-w-0 pr-4">
+                                                    <p className="font-bold text-xs truncate text-slate-200">{p.name}</p>
+                                                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">{p.category}</p>
+                                                </div>
+                                                <div className="flex-shrink-0">
+                                                    <span className={`font-black text-xs px-3 py-1.5 rounded-lg border ${p.stock === 0 ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-amber-500/20 text-amber-400 border-amber-500/30'}`}>
+                                                        {p.stock} Left
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                                <div className="mt-6 pt-6 border-t border-white/10">
+                                    <button onClick={() => setActiveTab('products')} className="w-full bg-white/10 text-white font-black py-4 rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center gap-2 text-[10px] uppercase tracking-widest">
+                                        Open Inventory Editor
                                     </button>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="space-y-8 flex flex-col">
-                            {/* Top Products Chart */}
-                            <div className="bg-slate-950 rounded-[3rem] p-10 text-white relative overflow-hidden flex-1 flex flex-col shadow-2xl shadow-slate-950/40 border border-white/5">
-                                <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-[100px] -mr-40 -mt-40 pointer-events-none" />
-                                <div className="relative z-10 flex flex-col h-full">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-600/30">
-                                                <TrendingUp size={20} />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-lg font-black uppercase tracking-tight">Top Movers</h3>
-                                                <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em]">Highest volume units</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex-1 w-full h-[250px] mt-4">
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={topSellingProducts} layout="vertical" margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                                                <XAxis type="number" hide />
-                                                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 900 }} width={80} />
-                                                <RechartsTooltip 
-                                                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                                                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.1)' }}
-                                                />
-                                                <Bar dataKey="sold" fill="#dc2626" radius={[0, 4, 4, 0]} barSize={20} />
-                                            </BarChart>
-                                        </ResponsiveContainer>
-                                    </div>
-
-                                    <div className="mt-8 pt-8 border-t border-white/10">
-                                        <button onClick={() => setActiveTab('products')} className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl hover:bg-red-600 hover:text-white transition-all flex items-center justify-center gap-3 text-[10px] uppercase tracking-widest shadow-2xl">
-                                            <Package size={16} /> Manage Inventory
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Low Stock Alerts */}
-                            <div className="bg-red-600 rounded-[3rem] p-8 text-white relative overflow-hidden flex flex-col shadow-2xl shadow-red-600/40 mt-8 flex-1">
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none" />
-                                <div className="relative z-10 flex flex-col h-full">
-                                    <div className="flex items-center justify-between mb-6">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md">
-                                                <AlertTriangle size={20} className="text-white" />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-lg font-black uppercase tracking-tight">Low Stock</h3>
-                                                <p className="text-[8px] font-black text-red-200 uppercase tracking-[0.3em]">{lowStockProducts.length} items critical</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-3 flex-1 overflow-y-auto max-h-[150px] custom-scrollbar pr-2">
-                                        {lowStockProducts.length === 0 ? (
-                                            <p className="text-sm font-bold text-red-200">Inventory looks good.</p>
-                                        ) : (
-                                            lowStockProducts.map(p => (
-                                                <div key={p.$id} className="flex justify-between items-center bg-black/20 p-3 rounded-xl backdrop-blur-sm">
-                                                    <span className="font-bold text-sm truncate w-[150px]">{p.name}</span>
-                                                    <span className="font-black text-white bg-black/40 px-3 py-1 rounded-lg">{p.stock} left</span>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
+                </motion.div>
             )}
 
             {activeTab === 'products' && (
