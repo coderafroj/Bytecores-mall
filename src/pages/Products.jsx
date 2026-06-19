@@ -9,7 +9,7 @@ const Products = ({ addToCart }) => {
   const { category: urlCategory } = useParams();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState(urlCategory || 'all');
+  const activeCategory = urlCategory || 'all';
   const [sortBy, setSortBy] = useState('newest');
 
   const categories = [
@@ -22,9 +22,7 @@ const Products = ({ addToCart }) => {
     { id: 'books', name: 'Books', icon: '📚' }
   ];
 
-  useEffect(() => {
-    setActiveCategory(urlCategory || 'all');
-  }, [urlCategory]);
+
 
   const handleCategoryChange = (categoryId) => {
     if (categoryId === 'all') {

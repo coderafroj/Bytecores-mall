@@ -18,37 +18,25 @@ export class AuthService {
     }
 
     async createAccount({ email, password, name }) {
-        try {
-            const userAccount = await this.account.create(ID.unique(), email, password, name);
-            if (userAccount) {
-                // call another method
-                return this.login({ email, password });
-            } else {
-                return userAccount;
-            }
-        } catch (error) {
-            throw error;
+        const userAccount = await this.account.create(ID.unique(), email, password, name);
+        if (userAccount) {
+            // call another method
+            return this.login({ email, password });
+        } else {
+            return userAccount;
         }
     }
 
     async login({ email, password }) {
-        try {
-            return await this.account.createEmailPasswordSession(email, password);
-        } catch (error) {
-            throw error;
-        }
+        return await this.account.createEmailPasswordSession(email, password);
     }
 
     async loginWithGoogle() {
-        try {
-            return this.account.createOAuth2Session(
-                'google',
-                window.location.origin,
-                window.location.origin + '/login'
-            );
-        } catch (error) {
-            throw error;
-        }
+        return this.account.createOAuth2Session(
+            'google',
+            window.location.origin,
+            window.location.origin + '/login'
+        );
     }
 
     async getCurrentUser() {

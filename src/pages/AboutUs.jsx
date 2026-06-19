@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { Target, Users, Shield, Award, Zap, Building } from 'lucide-react';
+import { Target, Users, Shield, Zap, Building } from 'lucide-react';
 
 const AboutUs = () => {
   return (

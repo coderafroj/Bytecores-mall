@@ -27,10 +27,6 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
 
-  useEffect(() => {
-    fetchProduct();
-  }, [id]);
-
   const fetchProduct = async () => {
     try {
       setLoading(true);
@@ -52,13 +48,19 @@ const ProductDetail = () => {
             value: response.price,
             currency: 'INR'
         });
-      } catch (e) {}
+      } catch (analyticsError) {
+        console.debug('Analytics error:', analyticsError);
+      }
     } catch (error) {
       console.error('Error fetching product:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
 
   const handleQuantityChange = (type) => {
     if (type === 'minus' && quantity > 1) {

@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, ArrowLeft, Heart, Monitor, Cpu, Wifi, BookOpen, ShoppingBag, ShieldCheck, Truck, HeadphonesIcon, RotateCcw, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProductGrid from '../components/ProductGrid';
 import HeroAnimated99 from '../components/HeroAnimated99';
@@ -16,18 +16,7 @@ const DEPARTMENTS = [
   { name: "Accessories", img: "https://pngimg.com/uploads/sunglasses/sunglasses_PNG145.png", path: "/products" }
 ];
 
-const TRUST = [
-  { icon: <ShieldCheck size={28} />, t: "Secure Checkout", s: "Protected Payments" },
-  { icon: <RotateCcw size={28} />, t: "Easy Returns", s: "7 Days Policy" },
-  { icon: <Truck size={28} />, t: "Free Delivery", s: "Orders Over ₹999" },
-  { icon: <HeadphonesIcon size={28} />, t: "24/7 Support", s: "Expert Tech Help" },
-];
-
 const Home = () => {
-  const { scrollY } = useScroll();
-  const textY = useTransform(scrollY, [0, 800], [0, 200]);
-  const imageY = useTransform(scrollY, [0, 800], [0, -150]);
-  const backgroundY = useTransform(scrollY, [0, 800], [0, 100]);
 
   return (
     <div className="w-full bg-[#FAFAFA] font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#C62828] selection:text-white pb-20 lg:pb-0">

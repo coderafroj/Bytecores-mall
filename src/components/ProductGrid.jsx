@@ -1,7 +1,7 @@
-import { useState, memo, useMemo, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { memo, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Star, ShoppingCart, ArrowRight, PackageX, Zap, Heart } from 'lucide-react';
+import { Star, ShoppingCart, PackageX, Heart } from 'lucide-react';
 import databaseService from '../appwrite/db';
 import { Query } from 'appwrite';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +10,7 @@ import { toggleWishlist } from '../store/wishlistSlice';
 import { useQuery } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
 
-const ProductCard = memo(({ product, index, navigate, handleAddToCart, handleToggleWishlist, isWishlisted }) => {
+const ProductCard = memo(({ product, navigate, handleAddToCart, handleToggleWishlist, isWishlisted }) => {
   const ref = useRef(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -147,7 +147,7 @@ const ProductGrid = ({ category = null, limit = null, searchQuery = '', sortBy =
     
     const toast = document.createElement('div');
     toast.className = 'fixed bottom-24 lg:bottom-12 right-6 lg:right-12 glass-dark text-white px-8 py-5 rounded-[2rem] font-black shadow-2xl z-[9999] transition-all transform translate-y-0 opacity-100 flex items-center gap-5 border border-white/10 animate-reveal';
-    toast.innerHTML = `<div class="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg"><Zap size={18} fill="white" /></div> Object Cached in Cart!`;
+    toast.innerHTML = `Object Cached in Cart!`;
     document.body.appendChild(toast);
     
     setTimeout(() => {
@@ -208,11 +208,10 @@ const ProductGrid = ({ category = null, limit = null, searchQuery = '', sortBy =
   return (
     <div className="w-full px-4 sm:px-6 lg:px-12 py-6 sm:py-12">
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-10">
-        {filteredAndSortedProducts.map((product, index) => (
+        {filteredAndSortedProducts.map((product) => (
           <ProductCard 
             key={product.$id} 
             product={product} 
-            index={index} 
             navigate={navigate} 
             handleAddToCart={handleAddToCart}
             handleToggleWishlist={handleToggleWishlist}

@@ -340,24 +340,30 @@ export default function HeroSlider() {
       </div>
 
       {/* ← → Arrow Controls */}
-      {[
-        { side: "left", val: 16, label: "‹", action: () => go((cur - 1 + SLIDES.length) % SLIDES.length, "prev") },
-        { side: "right", val: 16, label: "›", action: () => go((cur + 1) % SLIDES.length, "next") }
-      ].map(b => (
-        <button
-          key={b.side}
-          className="arr-btn hidden lg:flex"
-          onClick={b.action}
-          style={{
-            position: "absolute", [b.side]: b.val, top: "50%", transform: "translateY(-50%)",
-            width: 44, height: 44, borderRadius: "50%",
-            background: "#fff", border: "1.5px solid #e8e8e8",
-            fontSize: 22, color: "#555", cursor: "pointer", zIndex: 10,
-            alignItems: "center", justifyContent: "center",
-            boxShadow: "0 2px 14px rgba(0,0,0,0.08)"
-          }}
-        >{b.label}</button>
-      ))}
+      <button
+        className="arr-btn hidden lg:flex"
+        onClick={() => go((cur - 1 + SLIDES.length) % SLIDES.length, "prev")}
+        style={{
+          position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)",
+          width: 44, height: 44, borderRadius: "50%",
+          background: "#fff", border: "1.5px solid #e8e8e8",
+          fontSize: 22, color: "#555", cursor: "pointer", zIndex: 10,
+          alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 14px rgba(0,0,0,0.08)"
+        }}
+      >‹</button>
+      <button
+        className="arr-btn hidden lg:flex"
+        onClick={() => go((cur + 1) % SLIDES.length, "next")}
+        style={{
+          position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)",
+          width: 44, height: 44, borderRadius: "50%",
+          background: "#fff", border: "1.5px solid #e8e8e8",
+          fontSize: 22, color: "#555", cursor: "pointer", zIndex: 10,
+          alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 14px rgba(0,0,0,0.08)"
+        }}
+      >›</button>
 
       {/* Dot indicators */}
       <div style={{

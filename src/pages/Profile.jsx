@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Package, Settings, LogOut, ChevronRight, 
-  ShoppingBag, MapPin, Shield,
+  Package, LogOut, 
+  MapPin, Shield,
   CheckCircle, ArrowLeft, Loader2, Save, Download, Heart, Headset
 } from 'lucide-react';
 import { useUser, useClerk } from '@clerk/clerk-react';
@@ -32,23 +32,6 @@ const Profile = () => {
     pincode: ''
   });
 
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      navigate('/');
-      return;
-    }
-    if (user) {
-      setProfileData({
-        name: user.fullName || '',
-        phone: user.unsafeMetadata?.phone || '',
-        address: user.unsafeMetadata?.address || '',
-        city: user.unsafeMetadata?.city || '',
-        pincode: user.unsafeMetadata?.pincode || ''
-      });
-      fetchUserOrders(user.primaryEmailAddress?.emailAddress);
-    }
-  }, [user, isLoaded, isSignedIn, navigate]);
-
   const fetchUserOrders = async (email) => {
     if (!email) return;
     try {
@@ -70,6 +53,24 @@ const Profile = () => {
     }
   };
 
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      navigate('/');
+      return;
+    }
+    if (user) {
+      setProfileData({
+        name: user.fullName || '',
+        phone: user.unsafeMetadata?.phone || '',
+        address: user.unsafeMetadata?.address || '',
+        city: user.unsafeMetadata?.city || '',
+        pincode: user.unsafeMetadata?.pincode || ''
+      });
+      fetchUserOrders(user.primaryEmailAddress?.emailAddress);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isLoaded, isSignedIn, navigate]);
+
   const handleLogout = async () => {
     await signOut();
     navigate('/');
@@ -89,7 +90,8 @@ const Profile = () => {
         }
       });
       showToast("Profile Updated Successfully!");
-    } catch (error) {
+    } catch (updateError) {
+      console.error(updateError);
       showToast("Failed to update profile.", "error");
     } finally {
       setSaving(false);

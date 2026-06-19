@@ -67,6 +67,22 @@ export class DatabaseService {
         }
     }
 
+    async getProductsByIds(ids) {
+        if (!ids || ids.length === 0) return [];
+        try {
+            const collectionId = import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products';
+            const response = await this.databases.listDocuments(
+                import.meta.env.VITE_APPWRITE_DATABASE_ID,
+                collectionId,
+                [Query.equal('$id', ids)]
+            );
+            return response.documents;
+        } catch (error) {
+            console.error("Appwrite service :: getProductsByIds :: error", error);
+            return [];
+        }
+    }
+
     async getProducts(queries = [Query.limit(100)]) {
         try {
             const collectionId = import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products';

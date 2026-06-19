@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import { clearCart } from '../store/cartSlice';
-import { CreditCard, Truck, ShoppingBag, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
+import { CreditCard, Truck, CheckCircle, Loader2, ArrowLeft, MapPin, Phone, Mail, User } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
 import databaseService from '../appwrite/db';
 import { Helmet } from 'react-helmet-async';
@@ -66,21 +66,51 @@ const Checkout = () => {
       userEmail: formData.email,
       address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode} | Phone: ${formData.phone}${geoLoc}`,
       shippingAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.zipCode} | Phone: ${formData.phone}${geoLoc}`,
-      items: JSON.stringify(cart.map(item => ({
-        id: item.$id,
-        cartId: item.cartId,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        size: item.selectedSize || null,
-        color: item.selectedColor || null
-      }))),
-      subtotal,
-      shipping,
-      total,
+      items: [], // Will populate after secure fetch
+      subtotal: 0,
+      shipping: 0,
+      total: 0,
       paymentMethod,
       status: 'pending'
     };
+
+    let secureSubtotal = 0;
+    let secureItems = [];
+
+    try {
+      const itemIds = cart.map(i => i.$id);
+      const realProducts = await databaseService.getProductsByIds(itemIds);
+
+      for (const item of cart) {
+        const realProduct = realProducts.find(p => p.$id === item.$id);
+        const realPrice = realProduct ? realProduct.price : item.price; // Fallback for custom or missing, though standard is found
+        
+        secureSubtotal += realPrice * item.quantity;
+        
+        secureItems.push({
+          id: item.$id,
+          cartId: item.cartId,
+          name: item.name,
+          price: realPrice,
+          quantity: item.quantity,
+          size: item.selectedSize || null,
+          color: item.selectedColor || null
+        });
+      }
+    } catch (err) {
+      console.error("Price validation failed", err);
+      toast.error('Failed to validate prices securely.');
+      setLoading(false);
+      return;
+    }
+
+    const secureShipping = secureSubtotal > 999 ? 0 : 99;
+    const secureTotal = secureSubtotal + secureShipping;
+
+    orderData.items = JSON.stringify(secureItems);
+    orderData.subtotal = secureSubtotal;
+    orderData.shipping = secureShipping;
+    orderData.total = secureTotal;
 
     if (paymentMethod === 'online') {
       try {
@@ -102,7 +132,7 @@ const Checkout = () => {
 
         const options = {
           key: razorpayKey,
-          amount: total * 100, // in paise
+          amount: secureTotal * 100, // in paise
           currency: 'INR',
           name: "Bytecore's Mall",
           description: "Premium Purchase",
@@ -119,17 +149,19 @@ const Checkout = () => {
               try {
                   ReactGA.event("purchase", {
                       transaction_id: response.razorpay_payment_id,
-                      value: total,
+                      value: secureTotal,
                       currency: "INR",
-                      items: cart.map(item => ({ item_id: item.$id, item_name: item.name, price: item.price, quantity: item.quantity }))
+                      items: secureItems.map(item => ({ item_id: item.id, item_name: item.name, price: item.price, quantity: item.quantity }))
                   });
                   ReactPixel.track('Purchase', {
-                      content_ids: cart.map(item => item.$id),
+                      content_ids: secureItems.map(item => item.id),
                       content_type: 'product',
-                      value: total,
+                      value: secureTotal,
                       currency: 'INR'
                   });
-              } catch(e) {}
+              } catch (analyticsError) {
+                  console.debug('Analytics error:', analyticsError);
+              }
 
               dispatch(clearCart());
               navigate('/order-success');
@@ -170,17 +202,19 @@ const Checkout = () => {
         try {
             ReactGA.event("purchase", {
                 transaction_id: "COD_" + Date.now(),
-                value: total,
+                value: secureTotal,
                 currency: "INR",
-                items: cart.map(item => ({ item_id: item.$id, item_name: item.name, price: item.price, quantity: item.quantity }))
+                items: secureItems.map(item => ({ item_id: item.id, item_name: item.name, price: item.price, quantity: item.quantity }))
             });
                   ReactPixel.track('Purchase', {
-                      content_ids: cart.map(item => item.$id),
+                      content_ids: secureItems.map(item => item.id),
                       content_type: 'product',
-                      value: total,
+                      value: secureTotal,
                       currency: 'INR'
                   });
-        } catch(e) {}
+        } catch (analyticsError) {
+            console.debug('Analytics error:', analyticsError);
+        }
 
         dispatch(clearCart());
         navigate('/order-success');

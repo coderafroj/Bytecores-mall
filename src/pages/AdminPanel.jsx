@@ -15,7 +15,7 @@ import { Query } from 'appwrite';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
 import POSSystem from '../components/POSSystem';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+
 
 const AdminPanel = () => {
   const { user } = useUser();
@@ -33,6 +33,7 @@ const AdminPanel = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [printData, setPrintData] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   
   const [formLoading, setFormLoading] = useState(false);
   const [stats, setStats] = useState({
@@ -62,10 +63,6 @@ const AdminPanel = () => {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -103,6 +100,11 @@ const AdminPanel = () => {
     }
   };
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+
   const customers = useMemo(() => {
     const uniqueUsers = {};
     orders.forEach(order => {
@@ -121,49 +123,23 @@ const AdminPanel = () => {
     return Object.values(uniqueUsers);
   }, [orders]);
 
-  const salesData = useMemo(() => {
-    const data = [];
-    const today = new Date();
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const dateString = d.toISOString().split('T')[0];
-      const dayName = d.toLocaleDateString('en-IN', { weekday: 'short' });
-      const daySales = orders.filter(o => o.$createdAt.startsWith(dateString)).reduce((sum, order) => sum + (order.total || 0), 0);
-      data.push({ name: dayName, date: dateString, sales: daySales });
-    }
-    return data;
-  }, [orders]);
 
-  const topSellingProducts = useMemo(() => {
-    const counts = {};
-    orders.forEach(order => {
-        if (order.items) {
-            try {
-                const items = JSON.parse(order.items);
-                items.forEach(item => {
-                    counts[item.name] = (counts[item.name] || 0) + item.quantity;
-                });
-            } catch (e) {}
-        }
-    });
-    return Object.entries(counts)
-        .map(([name, sold]) => ({ name: name.substring(0, 15), sold }))
-        .sort((a, b) => b.sold - a.sold)
-        .slice(0, 5);
-  }, [orders]);
 
   const paymentStats = useMemo(() => {
-    let cash = 0, upi = 0, card = 0;
-    const today = new Date().toISOString().split('T')[0];
-    orders.filter(o => o.$createdAt.startsWith(today)).forEach(order => {
-        if (order.paymentMethod === 'CASH') cash += order.total;
+    let cash = 0, upi = 0, card = 0, totalSales = 0;
+    const targetDate = selectedDate || new Date().toISOString().split('T')[0];
+    orders.filter(o => o.$createdAt.startsWith(targetDate)).forEach(order => {
+        if (order.paymentMethod === 'CASH' || order.paymentMethod === 'cod') cash += order.total;
         else if (order.paymentMethod === 'UPI') upi += order.total;
-        else if (order.paymentMethod === 'CARD') card += order.total;
+        else if (order.paymentMethod === 'CARD' || order.paymentMethod === 'online') card += order.total;
         else cash += order.total; // Default legacy
+        
+        if (order.paymentStatus === 'paid' || order.paymentMethod === 'cod' || order.paymentMethod === 'CASH') {
+            totalSales += order.total;
+        }
     });
-    return { cash, upi, card, total: cash + upi + card };
-  }, [orders]);
+    return { cash, upi, card, totalSales };
+  }, [orders, selectedDate]);
 
   const lowStockProducts = useMemo(() => {
     return products.filter(p => p.stock < 5).sort((a, b) => a.stock - b.stock);
@@ -464,6 +440,14 @@ const AdminPanel = () => {
             </div>
 
             <div className="flex items-center gap-3">
+                <div className="hidden xl:block">
+                    <input 
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="bg-slate-100 border border-transparent focus:border-red-500/20 focus:bg-white rounded-2xl py-3 px-4 font-bold text-sm outline-none transition-all text-slate-500"
+                    />
+                </div>
                 <div className="relative hidden xl:block">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input 
@@ -504,8 +488,8 @@ const AdminPanel = () => {
                                 <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md"><DollarSign size={24} /></div>
                                 <span className="text-[10px] font-black bg-white/20 px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-md">Total</span>
                             </div>
-                            <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest mb-1 relative z-10">Today's Revenue</p>
-                            <h4 className="text-3xl lg:text-4xl font-black tracking-tighter relative z-10">₹{stats.totalSales.toLocaleString()}</h4>
+                            <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest mb-1 relative z-10">Revenue for {selectedDate}</p>
+                            <h4 className="text-3xl lg:text-4xl font-black tracking-tighter relative z-10">₹{paymentStats.totalSales.toLocaleString()}</h4>
                         </motion.div>
 
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white p-6 lg:p-8 rounded-[2rem] shadow-lg shadow-slate-200/50 border border-slate-100 group hover:border-blue-500/30 transition-all">
@@ -523,8 +507,8 @@ const AdminPanel = () => {
                                 <div className="bg-violet-50 text-violet-600 p-3 rounded-xl"><ShoppingCart size={24} /></div>
                                 <span className="text-[10px] font-black bg-violet-50 text-violet-600 px-3 py-1 rounded-full uppercase tracking-widest">Bills</span>
                             </div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Orders Today</p>
-                            <h4 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter mb-2">{orders.filter(o => o.$createdAt.startsWith(new Date().toISOString().split('T')[0])).length}</h4>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Orders on {selectedDate}</p>
+                            <h4 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter mb-2">{orders.filter(o => o.$createdAt.startsWith(selectedDate)).length}</h4>
                             <p className="text-[10px] font-bold text-slate-500">Total All Time: {stats.totalOrders}</p>
                         </motion.div>
 
@@ -556,7 +540,7 @@ const AdminPanel = () => {
                             <div className="flex-1 overflow-x-auto p-0">
                                 <table className="w-full text-left">
                                     <tbody className="divide-y divide-slate-50">
-                                        {orders.slice(0, 6).map((order, idx) => (
+                                        {orders.filter(o => o.$createdAt.startsWith(selectedDate)).slice(0, 6).map((order, idx) => (
                                             <motion.tr initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: idx * 0.1 }} key={order.$id} className="hover:bg-slate-50/80 transition-colors group">
                                                 <td className="px-8 py-5">
                                                     <div className="flex items-center gap-4">
@@ -583,8 +567,8 @@ const AdminPanel = () => {
                                                 </td>
                                             </motion.tr>
                                         ))}
-                                        {orders.length === 0 && (
-                                            <tr><td colSpan="3" className="px-8 py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">No sales yet today</td></tr>
+                                        {orders.filter(o => o.$createdAt.startsWith(selectedDate)).length === 0 && (
+                                            <tr><td colSpan="3" className="px-8 py-10 text-center text-slate-400 font-bold text-xs uppercase tracking-widest">No sales on this date</td></tr>
                                         )}
                                     </tbody>
                                 </table>

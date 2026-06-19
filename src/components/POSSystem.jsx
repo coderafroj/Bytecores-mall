@@ -142,6 +142,91 @@ const POSSystem = ({ products, refreshData, onClose }) => {
         setIsMobileCartOpen(false);
     };
 
+    const handleCheckout = async () => {
+        if (cart.length === 0) return;
+        setIsProcessing(true);
+        try {
+            const orderData = {
+                userId: user?.id || 'pos_admin',
+                userName: customerName || 'Walk-in Customer',
+                userEmail: customerPhone ? `${customerPhone}@pos.local` : (user?.primaryEmailAddress?.emailAddress || 'pos@bytecores.in'),
+                address: `In-Store Purchase | Phone: ${customerPhone || 'N/A'}`,
+                shippingAddress: `In-Store Purchase | Phone: ${customerPhone || 'N/A'}`,
+                items: [], // Will populate after secure fetch
+                subtotal: 0,
+                shipping: 0,
+                total: 0,
+                status: 'delivered',
+                paymentMethod: paymentMethod,
+                paymentStatus: 'paid'
+            };
+
+            let secureSubtotal = 0;
+            let secureItems = [];
+
+            const itemIds = cart.filter(i => !i.isCustom).map(i => i.$id);
+            const realProducts = itemIds.length > 0 ? await databaseService.getProductsByIds(itemIds) : [];
+
+            for (const item of cart) {
+                let realPrice = item.price;
+                if (!item.isCustom) {
+                    const realProduct = realProducts.find(p => p.$id === item.$id);
+                    if (realProduct) realPrice = realProduct.price;
+                }
+                
+                secureSubtotal += realPrice * item.quantity;
+                
+                secureItems.push({
+                    id: item.$id,
+                    name: item.name,
+                    price: realPrice,
+                    quantity: item.quantity,
+                    isCustom: item.isCustom || false
+                });
+            }
+
+            const secureTotal = secureSubtotal - (Number(discount) || 0);
+
+            orderData.items = JSON.stringify(secureItems);
+            orderData.subtotal = secureSubtotal;
+            orderData.total = secureTotal > 0 ? secureTotal : 0;
+
+            const newOrder = await databaseService.createOrder(orderData);
+
+            for (const item of cart) {
+                if (!item.isCustom) {
+                    await databaseService.updateProduct(item.$id, {
+                        ...item,
+                        stock: item.stock - item.quantity
+                    });
+                }
+            }
+
+            setCompletedOrder({
+                orderId: newOrder.$id,
+                date: new Date().toLocaleString('en-IN'),
+                items: [...secureItems],
+                subtotal: secureSubtotal,
+                discount: Number(discount) || 0,
+                total: secureTotal > 0 ? secureTotal : 0,
+                customerName: customerName || 'Walk-in Customer',
+                customerPhone: customerPhone || 'N/A',
+                paymentMethod: paymentMethod
+            });
+
+            setIsCheckoutComplete(true);
+            toast.success('Sale Completed Successfully!');
+            clearCart();
+            if (refreshData) refreshData();
+
+        } catch (error) {
+            console.error('POS Checkout Error:', error);
+            toast.error('Failed to process billing.');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
     useEffect(() => {
         let barcodeBuffer = '';
         let barcodeTimeout = null;
@@ -181,66 +266,6 @@ const POSSystem = ({ products, refreshData, onClose }) => {
         return () => window.removeEventListener('keydown', handleGlobalKeyDown);
     }, [cart, customerName, customerPhone, discount, paymentMethod, products, isCheckoutComplete]);
 
-    const handleCheckout = async () => {
-        if (cart.length === 0) return;
-        setIsProcessing(true);
-        try {
-            const orderData = {
-                userId: user?.id || 'pos_admin',
-                userName: customerName || 'Walk-in Customer',
-                userEmail: customerPhone ? `${customerPhone}@pos.local` : (user?.primaryEmailAddress?.emailAddress || 'pos@bytecores.in'),
-                address: 'In-Store Purchase',
-                shippingAddress: 'In-Store Purchase',
-                items: JSON.stringify(cart.map(item => ({
-                    id: item.$id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    isCustom: item.isCustom || false
-                }))),
-                subtotal,
-                shipping: 0,
-                total,
-                status: 'delivered',
-                paymentMethod: paymentMethod,
-                paymentStatus: 'paid'
-            };
-
-            const newOrder = await databaseService.createOrder(orderData);
-
-            for (const item of cart) {
-                if (!item.isCustom) {
-                    await databaseService.updateProduct(item.$id, {
-                        ...item,
-                        stock: item.stock - item.quantity
-                    });
-                }
-            }
-
-            setCompletedOrder({
-                orderId: newOrder.$id,
-                date: new Date().toLocaleString('en-IN'),
-                items: [...cart],
-                subtotal,
-                discount: Number(discount) || 0,
-                total,
-                customerName: customerName || 'Walk-in Customer',
-                customerPhone: customerPhone || 'N/A',
-                paymentMethod: paymentMethod
-            });
-
-            setIsCheckoutComplete(true);
-            toast.success('Sale Completed Successfully!');
-            clearCart();
-            if (refreshData) refreshData();
-
-        } catch (error) {
-            console.error('POS Checkout Error:', error);
-            toast.error('Failed to process billing.');
-        } finally {
-            setIsProcessing(false);
-        }
-    };
 
     const startNewSale = () => {
         setIsCheckoutComplete(false);
