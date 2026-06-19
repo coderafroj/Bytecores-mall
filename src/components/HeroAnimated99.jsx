@@ -16,33 +16,8 @@ const HeroAnimated99 = () => {
           <div className="absolute left-0 right-0 bottom-[100px] h-[1px] bg-slate-300/50" />
         </div>
 
-        {/* --- Top Navigation Bar --- */}
-        <div className="relative z-50 flex justify-between items-center px-8 py-6">
-          {/* Logo */}
-          <div className="w-1/4">
-            <div className="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center text-white font-black text-xl tracking-tighter shadow-lg">
-              99
-            </div>
-          </div>
-          
-          {/* Center Nav */}
-          <div className="w-2/4 flex justify-center gap-6">
-            <Link to="/" className="px-6 py-2 bg-slate-900 text-white rounded-full text-sm font-bold shadow-md">Home</Link>
-            <Link to="/products" className="px-6 py-2 text-slate-600 hover:text-slate-900 rounded-full text-sm font-bold transition-colors">Shop</Link>
-            <Link to="/about" className="px-6 py-2 text-slate-600 hover:text-slate-900 rounded-full text-sm font-bold transition-colors">About</Link>
-          </div>
-
-          {/* Right Action */}
-          <div className="w-1/4 flex justify-end">
-            <Link to="/products" className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-full hover:bg-slate-800 transition-colors shadow-lg">
-              <ShoppingBag size={18} />
-              <span className="font-bold text-sm">Store</span>
-            </Link>
-          </div>
-        </div>
-
         {/* --- Main Content Area --- */}
-        <div className="flex-1 relative flex items-center justify-center">
+        <div className="flex-1 relative flex items-center justify-center pt-24">
           
           {/* Giant Typography */}
           <motion.h1 
