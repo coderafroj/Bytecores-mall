@@ -31,8 +31,8 @@ const Navbar = ({ cartCount }) => {
       }`}>
         <div className={`relative flex items-center justify-between rounded-[2rem] lg:rounded-full px-6 lg:px-10 h-16 lg:h-20 transition-all duration-500 ${
           isScrolled 
-            ? 'island-nav shadow-lg' 
-            : 'bg-white/70 backdrop-blur-2xl border border-white/50 shadow-sm'
+            ? 'island-nav shadow-lg bg-white border border-slate-100' 
+            : 'bg-transparent border-transparent shadow-none'
         }`}>
           
           {/* Logo Section */}
