@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'favicon.svg'],
       manifest: {
-        name: 'Bytecores Mall',
-        short_name: 'Bytecores',
-        description: "India's #1 Premium Tech & Value Store",
+        name: 'Bytecores Mall POS',
+        short_name: 'Bytecores POS',
+        description: "India's #1 Premium Tech Store & POS",
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
@@ -28,6 +28,29 @@ export default defineConfig({
             src: '/favicon.png',
             sizes: '512x512',
             type: 'image/png'
+          }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'unsplash-images',
+              expiration: { maxEntries: 100, maxAgeSeconds: 30 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/cloud\.appwrite\.io\/v1\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'appwrite-api',
+              expiration: { maxEntries: 50, maxAgeSeconds: 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] }
+            }
           }
         ]
       }

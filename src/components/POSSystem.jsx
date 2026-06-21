@@ -5,6 +5,7 @@ import Fuse from 'fuse.js';
 import databaseService from '../appwrite/db';
 import { toast } from 'sonner';
 import { useUser } from '@clerk/clerk-react';
+import offlineSync from '../services/offlineSync';
 
 const POSSystem = ({ products, refreshData, onClose }) => {
     const { user } = useUser();
@@ -165,11 +166,11 @@ const POSSystem = ({ products, refreshData, onClose }) => {
             let secureItems = [];
 
             const itemIds = cart.filter(i => !i.isCustom).map(i => i.$id);
-            const realProducts = itemIds.length > 0 ? await databaseService.getProductsByIds(itemIds) : [];
+            const realProducts = (navigator.onLine && itemIds.length > 0) ? await databaseService.getProductsByIds(itemIds) : [];
 
             for (const item of cart) {
                 let realPrice = item.price;
-                if (!item.isCustom) {
+                if (!item.isCustom && navigator.onLine) {
                     const realProduct = realProducts.find(p => p.$id === item.$id);
                     if (realProduct) realPrice = realProduct.price;
                 }
@@ -191,14 +192,20 @@ const POSSystem = ({ products, refreshData, onClose }) => {
             orderData.subtotal = secureSubtotal;
             orderData.total = secureTotal > 0 ? secureTotal : 0;
 
-            const newOrder = await databaseService.createOrder(orderData);
+            let newOrder;
+            if (!navigator.onLine) {
+                newOrder = await offlineSync.saveOfflineOrder(orderData);
+                toast.warning('Offline Mode: Order saved locally. Will sync when online.');
+            } else {
+                newOrder = await databaseService.createOrder(orderData);
 
-            for (const item of cart) {
-                if (!item.isCustom) {
-                    await databaseService.updateProduct(item.$id, {
-                        ...item,
-                        stock: item.stock - item.quantity
-                    });
+                for (const item of cart) {
+                    if (!item.isCustom) {
+                        await databaseService.updateProduct(item.$id, {
+                            ...item,
+                            stock: item.stock - item.quantity
+                        });
+                    }
                 }
             }
 
@@ -302,7 +309,13 @@ const POSSystem = ({ products, refreshData, onClose }) => {
                                 <ScanLine className="text-blue-600" />
                                 ByteCore POS
                             </h1>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Live Terminal</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-1">
+                                {navigator.onLine ? (
+                                    <><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span className="text-emerald-500">Live Terminal</span></>
+                                ) : (
+                                    <><span className="w-2 h-2 rounded-full bg-red-500"></span> <span className="text-red-500">Offline Mode</span></>
+                                )}
+                            </p>
                         </div>
                     </div>
                     

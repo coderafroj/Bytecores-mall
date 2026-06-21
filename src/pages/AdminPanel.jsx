@@ -15,6 +15,8 @@ import { Query } from 'appwrite';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
 import POSSystem from '../components/POSSystem';
+import AdminSalesAnalytics from '../components/AdminSalesAnalytics';
+import { BarChart3 } from 'lucide-react';
 
 
 const AdminPanel = () => {
@@ -302,6 +304,7 @@ const AdminPanel = () => {
   const sidebarItems = [
     { id: 'dashboard', icon: <LayoutDashboard />, label: 'Overview' },
     { id: 'pos', icon: <Printer />, label: 'Point of Sale' },
+    { id: 'analytics', icon: <BarChart3 />, label: 'Sales Analytics' },
     { id: 'products', icon: <Package />, label: 'Inventory' },
     { id: 'orders', icon: <ShoppingCart />, label: 'Orders' },
     { id: 'customers', icon: <Users />, label: 'Customers' },
@@ -475,7 +478,11 @@ const AdminPanel = () => {
 
         <div className="p-6 lg:p-12 pb-32 lg:pb-12 max-w-[1800px] mx-auto">
             {activeTab === 'pos' && (
-                <POSSystem products={products} refreshData={fetchData} onClose={() => setActiveTab('overview')} />
+                <POSSystem products={products} refreshData={fetchData} onClose={() => setActiveTab('dashboard')} />
+            )}
+
+            {activeTab === 'analytics' && (
+                <AdminSalesAnalytics orders={orders} products={products} />
             )}
 
             {activeTab === 'dashboard' && (

@@ -1,4 +1,5 @@
 import { Client, Databases, ID, Query } from "appwrite";
+import offlineSync from '../services/offlineSync';
 
 export class DatabaseService {
     client = new Client();
@@ -86,12 +87,22 @@ export class DatabaseService {
     async getProducts(queries = [Query.limit(100)]) {
         try {
             const collectionId = import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID || 'products';
-            return await this.databases.listDocuments(
+            const response = await this.databases.listDocuments(
                 import.meta.env.VITE_APPWRITE_DATABASE_ID,
                 collectionId,
                 queries
             );
+            // Cache products for offline use
+            if(response.documents.length > 0) {
+                offlineSync.cacheProducts(response.documents);
+            }
+            return response;
         } catch (error) {
+            if (!navigator.onLine) {
+                console.warn('Offline mode: serving cached products');
+                const cached = await offlineSync.getCachedProducts();
+                return { documents: cached, total: cached.length };
+            }
             if (error.code === 404) {
                 console.error("CRITICAL: Products collection not found. Please ensure VITE_APPWRITE_PRODUCTS_COLLECTION_ID is set correctly in .env");
             } else if (error.code === 401) {
@@ -124,12 +135,18 @@ export class DatabaseService {
     async getOrders(queries = []) {
         try {
             const collectionId = import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders';
-            return await this.databases.listDocuments(
+            const response = await this.databases.listDocuments(
                 import.meta.env.VITE_APPWRITE_DATABASE_ID,
                 collectionId,
                 queries
             );
+            const offline = await offlineSync.getOfflineOrders();
+            return { documents: [...offline, ...response.documents], total: response.total + offline.length };
         } catch (error) {
+            if (!navigator.onLine) {
+                const offline = await offlineSync.getOfflineOrders();
+                return { documents: offline, total: offline.length };
+            }
             if (error.code === 404) {
                 console.error("CRITICAL: Orders collection not found. Please ensure VITE_APPWRITE_ORDERS_COLLECTION_ID is set correctly in .env");
             } else {
