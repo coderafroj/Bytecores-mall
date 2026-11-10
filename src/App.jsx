@@ -23,30 +23,39 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsConditions from './pages/TermsConditions';
 import RefundPolicy from './pages/RefundPolicy';
 import Footer from './components/Footer';
+import { lazy, Suspense } from 'react';
+const PosApp = lazy(() => import('./pos/ui/PosApp'));
 
 const RouteTracker = () => {
   const location = useLocation();
   useEffect(() => {
+    if (location.pathname.startsWith('/pos')) return;
     ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
   }, [location]);
   return null;
 };
 
+const LayoutCursor = () => {
+  const location = useLocation();
+  if (location.pathname.startsWith('/pos')) return null;
+  return <CustomCursor />;
+};
+
 const LayoutNavbar = ({ cartCount }) => {
   const location = useLocation();
-  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin')) return null;
+  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin') || location.pathname.startsWith('/pos')) return null;
   return <Navbar cartCount={cartCount} />;
 };
 
 const LayoutFooter = () => {
   const location = useLocation();
-  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin')) return null;
+  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin') || location.pathname.startsWith('/pos')) return null;
   return <Footer />;
 };
 
 const LayoutBottomNav = ({ cartCount }) => {
   const location = useLocation();
-  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin')) return null;
+  if (location.pathname === '/profile-launch' || location.pathname.startsWith('/admin') || location.pathname.startsWith('/pos')) return null;
   return (
     <>
       <BottomNav cartCount={cartCount} />
@@ -104,8 +113,8 @@ function App() {
     <Router>
       <TrackingProvider>
         <RouteTracker />
-        <CustomCursor />
-        <Toaster position="bottom-right" richColors />
+        <LayoutCursor />
+        <Toaster position="top-center" richColors />
         <div className="app">
           <LayoutNavbar cartCount={cartCount} />
         <Routes>
@@ -132,6 +141,9 @@ function App() {
             </AdminRoute>
           } />
           
+          {/* Offline-first billing, stock and analytics. Works without internet or login (optional PIN lock). */}
+          <Route path="/pos/*" element={<Suspense fallback={null}><PosApp /></Suspense>} />
+
           <Route path="/profile-launch" element={<ProfileLaunch />} />
           
           <Route path="/profile" element={

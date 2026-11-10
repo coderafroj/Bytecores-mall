@@ -18,6 +18,9 @@ export default defineConfig({
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
+        start_url: '/pos/bill',
+        scope: '/',
+        shortcuts: [{ name: 'New bill', short_name: 'Bill', url: '/pos/bill' }, { name: 'Stock', short_name: 'Stock', url: '/pos/stock' }],
         icons: [
           {
             src: '/favicon.png',
@@ -34,7 +37,13 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 20000000,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'google-fonts', expiration: { maxEntries: 20, maxAgeSeconds: 365 * 24 * 60 * 60 }, cacheableResponse: { statuses: [0, 200] } }
+          },
           {
             urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
             handler: 'CacheFirst',

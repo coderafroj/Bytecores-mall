@@ -14,7 +14,7 @@ import {
 import { Query } from 'appwrite';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
-import POSSystem from '../components/POSSystem';
+import { useNavigate } from 'react-router-dom';
 import AdminSalesAnalytics from '../components/AdminSalesAnalytics';
 import { BarChart3 } from 'lucide-react';
 
@@ -23,6 +23,7 @@ const AdminPanel = () => {
   const { user } = useUser();
   const { signOut } = useClerk();
   
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -303,7 +304,7 @@ const AdminPanel = () => {
 
   const sidebarItems = [
     { id: 'dashboard', icon: <LayoutDashboard />, label: 'Overview' },
-    { id: 'pos', icon: <Printer />, label: 'Point of Sale' },
+    { id: 'pos', icon: <Printer />, label: 'Billing Counter' },
     { id: 'analytics', icon: <BarChart3 />, label: 'Sales Analytics' },
     { id: 'products', icon: <Package />, label: 'Inventory' },
     { id: 'orders', icon: <ShoppingCart />, label: 'Orders' },
@@ -478,7 +479,14 @@ const AdminPanel = () => {
 
         <div className="p-6 lg:p-12 pb-32 lg:pb-12 max-w-[1800px] mx-auto">
             {activeTab === 'pos' && (
-                <POSSystem products={products} refreshData={fetchData} onClose={() => setActiveTab('dashboard')} />
+                <div className="max-w-2xl bg-white rounded-[2rem] border border-slate-200 p-8 shadow-sm">
+                    <h2 className="text-2xl font-black text-slate-900 mb-2">Shop Billing Counter</h2>
+                    <p className="text-slate-500 font-medium mb-6">Photo se billing, stock, GST (on/off), udhaar aur profit analytics. Laptop aur phone dono par chalta hai, <b>internet band hone par bhi</b>. Data isi device par rehta hai.</p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <button onClick={() => { sessionStorage.setItem('pos_role', 'owner'); navigate('/pos/bill'); }} className="flex-1 bg-red-600 text-white font-black py-4 rounded-2xl hover:bg-red-700 transition-all text-sm uppercase tracking-widest">Open Counter (Bill banao)</button>
+                        <button onClick={() => { sessionStorage.setItem('pos_role', 'owner'); navigate('/pos'); }} className="flex-1 bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-slate-800 transition-all text-sm uppercase tracking-widest">Owner Dashboard</button>
+                    </div>
+                </div>
             )}
 
             {activeTab === 'analytics' && (
