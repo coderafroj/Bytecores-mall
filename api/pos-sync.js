@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     key: env('APPWRITE_API_KEY'),
     databaseId: env('APPWRITE_DATABASE_ID', 'VITE_APPWRITE_DATABASE_ID'),
     collectionId: env('APPWRITE_POS_COLLECTION_ID') || 'pos_records',
-    bucketId: env('APPWRITE_POS_BUCKET_ID') || 'pos_images',
+    bucketId: env('APPWRITE_POS_BUCKET_ID', 'VITE_APPWRITE_POS_BUCKET_ID') || 'pos_images',
   };
   const secretKey = env('CLERK_SECRET_KEY');
   const admins = (env('ADMIN_EMAILS') || 'coderafroj@gmail.com').toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);

@@ -106,14 +106,20 @@ else { const r = await call('POST', `/databases/${DB}/collections/${COL}/indexes
 /* ---- 5. photo bucket: create, or keep and correct the settings ---- */
 const bucketCfg = {
   name: 'POS product photos', permissions: ['read("any")'], fileSecurity: false, enabled: true,
-  maximumFileSize: 1_000_000, allowedFileExtensions: ['webp', 'jpeg', 'jpg', 'png'], compression: 'none', encryption: false, antivirus: false,
+  maximumFileSize: 5_000_000, allowedFileExtensions: ['webp', 'jpeg', 'jpg', 'png'], compression: 'none', encryption: false, antivirus: false,
 };
 const gotBucket = await call('GET', `/storage/buckets/${BUCKET}`);
 if (gotBucket.status === 404) { must(await call('POST', '/storage/buckets', { bucketId: BUCKET, ...bucketCfg }), 'Bucket banana'); say('+', `bucket "${BUCKET}" bana diya`); }
 else {
   must(gotBucket, 'Bucket check');
-  must(await call('PUT', `/storage/buckets/${BUCKET}`, bucketCfg), 'Bucket settings theek karna');
-  say('=', `bucket "${BUCKET}" pehle se hai (usme jo files hain wo safe hain; settings sync ke hisaab se theek kar di)`);
+  const perms = Array.from(new Set([...(gotBucket.json.$permissions || []), 'read("any")']));
+  await call('PUT', `/storage/buckets/${BUCKET}`, {
+    name: gotBucket.json.name || 'BytecoreBucket',
+    permissions: perms,
+    fileSecurity: false,
+    enabled: true,
+  });
+  say('=', `bucket "${BUCKET}" pehle se hai (usme jo files hain wo safe hain)`);
 }
 
 /* ---- 6. live self-test ---- */
