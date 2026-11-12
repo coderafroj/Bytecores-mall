@@ -64,10 +64,10 @@ export default async function handler(req, res) {
 
       // We need API key here because we are WRITING to the database securely.
       // Unlike fetching public products, creating a user profile requires admin privileges.
-      if (process.env.VITE_APPWRITE_API_KEY) {
-        client.setKey(process.env.VITE_APPWRITE_API_KEY);
+      if (process.env.APPWRITE_API_KEY) {
+        client.setKey(process.env.APPWRITE_API_KEY);
       } else {
-        console.warn('VITE_APPWRITE_API_KEY is missing. Writing to users collection might fail if it is secured.');
+        console.warn('APPWRITE_API_KEY is missing. Writing to users collection might fail if it is secured.');
       }
 
       const databases = new Databases(client);

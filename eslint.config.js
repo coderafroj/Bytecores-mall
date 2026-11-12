@@ -25,4 +25,9 @@ export default defineConfig([
       "react-hooks/refs": "off"
     }
   },
+  {
+    // server-side files run on Node (Vercel functions / CLI scripts), not in the browser
+    files: ['api/**/*.js', 'scripts/**/*.{js,mjs}', 'update-schema.js', 'scratch/**/*.js', 'src/pos/sync/serverCore.js', 'src/pos/sync/appwriteRest.js'],
+    languageOptions: { globals: globals.node },
+  },
 ])

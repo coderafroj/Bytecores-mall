@@ -1,7 +1,9 @@
-import { db, DEFAULT_SETTINGS } from './db';
+import { db, DEFAULT_SETTINGS, hashStr, asRemote } from './db';
 import { InvoiceCalculator } from '../domain/invoiceCalculator';
 
 const now = () => Date.now();
+const DATA_TABLES = [db.products, db.invoices, db.customers, db.stockMoves, db.payments, db.settings, db.expenses, db.images];
+const ALL_TABLES = [...DATA_TABLES, db.tombs, db.meta];
 let skuSeq = 0;
 // time + counter + random: unique even for 1,000 rows imported in the same millisecond
 const autoSku = () => `SKU${now().toString(36)}${(skuSeq++).toString(36)}${Math.random().toString(36).slice(2, 4)}`.toUpperCase();
@@ -20,6 +22,10 @@ export class SettingsRepo {
 
 /* ---------------- Products ---------------- */
 export class ProductRepo {
+  /**
+   * `p.image`: undefined = keep the current photo, '' = remove it, 'data:image/...' = set it.
+   * Photos are stored in `db.images`, never on the product row.
+   */
   static async save(p) {
     const data = {
       name: p.name.trim(),
@@ -33,37 +39,49 @@ export class ProductRepo {
       stock: Number(p.stock) || 0,
       lowStockAt: Number(p.lowStockAt) || 0,
       unit: p.unit || 'pcs',
-      image: p.image || '',
-      updatedAt: now(),
     };
     if (!data.name) throw new Error('Product name is required');
     if (data.sellPrice <= 0) throw new Error('Selling price must be more than 0');
 
-    return db.transaction('rw', db.products, db.stockMoves, async () => {
-      if (p.id) {
-        const prev = await db.products.get(p.id);
-        await db.products.update(p.id, data);
+    return db.transaction('rw', db.products, db.stockMoves, db.images, async () => {
+      let id = p.id;
+      if (id) {
+        const prev = await db.products.get(id);
+        await db.products.update(id, data);
         if (prev && prev.stock !== data.stock) {
           await db.stockMoves.add({
-            productId: p.id, type: 'adjust', qty: data.stock - prev.stock,
+            productId: id, type: 'adjust', qty: data.stock - prev.stock,
             costPrice: data.costPrice, note: 'Manual edit', createdAt: now(),
           });
         }
-        return p.id;
+      } else {
+        id = await db.products.add({ ...data, createdAt: now(), sold: 0 });
+        if (data.stock > 0) {
+          await db.stockMoves.add({
+            productId: id, type: 'in', qty: data.stock, costPrice: data.costPrice,
+            note: 'Opening stock', createdAt: now(),
+          });
+        }
       }
-      const id = await db.products.add({ ...data, createdAt: now() });
-      if (data.stock > 0) {
-        await db.stockMoves.add({
-          productId: id, type: 'in', qty: data.stock, costPrice: data.costPrice,
-          note: 'Opening stock', createdAt: now(),
-        });
+      if (p.image !== undefined) {
+        if (p.image) {
+          const hash = hashStr(p.image);
+          await db.images.put({ id, data: p.image, hash });
+          await db.products.update(id, { hasImage: 1, imgHash: hash });
+        } else {
+          await db.images.delete(id);
+          await db.products.update(id, { hasImage: 0, imgHash: '' });
+        }
       }
       return id;
     });
   }
 
   static async remove(id) {
-    await db.products.delete(id);
+    await db.transaction('rw', db.products, db.images, async () => {
+      await db.products.delete(id);
+      await db.images.delete(id);
+    });
   }
 
   /** Stock-in from a supplier. Recomputes weighted-average cost price. */
@@ -75,7 +93,7 @@ export class ProductRepo {
       const newStock = p.stock + qty;
       const avgCost =
         oldQty + qty > 0 ? Math.round((p.costPrice * oldQty + unitCost * qty) / (oldQty + qty)) : unitCost;
-      await db.products.update(id, { stock: newStock, costPrice: avgCost, updatedAt: now() });
+      await db.products.update(id, { stock: newStock, costPrice: avgCost });
       await db.stockMoves.add({ productId: id, type: 'in', qty, costPrice: unitCost, note, createdAt: now() });
     });
   }
@@ -141,7 +159,7 @@ export class InvoiceRepo {
       }
       for (const l of tracked) {
         const p = await db.products.get(l.productId);
-        await db.products.update(l.productId, { stock: p.stock - l.qty, sold: (p.sold || 0) + l.qty, updatedAt: now() });
+        await db.products.update(l.productId, { stock: p.stock - l.qty, sold: (p.sold || 0) + l.qty });
       }
 
       let customerId = null;
@@ -188,7 +206,7 @@ export class InvoiceRepo {
       if (inv.status === 'void') throw new Error('Already cancelled');
       for (const l of inv.lines.filter((x) => !x.custom)) {
         const p = await db.products.get(l.productId);
-        if (p) await db.products.update(l.productId, { stock: p.stock + l.qty, sold: Math.max(0, (p.sold || 0) - l.qty), updatedAt: now() });
+        if (p) await db.products.update(l.productId, { stock: p.stock + l.qty, sold: Math.max(0, (p.sold || 0) - l.qty) });
         await db.stockMoves.add({
           productId: l.productId, type: 'return', qty: l.qty, costPrice: l.costPrice,
           note: `Cancelled ${inv.number}`, invoiceId: id, createdAt: now(),
@@ -215,11 +233,11 @@ export class ExpenseRepo {
 /* ---------------- Backup / restore ---------------- */
 export class BackupService {
   static async exportAll() {
-    const [products, invoices, customers, stockMoves, payments, settings, expenses] = await Promise.all([
+    const [products, invoices, customers, stockMoves, payments, settings, expenses, images] = await Promise.all([
       db.products.toArray(), db.invoices.toArray(), db.customers.toArray(),
-      db.stockMoves.toArray(), db.payments.toArray(), db.settings.toArray(), db.expenses.toArray(),
+      db.stockMoves.toArray(), db.payments.toArray(), db.settings.toArray(), db.expenses.toArray(), db.images.toArray(),
     ]);
-    return { app: 'bytecores-mall-pos', version: 2, exportedAt: new Date().toISOString(), products, invoices, customers, stockMoves, payments, settings, expenses };
+    return { app: 'bytecores-mall-pos', version: 3, exportedAt: new Date().toISOString(), products, invoices, customers, stockMoves, payments, settings, expenses, images };
   }
 
   static async markBackedUp() {
@@ -228,10 +246,19 @@ export class BackupService {
 
   static async importAll(data) {
     if (data?.app !== 'bytecores-mall-pos') throw new Error('This is not a Bytecores backup file');
-    await db.transaction('rw', db.products, db.invoices, db.customers, db.stockMoves, db.payments, db.settings, db.expenses, async () => {
-      await Promise.all([db.products.clear(), db.invoices.clear(), db.customers.clear(), db.stockMoves.clear(), db.payments.clear(), db.settings.clear(), db.expenses.clear()]);
+    // older backups kept the photo on the product row; move it to the photo table
+    const images = [...(data.images || [])];
+    const products = (data.products || []).map(({ image, ...p }) => {
+      if (image && !images.some((i) => i.id === p.id)) { const hash = hashStr(image); images.push({ id: p.id, data: image, hash }); return { ...p, hasImage: 1, imgHash: hash }; }
+      return p;
+    });
+    // Clearing is NOT a user delete, so it must not create cloud tombstones (asRemote). The re-added
+    // rows are stamped normally and upload on the next sync. Sync cursors are left alone.
+    await asRemote(DATA_TABLES, async () => { await Promise.all(DATA_TABLES.map((t) => t.clear())); });
+    await db.transaction('rw', DATA_TABLES, async () => {
       await db.expenses.bulkAdd(data.expenses || []);
-      await db.products.bulkAdd(data.products || []);
+      await db.products.bulkAdd(products);
+      await db.images.bulkAdd(images);
       await db.invoices.bulkAdd(data.invoices || []);
       await db.customers.bulkAdd(data.customers || []);
       await db.stockMoves.bulkAdd(data.stockMoves || []);
@@ -241,9 +268,11 @@ export class BackupService {
   }
 }
 
-/** Wipe everything (used by Settings > Danger zone). */
+/**
+ * Erase this device. Sync cursors are cleared too, so the next sync restores everything
+ * from the cloud copy (that is also how a brand-new laptop gets all its data).
+ */
 export async function wipeAllData() {
-  await db.transaction('rw', db.products, db.invoices, db.customers, db.stockMoves, db.payments, db.settings, db.expenses, async () => {
-    await Promise.all([db.products, db.invoices, db.customers, db.stockMoves, db.payments, db.settings, db.expenses].map((t) => t.clear()));
-  });
+  // flagged as remote so wiping this device never deletes the cloud copy
+  await asRemote(ALL_TABLES, async () => { await Promise.all(ALL_TABLES.map((t) => t.clear())); });
 }

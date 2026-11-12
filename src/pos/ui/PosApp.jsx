@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { NavLink, Navigate, Route, Routes, Link, useLocation } from 'react-router-dom';
+import { NavLink, Navigate, Route, Routes, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Lock as LockIcon, House, Package, ScanLine, ChartColumn, Ellipsis, Users, ReceiptText, Wallet, Settings as Cog, Wifi, WifiOff, Store, Delete, ChevronRight } from 'lucide-react';
+import { Lock as LockIcon, House, Package, ScanLine, ChartColumn, Ellipsis, Users, ReceiptText, Wallet, Settings as Cog, Store, Delete, ChevronRight } from 'lucide-react';
 import { SettingsRepo } from '../data/repositories';
 import { DEFAULT_SETTINGS } from '../data/db';
 import { sha256 } from './utils';
+import SyncRunner, { SyncChip } from './SyncRunner';
 import Home from './Home';
 import Billing from './Billing';
 import Inventory from './Inventory';
@@ -75,24 +76,21 @@ function More() {
 
 export default function PosApp() {
   const loc = useLocation();
+  const navigate = useNavigate();
   const stored = useLiveQuery(() => SettingsRepo.get(), []);
   const settings = stored || DEFAULT_SETTINGS;
   // role is remembered for this browser tab only. The admin panel sets it to 'owner' after a real admin login.
   const [role, setRole] = useState(() => sessionStorage.getItem('pos_role'));
-  const [online, setOnline] = useState(navigator.onLine);
 
   useEffect(() => {
-    const on = () => setOnline(true), off = () => setOnline(false);
-    window.addEventListener('online', on); window.addEventListener('offline', off);
     document.title = `${settings.shopName} POS`;
-    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
   }, [settings.shopName]);
 
-  if (!stored) return <div className="pos" />;
+  if (!stored) return <div className="pos"><SyncRunner /></div>;
   const needsPin = !!settings.pinHash;
   const activeRole = needsPin ? role : 'owner';          // no PIN set => owner (first-time setup)
   if (needsPin && !role) {
-    return <div className="pos"><PinLock ownerHash={settings.pinHash} staffHash={settings.staffPinHash} onOpen={(r) => { sessionStorage.setItem('pos_role', r); setRole(r); }} /></div>;
+    return <div className="pos"><SyncRunner /><PinLock ownerHash={settings.pinHash} staffHash={settings.staffPinHash} onOpen={(r) => { sessionStorage.setItem('pos_role', r); setRole(r); }} /></div>;
   }
   const lock = () => { sessionStorage.removeItem('pos_role'); setRole(null); };
   const staff = activeRole === 'staff';
@@ -112,9 +110,7 @@ export default function PosApp() {
       <div className="pos-body">
         <header className="pos-top">
           <h1>{staff ? settings.shopName : TITLES[loc.pathname] || settings.shopName}</h1>
-          <span className="row xs mute" style={{ gap: 6 }} title={online ? 'Online' : 'Offline — everything still works'}>
-            {online ? <Wifi size={15} /> : <WifiOff size={15} />}<i className={`online-dot ${online ? '' : 'off'}`} />{online ? '' : 'Offline'}
-          </span>
+          <SyncChip onOpenSettings={() => navigate('/pos/settings')} />
           {needsPin && <button className="icon-btn" onClick={lock} aria-label="Lock karo" title="Lock karo"><LockIcon size={17} /></button>}
         </header>
         <main className="pos-main">
@@ -134,6 +130,7 @@ export default function PosApp() {
           </Suspense>
         </main>
       </div>
+      <SyncRunner />
       <nav className="pos-nav" aria-label="Main" hidden={staff}>{NAV.map(link)}</nav>
     </div>
   );

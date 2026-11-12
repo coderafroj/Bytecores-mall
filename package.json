@@ -8,9 +8,14 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check-secrets": "node scripts/check-secrets.mjs",
+    "prebuild": "node scripts/check-secrets.mjs",
+    "setup:appwrite": "node scripts/setup-appwrite.mjs",
+    "reset:appwrite": "node scripts/reset-appwrite.mjs"
   },
   "dependencies": {
+    "@clerk/backend": "^3.27.0",
     "@clerk/clerk-react": "^5.61.6",
     "@microsoft/clarity": "^1.0.2",
     "@reduxjs/toolkit": "^2.11.2",

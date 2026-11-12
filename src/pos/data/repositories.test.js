@@ -84,7 +84,8 @@ describe('stock & backup', () => {
     await wipeAllData();
     expect(await db.products.count()).toBe(0);
     await BackupService.importAll(dump);
-    expect((await db.products.get(id)).image).toMatch(/^data:image/);
+    expect((await db.images.get(id)).data).toMatch(/^data:image/);
+    expect((await db.products.get(id)).hasImage).toBe(1);
     expect(await db.invoices.count()).toBe(1);
   });
 });

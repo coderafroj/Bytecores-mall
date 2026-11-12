@@ -164,3 +164,10 @@ textarea.inp { padding: 10px 12px; min-height: 70px; }
 .pos [hidden] { display: none !important; }
 .pos.staff { --nav-h: 0px; }
 @media print { .pos-top, .pos-nav, .pos-rail { display: none !important; } }
+
+/* ---- sync chip ---- */
+.sync-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font: inherit; font-size: 12px; font-weight: 700; color: var(--mute); }
+.sync-chip.good { color: var(--good); } .sync-chip.warn { color: var(--warn); } .sync-chip.bad { color: var(--bad); border-color: var(--bad); }
+.sync-chip span { white-space: nowrap; }
+@media (max-width: 380px) { .sync-chip span { display: none; } }
+.spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }

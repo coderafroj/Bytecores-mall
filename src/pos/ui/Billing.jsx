@@ -8,6 +8,7 @@ import { InvoiceCalculator } from '../domain/invoiceCalculator';
 import { Money } from '../domain/money';
 import { Sheet, Field, RupeeInput, Scanner, ScanButton } from './common';
 import Receipt from './Receipt';
+import { useProductImages } from './useProductImages';
 import { receiptText, whatsappLink } from './utils';
 
 const DRAFT = 'pos_draft_v2';
@@ -69,6 +70,8 @@ export default function Billing({ settings, role }) {
     return () => io.disconnect();
   }, [shown.length, limit]);
 
+  const visible = useMemo(() => shown.slice(0, limit), [shown, limit]);
+  const imgOf = useProductImages(useMemo(() => [...visible, ...cart.map((l) => byId.get(l.productId)).filter(Boolean)], [visible, cart, byId]));
   const qtyById = useMemo(() => new Map(cart.map((l) => [l.productId, l.qty])), [cart]);
 
   /* ---------- cart ---------- */
@@ -149,7 +152,7 @@ export default function Billing({ settings, role }) {
       ) : (
         <div style={{ overflow: 'auto', maxHeight: 'calc(100dvh - 330px)' }}>
           {calc.lines.map((l) => {
-            const img = byId.get(l.productId)?.image;
+            const img = imgOf(byId.get(l.productId));
             return (
               <div className="line" key={l.productId} style={{ gridTemplateColumns: 'auto 1fr auto' }}>
                 {img ? <img className="thumb" src={img} alt="" /> : <div className="thumb avatar" style={{ width: 44, height: 44 }}>{l.name[0]}</div>}
@@ -227,12 +230,13 @@ export default function Billing({ settings, role }) {
           ) : (
             <>
               <div className="ptiles">
-                {shown.slice(0, limit).map((p) => {
+                {visible.map((p) => {
                   const n = qtyById.get(p.id) || 0;
+                  const src = imgOf(p);
                   return (
                     <button key={p.id} className={`ptile ${p.stock <= 0 ? 'out' : ''}`} onClick={() => add(p)} aria-label={`${p.name} ${Money.format(p.sellPrice)}`}>
                       {n > 0 && <span className="in-cart">{n}</span>}
-                      <div className="img">{p.image ? <img src={p.image} alt="" loading="lazy" decoding="async" /> : p.name[0]?.toUpperCase()}</div>
+                      <div className="img">{src ? <img src={src} alt="" decoding="async" /> : p.name[0]?.toUpperCase()}</div>
                       <div className="meta">
                         <span className="nm">{p.name}</span>
                         <span className="pr num">{Money.format(p.sellPrice)}</span>

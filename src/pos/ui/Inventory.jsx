@@ -1,10 +1,11 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { toast } from 'sonner';
 import { Search, Plus, PackagePlus, Pencil, Trash2, Download, Upload } from 'lucide-react';
 import { db } from '../data/db';
 import { ProductRepo } from '../data/repositories';
 import { Money } from '../domain/money';
+import { useProductImages } from './useProductImages';
 import { Sheet, Field, RupeeInput, Scanner, ScanButton, PhotoField } from './common';
 import { downloadFile, toCSV, parseCSV } from './utils';
 
@@ -18,6 +19,7 @@ export default function Inventory({ settings }) {
   const [f, setF] = useState('all');
   const [edit, setEdit] = useState(null);
   const [restock, setRestock] = useState(null);
+  const [limit, setLimit] = useState(60);
   const fileRef = useRef();
 
   const counts = useMemo(() => ({
@@ -32,6 +34,9 @@ export default function Inventory({ settings }) {
       .filter((p) => f === 'all' || (f === 'out' ? p.stock <= 0 : p.stock > 0 && p.stock <= p.lowStockAt))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [products, q, f]);
+
+  const visible = useMemo(() => list.slice(0, limit), [list, limit]);
+  const imgOf = useProductImages(visible);
 
   const exportCSV = () => downloadFile('products.csv', toCSV([
     ['name', 'sku', 'barcode', 'category', 'cost', 'mrp', 'price', 'gst', 'stock', 'lowstock', 'unit'],
@@ -84,11 +89,12 @@ export default function Inventory({ settings }) {
         </div>
       ) : (
         <div className="list">
-          {list.map((p) => {
+          {visible.map((p) => {
+            const src = imgOf(p);
             const margin = p.sellPrice ? ((p.sellPrice - p.costPrice) / p.sellPrice) * 100 : 0;
             return (
               <div className="item" key={p.id}>
-                {p.image ? <img src={p.image} alt="" className="thumb" style={{ width: 48, height: 48 }} loading="lazy" decoding="async" /> : <div className="avatar">{p.name[0]?.toUpperCase()}</div>}
+                {src ? <img src={src} alt="" className="thumb" style={{ width: 48, height: 48 }} decoding="async" /> : <div className="avatar">{p.name[0]?.toUpperCase()}</div>}
                 <div className="grow">
                   <div className="b trunc">{p.name}</div>
                   <div className="xs mute trunc">{p.category} · {p.sku}</div>
@@ -108,7 +114,8 @@ export default function Inventory({ settings }) {
               </div>
             );
           })}
-          {!list.length && <div className="empty">No products found</div>}
+          {limit < list.length && <button className="btn block" onClick={() => setLimit((l) => l + 60)}>Aur dikhao ({list.length - limit} baaki)</button>}
+          {!list.length && <div className="empty">Kuch nahi mila</div>}
         </div>
       )}
 
@@ -121,6 +128,8 @@ export default function Inventory({ settings }) {
 function ProductForm({ initial, categories, gst, onClose }) {
   const [p, setP] = useState(initial);
   const [scan, setScan] = useState(false);
+  const [existing, setExisting] = useState('');
+  useEffect(() => { if (initial.id && initial.hasImage) db.images.get(initial.id).then((r) => setExisting(r?.data || '')); }, [initial.id, initial.hasImage]);
   const set = (k) => (v) => setP((x) => ({ ...x, [k]: v }));
   const margin = p.sellPrice ? ((p.sellPrice - p.costPrice) / p.sellPrice) * 100 : 0;
   const rate = gst ? p.gstRate : 0;
@@ -133,7 +142,7 @@ function ProductForm({ initial, categories, gst, onClose }) {
     } catch (e) { toast.error(e.message); }
   };
   const remove = async () => {
-    if (!window.confirm(`Delete "${p.name}"? Past bills keep their data.`)) return;
+    if (!window.confirm(`"${p.name}" hata dein? Purane bills mein ye safe rahega. Cloud se bhi hat jayega.`)) return;
     await ProductRepo.remove(p.id); onClose();
   };
 
@@ -145,7 +154,7 @@ function ProductForm({ initial, categories, gst, onClose }) {
         <button className="btn pri grow" onClick={() => submit(false)}>Save</button>
       </div>}>
       <div className="col">
-        <PhotoField value={p.image} onChange={set('image')} />
+        <PhotoField value={p.image !== undefined ? p.image : existing} onChange={set('image')} />
         <Field label="Samaan ka naam"><input className="inp" value={p.name} onChange={(e) => set('name')(e.target.value)} autoFocus={!p.id} /></Field>
         <div className="grid g2">
           <Field label="Category">

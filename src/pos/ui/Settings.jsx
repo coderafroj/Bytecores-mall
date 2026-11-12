@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Download, Upload, Lock, ShieldCheck } from 'lucide-react';
+import { Download, Upload, Lock, ShieldCheck, Cloud } from 'lucide-react';
+import { sync } from '../sync/engine';
+import { useSyncState } from './useSync';
 import { SettingsRepo, BackupService, wipeAllData } from '../data/repositories';
 import { Field } from './common';
 import { downloadFile, sha256 } from './utils';
 
 export default function Settings({ settings }) {
+  const ss = useSyncState();
   const [s, setS] = useState(settings);
   const [persisted, setPersisted] = useState(null);
   const fileRef = useRef();
@@ -30,7 +33,7 @@ export default function Settings({ settings }) {
     try { await BackupService.importAll(JSON.parse(await file.text())); toast.success('Backup restored'); } catch (e) { toast.error(e.message); }
   };
   const wipe = async () => {
-    if (window.prompt('This deletes ALL products, bills and customers on this device. Type DELETE to confirm.') !== 'DELETE') return;
+    if (window.prompt('Is device ka saara data mit jayega (cloud copy safe rehti hai aur sync par wapas aa jayegi). Confirm karne ke liye DELETE likho.') !== 'DELETE') return;
     await wipeAllData(); localStorage.removeItem('pos_draft_v1'); localStorage.removeItem('pos_held_v1'); toast.success('All data erased');
   };
   const persist = async () => { const ok = await navigator.storage?.persist?.(); setPersisted(!!ok); toast[ok ? 'success' : 'error'](ok ? 'Storage is now protected from auto-cleanup' : 'Browser refused. Install the app to home screen first.'); };
@@ -72,6 +75,16 @@ export default function Settings({ settings }) {
       </div>
 
       <div className="card col">
+        <b><Cloud size={15} style={{ verticalAlign: -2 }} /> Cloud sync (Appwrite)</b>
+        <p className="xs mute" style={{ margin: 0 }}>Samaan, photo, bills, udhaar aur kharche internet aane par apne aap cloud mein chale jaate hain. Net na ho to sab local chalta rehta hai. Naye laptop par admin login karte hi sab wapas aa jata hai.</p>
+        <div className="row between sm"><span>Status</span><b className={ss.status === 'idle' ? 'good' : ss.status === 'syncing' ? '' : ss.status === 'error' || ss.status === 'config' ? 'bad' : 'warn'}>
+          {{ idle: ss.pending ? `${ss.pending} baaki` : 'Sab sync ho chuka', syncing: 'Sync ho raha…', offline: 'Offline', auth: 'Admin login chahiye', config: 'Server setup baaki', error: 'Error' }[ss.status]}</b></div>
+        <div className="row between sm"><span>Last sync</span><span className="mute">{ss.lastSyncAt ? new Date(ss.lastSyncAt).toLocaleString('en-IN') : 'abhi tak nahi'}</span></div>
+        {ss.message && <div className="xs bad">{ss.message}</div>}
+        <button className="btn pri" disabled={ss.status === 'syncing'} onClick={() => sync.syncNow()}>Abhi sync karo</button>
+      </div>
+
+      <div className="card col">
         <b><ShieldCheck size={15} style={{ verticalAlign: -2 }} /> Data safety</b>
         <p className="xs mute" style={{ margin: 0 }}>Everything is stored on this phone and works with no internet. Take a backup weekly, and before changing phone or clearing the browser.</p>
         <div className="grid g2">
@@ -85,7 +98,7 @@ export default function Settings({ settings }) {
 
       <div className="card col" style={{ borderColor: 'var(--bad)' }}>
         <b className="bad">Danger zone</b>
-        <button className="btn bad" onClick={wipe}>Erase all data on this device</button>
+        <button className="btn bad" onClick={wipe}>Is device ka data mitao</button>
       </div>
     </div>
   );
