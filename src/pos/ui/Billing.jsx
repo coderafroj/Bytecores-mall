@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { toast } from 'sonner';
-import { Search, Trash2, Minus, Plus, Pause, Play, Printer, MessageCircle, Check, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Search, Trash2, Minus, Plus, Pause, Play, Printer, MessageCircle, Check, ShoppingBag, ArrowLeft, LayoutGrid, List } from 'lucide-react';
 import { db } from '../data/db';
 import { ProductRepo, InvoiceRepo } from '../data/repositories';
 import { InvoiceCalculator } from '../domain/invoiceCalculator';
@@ -23,6 +23,8 @@ export default function Billing({ settings, role }) {
   const products = useLiveQuery(() => db.products.toArray(), [], []);
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('All');
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('pos_bill_view') || 'grid');
+  const toggleView = (m) => { setViewMode(m); localStorage.setItem('pos_bill_view', m); };
   const [limit, setLimit] = useState(PAGE);
   const [cart, setCart] = useState(() => load(DRAFT, {}).lines || []);
   const [discount, setDiscount] = useState(() => load(DRAFT, {}).discount || EMPTY_DISCOUNT);
@@ -219,6 +221,28 @@ export default function Billing({ settings, role }) {
                 onChange={(e) => setQ(e.target.value)} onKeyDown={onSearchKey} aria-label="Samaan dhundo" enterKeyHint="search" />
             </div>
             <ScanButton onClick={() => setScan(true)} />
+            <div className="row" style={{ gap: 2, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 12, padding: 2, flex: 'none' }}>
+              <button
+                type="button"
+                className="icon-btn"
+                style={{ width: 38, height: 38, border: 'none', borderRadius: 9, background: viewMode === 'grid' ? 'var(--brand-soft)' : 'transparent', color: viewMode === 'grid' ? 'var(--brand)' : 'var(--mute)' }}
+                onClick={() => toggleView('grid')}
+                title="Grid View"
+                aria-label="Grid View"
+              >
+                <LayoutGrid size={18} />
+              </button>
+              <button
+                type="button"
+                className="icon-btn"
+                style={{ width: 38, height: 38, border: 'none', borderRadius: 9, background: viewMode === 'list' ? 'var(--brand-soft)' : 'transparent', color: viewMode === 'list' ? 'var(--brand)' : 'var(--mute)' }}
+                onClick={() => toggleView('list')}
+                title="List View"
+                aria-label="List View"
+              >
+                <List size={18} />
+              </button>
+            </div>
           </div>
           <div className="chips">
             {held.map((h, i) => <button key={h.at} className="chip" style={{ borderColor: 'var(--warn)' }} onClick={() => resume(i)}><Play size={12} /> Roka hua {Money.format(h.total, { compact: true })}</button>)}
@@ -229,23 +253,62 @@ export default function Billing({ settings, role }) {
             <div className="empty card"><b>Abhi koi samaan nahi hai</b><div className="sm">Pehle "Stock" mein jaakar samaan aur photo daalo.</div></div>
           ) : (
             <>
-              <div className="ptiles">
-                {visible.map((p) => {
-                  const n = qtyById.get(p.id) || 0;
-                  const src = imgOf(p);
-                  return (
-                    <button key={p.id} className={`ptile ${p.stock <= 0 ? 'out' : ''}`} onClick={() => add(p)} aria-label={`${p.name} ${Money.format(p.sellPrice)}`}>
-                      {n > 0 && <span className="in-cart">{n}</span>}
-                      <div className="img">{src ? <img src={src} alt="" decoding="async" /> : p.name[0]?.toUpperCase()}</div>
-                      <div className="meta">
-                        <span className="nm">{p.name}</span>
-                        <span className="pr num">{Money.format(p.sellPrice)}</span>
-                        {p.stock <= 0 ? <span className="xs bad b">Khatam</span> : p.stock <= p.lowStockAt ? <span className="xs warn">{p.stock} bache</span> : null}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+              {viewMode === 'list' ? (
+                <div className="bill-list">
+                  {visible.map((p) => {
+                    const n = qtyById.get(p.id) || 0;
+                    const src = imgOf(p);
+                    return (
+                      <button
+                        key={p.id}
+                        className={`bill-item ${p.stock <= 0 ? 'out' : ''}`}
+                        onClick={() => add(p)}
+                        aria-label={`${p.name} ${Money.format(p.sellPrice)}`}
+                      >
+                        <div className="bill-item-thumb">
+                          {src ? <img src={src} alt="" decoding="async" /> : p.name[0]?.toUpperCase()}
+                          {n > 0 && <span className="in-cart">{n}</span>}
+                        </div>
+                        <div className="grow" style={{ textAlign: 'left', minWidth: 0 }}>
+                          <div className="b sm trunc">{p.name}</div>
+                          <div className="xs mute trunc">{p.category} {p.barcode ? `· ${p.barcode}` : ''}</div>
+                          <div className="row xs" style={{ gap: 6, marginTop: 3 }}>
+                            <span className="num b" style={{ fontSize: 14 }}>{Money.format(p.sellPrice)}</span>
+                            <span className={`tag xs ${p.stock <= 0 ? 'bad' : p.stock <= p.lowStockAt ? 'warn' : 'good'}`}>
+                              {p.stock <= 0 ? 'Khatam' : `${p.stock} ${p.unit || 'pcs'}`}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="btn sm pri" style={{ minHeight: 32, padding: '0 12px', fontSize: 13, flex: 'none' }}>
+                          + Add
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="ptiles">
+                  {visible.map((p) => {
+                    const n = qtyById.get(p.id) || 0;
+                    const src = imgOf(p);
+                    return (
+                      <button key={p.id} className={`ptile ${p.stock <= 0 ? 'out' : ''}`} onClick={() => add(p)} aria-label={`${p.name} ${Money.format(p.sellPrice)}`}>
+                        {n > 0 && <span className="in-cart">{n}</span>}
+                        <div className="img">{src ? <img src={src} alt="" decoding="async" /> : p.name[0]?.toUpperCase()}</div>
+                        <div className="meta">
+                          <span className="nm">{p.name}</span>
+                          <div className="row between" style={{ marginTop: 'auto', alignItems: 'center' }}>
+                            <span className="pr num">{Money.format(p.sellPrice)}</span>
+                            <span className={`tag xs ${p.stock <= 0 ? 'bad' : p.stock <= p.lowStockAt ? 'warn' : 'good'}`} style={{ padding: '2px 6px', fontSize: 11 }}>
+                              {p.stock <= 0 ? '0' : `${p.stock} ${p.unit || 'pcs'}`}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
               {limit < shown.length && <div ref={sentinel} className="empty xs">Aur dikha rahe hain…</div>}
               {!shown.length && <div className="empty">“{q}” nahi mila</div>}
             </>
@@ -255,9 +318,15 @@ export default function Billing({ settings, role }) {
       </div>
 
       {cart.length > 0 && !open && (
-        <button className="cart-bar" onClick={() => setOpen(true)}>
-          <span className="row"><ShoppingBag size={18} /><b>{calc.itemCount} item</b></span>
-          <b className="num" style={{ fontSize: 18 }}>{Money.format(calc.total)} · Bill dekho</b>
+        <button className="cart-bar" onClick={() => setOpen(true)} aria-label="Bill dekho">
+          <span className="row" style={{ gap: 8 }}>
+            <ShoppingBag size={20} />
+            <b style={{ fontSize: 15 }}>{calc.itemCount} {calc.itemCount === 1 ? 'item' : 'items'}</b>
+          </span>
+          <span className="row" style={{ gap: 6 }}>
+            <b className="num" style={{ fontSize: 17 }}>{Money.format(calc.total)}</b>
+            <span style={{ fontSize: 14, fontWeight: 700, opacity: 0.9 }}>· Bill dekho →</span>
+          </span>
         </button>
       )}
 
