@@ -37,14 +37,20 @@ export default async function handler(req, res) {
   const missing = [['APPWRITE_API_KEY', cfg.key], ['CLERK_SECRET_KEY', secretKey], ['APPWRITE_ENDPOINT', cfg.endpoint], ['APPWRITE_PROJECT_ID', cfg.project], ['APPWRITE_DATABASE_ID', cfg.databaseId]].filter(([, v]) => !v).map(([k]) => k);
   if (missing.length) return res.status(503).json({ error: 'not_configured', missing });
 
+  const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  if (!token) return res.status(401).json({ error: 'login_required', reason: 'Browser ne login token nahi bheja' });
   try {
-    const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-    if (!token) return res.status(401).json({ error: 'login_required' });
-    const claims = await verifyToken(token, { secretKey });
+    // @clerk/backend returns { data, errors } (it does not throw). Older versions returned the payload / threw. Handle both.
+    const verified = await verifyToken(token, { secretKey, ...(env('CLERK_JWT_KEY') ? { jwtKey: env('CLERK_JWT_KEY') } : {}) });
+    const claims = verified && typeof verified === 'object' && 'data' in verified ? verified.data : verified;
+    if (!claims?.sub) {
+      const why = verified?.errors?.[0]?.message || 'token verify nahi hua';
+      return res.status(401).json({ error: 'login_required', reason: `${why}. Check karo ki CLERK_SECRET_KEY aur VITE_CLERK_PUBLISHABLE_KEY ek hi Clerk instance ke hain (dono test ya dono live).` });
+    }
     const email = await adminEmail(claims.sub, secretKey);
-    if (!admins.includes(email)) return res.status(403).json({ error: 'not_admin' });
-  } catch {
-    return res.status(401).json({ error: 'login_required' });
+    if (!admins.includes(email)) return res.status(403).json({ error: 'not_admin', email });
+  } catch (e) {
+    return res.status(401).json({ error: 'login_required', reason: e?.message || 'login check fail hua' });
   }
 
   const out = await createPosServer({ api: createAppwriteRest(cfg) }).handle(req.body);

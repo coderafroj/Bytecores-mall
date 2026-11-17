@@ -12,7 +12,8 @@
     "check-secrets": "node scripts/check-secrets.mjs",
     "prebuild": "node scripts/check-secrets.mjs",
     "setup:appwrite": "node scripts/setup-appwrite.mjs",
-    "reset:appwrite": "node scripts/reset-appwrite.mjs"
+    "reset:appwrite": "node scripts/reset-appwrite.mjs",
+    "postbuild": "node scripts/check-secrets.mjs --dist"
   },
   "dependencies": {
     "@clerk/backend": "^3.27.0",

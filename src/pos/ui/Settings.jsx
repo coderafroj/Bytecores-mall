@@ -9,6 +9,10 @@ import { downloadFile, sha256 } from './utils';
 
 export default function Settings({ settings }) {
   const ss = useSyncState();
+  const [diag, setDiag] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const runDiag = async () => { setChecking(true); setDiag(null); try { setDiag(await sync.diagnose()); } finally { setChecking(false); } };
+  const reupload = async () => { if (!window.confirm('Is device ka saara data cloud par dobara bheja jayega (safe hai, bas time lagega). Chalu karein?')) return; await sync.uploadEverything(); toast.success('Upload shuru ho gaya'); };
   const [s, setS] = useState(settings);
   const [persisted, setPersisted] = useState(null);
   const fileRef = useRef();
@@ -82,6 +86,20 @@ export default function Settings({ settings }) {
         <div className="row between sm"><span>Last sync</span><span className="mute">{ss.lastSyncAt ? new Date(ss.lastSyncAt).toLocaleString('en-IN') : 'abhi tak nahi'}</span></div>
         {ss.message && <div className="xs bad">{ss.message}</div>}
         <button className="btn pri" disabled={ss.status === 'syncing'} onClick={() => sync.syncNow()}>Abhi sync karo</button>
+        <div className="grid g2">
+          <button className="btn" disabled={checking} onClick={runDiag}>{checking ? 'Check ho raha…' : 'Cloud check (problem kya hai?)'}</button>
+          <button className="btn" disabled={ss.status === 'syncing'} onClick={reupload}>Sab dobara upload karo</button>
+        </div>
+        {diag && (
+          <div className="col" style={{ gap: 6 }}>
+            {diag.map((d, i) => (
+              <div key={i} className="card sm" style={{ background: d.ok ? 'var(--good-soft)' : 'var(--bad-soft)' }}>
+                <b>{d.ok ? '✓' : '✗'} {d.label}</b>
+                <div className="xs">{d.detail}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="card col">

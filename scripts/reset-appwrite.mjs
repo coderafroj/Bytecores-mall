@@ -27,6 +27,18 @@ const COL = env('APPWRITE_POS_COLLECTION_ID') || 'pos_records';
 const BUCKET = env('APPWRITE_POS_BUCKET_ID', 'VITE_APPWRITE_POS_BUCKET_ID') || 'pos_images';
 let KEY = env('APPWRITE_API_KEY');
 
+
+function explain401(r, ctx) {
+  const msg = r.json?.message || '(Appwrite ne message nahi diya)';
+  const lines = [`Appwrite ka jawab: ${r.status} ${r.json?.type || ''}`, `  "${msg}"`, '',
+    `Endpoint : ${ctx.base}`, `Project  : ${ctx.project}`, `Key      : ${ctx.key.length} akshar (normal key 265 ki hoti hai, "standard_" se shuru)`, ''];
+  if (/scope/i.test(msg)) lines.push('=> Key mein upar likha permission (scope) nahi hai. Appwrite > Overview > Integrations > API keys > apni key > Scopes mein wo tick karo.');
+  else if (ctx.key.length !== 265) lines.push('=> Key poori paste nahi hui. Is tareeke se do (key screen par nahi dikhegi):\n     read -rs APPWRITE_API_KEY && export APPWRITE_API_KEY\n   phir wahi npm command dobara chalao.');
+  else if (/project/i.test(msg)) lines.push('=> Project ID ya endpoint galat hai. Appwrite > Settings mein "Project ID" aur "API Endpoint" dekho aur .env se milao.');
+  else lines.push('=> Ya key kisi aur project ki hai, ya delete/expire ho chuki hai, ya Project ID / endpoint galat hai.');
+  return lines.join('\n');
+}
+
 const fail = (m) => { console.error('\n✗ ' + m + '\n'); process.exit(1); };
 if (!['pos', 'everything'].includes(SCOPE)) fail('--scope sirf "pos" ya "everything" ho sakta hai.');
 if (!EP || !PROJECT) fail('Endpoint / Project ID nahi mile (.env mein VITE_APPWRITE_ENDPOINT aur VITE_APPWRITE_PROJECT_ID).');
@@ -36,6 +48,7 @@ if (!KEY) KEY = await ask('Appwrite API key paste karo: ');
 if (!KEY) fail('API key chahiye.');
 
 const base = EP.replace(/\/$/, '');
+KEY = KEY.replace(/\s+/g, '');   // a pasted key can pick up spaces / line breaks
 async function call(method, path) {
   let res;
   try { res = await fetch(base + path, { method, headers: { 'X-Appwrite-Project': PROJECT, 'X-Appwrite-Key': KEY } }); }
@@ -52,7 +65,7 @@ async function listAll(path, key) {
   for (;;) {
     const qs = [q({ method: 'limit', values: [100] }), cursor ? q({ method: 'cursorAfter', values: [cursor] }) : ''].filter(Boolean).join('&');
     const r = await call('GET', `${path}?${qs}`);
-    if (r.status === 401) fail('API key galat hai ya project ID galat hai.');
+    if (r.status === 401) fail(explain401(r, { base, project: PROJECT, key: KEY }));
     if (!r.ok) fail(`List fail (${path}): ${r.status}`);
     const items = r.json[key] || [];
     out.push(...items);

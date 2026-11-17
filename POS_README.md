@@ -51,6 +51,14 @@ which checks the Clerk login (only `ADMIN_EMAILS`) and then uses the server-side
 Rules: one counter device writes at a time (newest edit wins). "Is device ka data mitao" only clears this device; the cloud
 copy stays. Local dev: `/api/*` needs `vercel dev` (plain `npm run dev` runs the counter without cloud sync).
 
+### If data is not reaching Appwrite
+Open `/pos/settings` > **Cloud check**: it tests internet, admin login, the sync server, the Appwrite collection and the photo
+bucket one by one and says which one is broken and how to fix it. **Sab dobara upload karo** re-sends everything on this device.
+- `npm run dev` now serves `/api/pos-sync` itself (reads your `.env`), so sync works locally too.
+- Browser data is per address: items added on `localhost:5173` are NOT visible on your live domain (and vice versa).
+  Either let `localhost` sync to the cloud (then log in on the live site: it downloads everything), or use Settings > Backup
+  on one and Restore on the other.
+
 ### Start over (wipe + rebuild)
 ```bash
 npm run reset:appwrite                         # deletes ONLY the POS collection + photo bucket, then rebuilds them

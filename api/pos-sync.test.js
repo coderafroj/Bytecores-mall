@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@clerk/backend', () => ({
-  verifyToken: async (t) => { if (t !== 'good') throw new Error('bad token'); return { sub: 'u-' + globalThis.__email }; },
+  verifyToken: async (t) => (t === 'good' ? { data: { sub: 'u-' + globalThis.__email }, errors: undefined } : { data: undefined, errors: [{ message: 'bad token' }] }),
   createClerkClient: () => ({ users: { getUser: async () => ({ primaryEmailAddressId: 'e1', emailAddresses: [{ id: 'e1', emailAddress: globalThis.__email }] }) } }),
 }));
 const { default: handler } = await import('./pos-sync.js');

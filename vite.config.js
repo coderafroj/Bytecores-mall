@@ -1,11 +1,38 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+/**
+ * `npm run dev` has no Vercel, so /api/* would 404. This serves the sync route from the same file
+ * (api/pos-sync.js) so cloud sync works locally too. It reads your .env (including the secret ones).
+ */
+function devApi() {
+  return {
+    name: 'dev-api-pos-sync',
+    apply: 'serve',
+    configureServer(server) {
+      for (const [k, v] of Object.entries(loadEnv(server.config.mode, process.cwd(), ''))) if (!(k in process.env)) process.env[k] = v;
+      server.middlewares.use('/api/pos-sync', async (req, res) => {
+        const send = (code, obj) => { res.statusCode = code; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(obj)); };
+        try {
+          let raw = '';
+          for await (const chunk of req) raw += chunk;
+          let body = {};
+          try { body = raw ? JSON.parse(raw) : {}; } catch { return send(400, { error: 'bad json' }); }
+          const mod = await server.ssrLoadModule('/api/pos-sync.js');
+          const out = { setHeader: (k, v) => res.setHeader(k, v), status(c) { res.statusCode = c; return out; }, json: (o) => send(res.statusCode || 200, o) };
+          await mod.default({ method: req.method, headers: req.headers, body }, out);
+        } catch (e) { send(500, { error: 'dev_api_error', message: e.message }); }
+      });
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    devApi(),
     react(),
     tailwindcss(),
     VitePWA({ 

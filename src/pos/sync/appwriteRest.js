@@ -28,6 +28,11 @@ export function createAppwriteRest({ endpoint, project, key, databaseId, collect
       ];
       return (await call('GET', docs, { params: q.map((x) => ['queries[]', JSON.stringify(x)]) })).documents;
     },
+    async countDocs() {
+      const r = await call('GET', docs, { params: [['queries[]', JSON.stringify({ method: 'limit', values: [1] })]] });
+      return r.total ?? 0;
+    },
+    checkBucket: () => call('GET', `/storage/buckets/${bucketId}`),
     async putImage(id, dataUrl) {
       const [, mime, b64] = /^data:([^;]+);base64,(.*)$/.exec(dataUrl);
       const bytes = Buffer.from(b64, 'base64');

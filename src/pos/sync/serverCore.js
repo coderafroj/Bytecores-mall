@@ -10,7 +10,7 @@
  */
 export const TYPES = ['products', 'customers', 'invoices', 'expenses', 'payments', 'stockMoves', 'settings'];
 const RID = /^[A-Za-z]+_[A-Za-z0-9]{1,24}$/;
-const MAX_RECORDS = 60;
+const MAX_RECORDS = 40;
 const MAX_DATA = 90_000;
 const MAX_IMAGE_BYTES = 400_000;
 
@@ -51,8 +51,8 @@ export function createPosServer({ api, now = Date.now }) {
     const base = now() * 1000;
     const results = new Array(records.length);
     // small parallelism: fast, but gentle on Appwrite rate limits
-    for (let i = 0; i < records.length; i += 6) {
-      await Promise.all(records.slice(i, i + 6).map(async (rec, j) => {
+    for (let i = 0; i < records.length; i += 8) {
+      await Promise.all(records.slice(i, i + 8).map(async (rec, j) => {
         const k = i + j;
         const bad = validate(rec);
         if (bad) { results[k] = { rid: rec?.rid, ok: false, error: bad, permanent: true }; return; }
@@ -72,12 +72,26 @@ export function createPosServer({ api, now = Date.now }) {
     return { status: 200, json: { records, next: records.length ? records[records.length - 1].srv : since, more: docs.length === lim } };
   }
 
+  /** Talks to Appwrite for real, so the app can say exactly which part is broken. */
+  async function ping() {
+    const explain = (e, what, fix) => ({
+      ok: false, code: e.code,
+      message: e.code === 404 ? `${what} nahi mila. ${fix}`
+        : e.code === 401 || e.code === 403 ? 'Appwrite ne key ko mana kar diya: APPWRITE_API_KEY galat hai ya uske scopes kam hain (databases/documents/buckets/files read+write chahiye).'
+        : e.message,
+    });
+    const out = { collection: { ok: true }, bucket: { ok: true }, records: 0 };
+    try { out.records = await api.countDocs(); } catch (e) { out.collection = explain(e, 'pos_records collection', 'Computer par "npm run setup:appwrite" chalao.'); }
+    try { await api.checkBucket(); } catch (e) { out.bucket = explain(e, 'pos_images bucket', 'Computer par "npm run setup:appwrite" chalao.'); }
+    return { status: 200, json: { ok: out.collection.ok && out.bucket.ok, ...out } };
+  }
+
   return {
     async handle(body) {
       try {
         if (body?.action === 'push') return await push(body);
         if (body?.action === 'pull') return await pull(body);
-        if (body?.action === 'ping') return { status: 200, json: { ok: true } };
+        if (body?.action === 'ping') return await ping();
         return { status: 400, json: { error: 'unknown action' } };
       } catch (e) {
         return { status: 502, json: { error: 'storage_error', message: e.message } };

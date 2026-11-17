@@ -27,7 +27,7 @@ export default defineConfig([
   },
   {
     // server-side files run on Node (Vercel functions / CLI scripts), not in the browser
-    files: ['api/**/*.js', 'scripts/**/*.{js,mjs}', 'update-schema.js', 'scratch/**/*.js', 'src/pos/sync/serverCore.js', 'src/pos/sync/appwriteRest.js'],
+    files: ['vite.config.js', 'api/**/*.js', 'scripts/**/*.{js,mjs}', 'update-schema.js', 'scratch/**/*.js', 'src/pos/sync/serverCore.js', 'src/pos/sync/appwriteRest.js', 'src/pos/sync/fakeAppwrite.js', 'src/pos/sync/*.test.js', 'api/*.test.js'],
     languageOptions: { globals: globals.node },
   },
 ])

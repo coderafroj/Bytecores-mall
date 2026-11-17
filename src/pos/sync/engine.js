@@ -7,7 +7,7 @@ import { db, SYNCED, LOCAL_ONLY_SETTINGS, ridOf, asRemote } from '../data/db';
  * Both are indexed range reads, so cost follows "what changed", not "how much data exists".
  * Conflict rule: the newer `updatedAt` wins. Designed for ONE counter device writing at a time.
  */
-const BATCH_RECORDS = 40;
+const BATCH_RECORDS = 30;      // small batches: each request must finish well inside the server's time limit
 const BATCH_BYTES = 1_200_000;      // keeps each request well under Vercel's 4.5 MB limit
 const pkOf = (table) => (table === 'settings' ? 'key' : 'id');
 
@@ -31,6 +31,8 @@ export const sync = {
   _setImageFetcher(f) { imageFetcher = f || defaultImageFetcher; },
   pendingCount,
   syncNow,
+  diagnose,
+  uploadEverything,
 };
 
 /* ---------------- meta helpers ---------------- */
@@ -58,10 +60,16 @@ async function defaultTransport(action, body) {
   try {
     res = await fetch('/api/pos-sync', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ action, ...body }) });
   } catch { throw Object.assign(new Error('offline'), { kind: 'offline' }); }
-  const json = await res.json().catch(() => ({}));
-  if (res.status === 401) throw Object.assign(new Error('login_required'), { kind: 'auth' });
-  if (res.status === 403) throw Object.assign(new Error('Ye account admin nahi hai'), { kind: 'forbidden' });
-  if (res.status === 503) throw Object.assign(new Error(`Server setup baaki: ${(json.missing || []).join(', ')}`), { kind: 'config' });
+  const text = await res.text();
+  let json = null;
+  try { json = JSON.parse(text); } catch { /* not JSON */ }
+  if (res.status === 401) throw Object.assign(new Error('login_required'), { kind: 'auth', detail: json?.reason || '' });
+  if (res.status === 403) throw Object.assign(new Error(`Ye account admin nahi hai${json?.email ? ` (${json.email})` : ''}. Vercel mein ADMIN_EMAILS mein yahi email daalo aur Redeploy karo.`), { kind: 'forbidden' });
+  // `npm run dev` / a missing deployment answers with an HTML page (or 404) instead of our JSON
+  if (res.status === 404 || res.status === 405 || json === null) {
+    throw Object.assign(new Error('Sync server (/api/pos-sync) nahi mila. Ye sirf Vercel par deploy hone ke baad chalta hai. Local par npm run dev se chalao (naya vite.config ise apne aap chalata hai) aur Vercel par redeploy karna na bhoolo.'), { kind: 'noapi' });
+  }
+  if (res.status === 503) throw Object.assign(new Error(`Server setup baaki. Vercel/.env mein ye daalo: ${(json.missing || []).join(', ')}`), { kind: 'config' });
   if (!res.ok) throw Object.assign(new Error(json.message || json.error || `Server error ${res.status}`), { kind: 'server' });
   return json;
 }
@@ -114,7 +122,11 @@ async function pushAll() {
     const items = await collectBatch();
     if (!items.length) return;
     const records = items.filter((i) => i.rec).map((i) => i.rec);
-    const results = records.length ? (await transport('push', { device, records })).results : [];
+    let results = [];
+    if (records.length) {
+      results = (await transport('push', { device, records })).results;
+      if (!Array.isArray(results)) throw Object.assign(new Error('Server ka jawab samajh nahi aaya (push)'), { kind: 'server' });
+    }
     const byRid = new Map(results.map((r) => [r.rid, r]));
 
     const blocked = new Set();
@@ -181,6 +193,7 @@ async function pullAll(onProgress) {
   for (let guard = 0; guard < 100_000; guard++) {
     const since = await getMeta('pullSrv');
     const res = await transport('pull', { since, limit: 100 });
+    if (!Array.isArray(res.records)) throw Object.assign(new Error('Server ka jawab samajh nahi aaya (pull)'), { kind: 'server' });
     if (!res.records.length) return;
     await applyRemote(res.records);
     await setMeta('pullSrv', res.next);
@@ -229,15 +242,17 @@ async function syncNow() {
   running = (async () => {
     set({ status: 'syncing', message: '', detail: '' });
     try {
+      if (!(await getMeta('fullUploadDone', false))) await db.meta.where('key').startsWith('push:').delete();   // first ever sync: send EVERYTHING already on this device
       await pushAll();
+      await setMeta('fullUploadDone', true);
       await pullAll((n) => set({ detail: `${n} records aaye` }));
       await fetchMissingImages();
       const lastSyncAt = Date.now();
       await setMeta('lastSyncAt', lastSyncAt);
       set({ status: 'idle', lastSyncAt, message: '', detail: '', pending: await pendingCount() });
     } catch (e) {
-      const map = { offline: 'offline', auth: 'auth', forbidden: 'auth', config: 'config' };
-      set({ status: map[e.kind] || 'error', message: e.kind === 'offline' ? 'Internet nahi hai. Sab local save ho raha hai.' : e.kind === 'auth' ? 'Cloud sync ke liye admin login karo' : e.message, pending: await pendingCount().catch(() => snap.pending) });
+      const map = { offline: 'offline', auth: 'auth', forbidden: 'auth', config: 'config', noapi: 'config' };
+      set({ status: map[e.kind] || 'error', message: e.kind === 'offline' ? 'Internet nahi hai. Sab local save ho raha hai.' : e.kind === 'auth' ? (e.detail ? `Server ne login nahi mana: ${e.detail}` : 'Cloud sync ke liye admin login karo') : e.message, pending: await pendingCount().catch(() => snap.pending) });
     } finally { running = null; }
   })();
   return running;
@@ -246,4 +261,35 @@ async function syncNow() {
 export async function loadLastSync() {
   const t = await getMeta('lastSyncAt');
   if (t && !snap.lastSyncAt) set({ lastSyncAt: t });
+}
+
+/**
+ * Step-by-step health check for the Settings screen: stops at the first thing that is broken
+ * and says in plain words how to fix it.
+ */
+async function diagnose() {
+  const steps = [];
+  const add = (label, ok, detail = '') => { steps.push({ label, ok, detail }); return ok; };
+  if (!add('Internet', typeof navigator === 'undefined' || navigator.onLine !== false, 'Internet nahi hai. Net chalu karke dobara dabao.')) return steps;
+  let token = null;
+  try { token = auth.getToken ? await auth.getToken() : null; } catch { /* handled below */ }
+  if (!add('Admin login (Clerk)', !!token && auth.signedIn, 'Login nahi hai. /admin kholkar admin account se login karo. (Agar login hai par yahan fail ho raha hai: VITE_CLERK_PUBLISHABLE_KEY check karo.)')) return steps;
+  let ping;
+  try { ping = await transport('ping', {}); } catch (e) {
+    const where = { noapi: 'Sync server', forbidden: 'Admin permission', config: 'Server settings', auth: 'Server ne login check' }[e.kind] || 'Sync server';
+    add(where, false, e.kind === 'auth' ? `Tum login ho, par server ne token nahi mana. ${e.detail || ''}` : e.message);
+    return steps;
+  }
+  add('Sync server (/api/pos-sync)', true, 'mil gaya');
+  add('Appwrite collection (pos_records)', ping.collection?.ok, ping.collection?.ok ? `${ping.records} records cloud mein hain` : ping.collection?.message);
+  add('Appwrite photo bucket (pos_images)', ping.bucket?.ok, ping.bucket?.ok ? 'theek hai' : ping.bucket?.message);
+  add('Upload baaki', true, `${await pendingCount()} cheezein upload hone ko hain`);
+  return steps;
+}
+
+/** Forget what was uploaded and send everything again (safe: the server just overwrites with the same data). */
+async function uploadEverything() {
+  await db.meta.where('key').startsWith('push:').delete();
+  set({ pending: await pendingCount() });
+  return syncNow();
 }

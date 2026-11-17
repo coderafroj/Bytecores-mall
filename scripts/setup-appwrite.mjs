@@ -24,6 +24,18 @@ const COL = env('APPWRITE_POS_COLLECTION_ID') || 'pos_records';
 const BUCKET = env('APPWRITE_POS_BUCKET_ID', 'VITE_APPWRITE_POS_BUCKET_ID') || 'pos_images';
 let KEY = env('APPWRITE_API_KEY');   // deliberately NOT VITE_APPWRITE_API_KEY: that one is the leaked, public-style name
 
+
+function explain401(r, ctx) {
+  const msg = r.json?.message || '(Appwrite ne message nahi diya)';
+  const lines = [`Appwrite ka jawab: ${r.status} ${r.json?.type || ''}`, `  "${msg}"`, '',
+    `Endpoint : ${ctx.base}`, `Project  : ${ctx.project}`, `Key      : ${ctx.key.length} akshar (normal key 265 ki hoti hai, "standard_" se shuru)`, ''];
+  if (/scope/i.test(msg)) lines.push('=> Key mein upar likha permission (scope) nahi hai. Appwrite > Overview > Integrations > API keys > apni key > Scopes mein wo tick karo.');
+  else if (ctx.key.length !== 265) lines.push('=> Key poori paste nahi hui. Is tareeke se do (key screen par nahi dikhegi):\n     read -rs APPWRITE_API_KEY && export APPWRITE_API_KEY\n   phir wahi npm command dobara chalao.');
+  else if (/project/i.test(msg)) lines.push('=> Project ID ya endpoint galat hai. Appwrite > Settings mein "Project ID" aur "API Endpoint" dekho aur .env se milao.');
+  else lines.push('=> Ya key kisi aur project ki hai, ya delete/expire ho chuki hai, ya Project ID / endpoint galat hai.');
+  return lines.join('\n');
+}
+
 const fail = (msg) => { console.error('\n✗ ' + msg + '\n'); process.exit(1); };
 if (process.env.VITE_APPWRITE_API_KEY) console.warn('! Found VITE_APPWRITE_API_KEY in your environment. It is ignored. Delete it and rotate that key.\n');
 if (!EP || !PROJECT) fail('Endpoint / Project ID nahi mile. .env mein VITE_APPWRITE_ENDPOINT aur VITE_APPWRITE_PROJECT_ID hone chahiye (ya APPWRITE_ENDPOINT / APPWRITE_PROJECT_ID set karo).');
@@ -35,6 +47,7 @@ if (!KEY) {
 if (!KEY) fail('API key chahiye.');
 
 const base = EP.replace(/\/$/, '');
+KEY = KEY.replace(/\s+/g, '');   // a pasted key can pick up spaces / line breaks
 async function call(method, path, body, form) {
   const headers = { 'X-Appwrite-Project': PROJECT, 'X-Appwrite-Key': KEY };
   if (body) headers['Content-Type'] = 'application/json';
@@ -52,7 +65,7 @@ console.log(`\nAppwrite: ${base}\nProject : ${PROJECT}\nDatabase: ${DB}\n`);
 
 /* ---- 0. is the key valid? ---- */
 const who = await call('GET', '/databases?queries[]=' + encodeURIComponent('{"method":"limit","values":[1]}'));
-if (who.status === 401) fail('API key galat hai ya project ID galat hai. Nayi key banao aur dobara try karo.');
+if (who.status === 401) fail(explain401(who, { base, project: PROJECT, key: KEY }));
 if (who.status === 403) fail('Is key ko "databases.read" scope nahi mila. Key ke scopes check karo.');
 must(who, 'Appwrite se connect');
 
