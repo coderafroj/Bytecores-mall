@@ -9,6 +9,7 @@
  *   `srv`       = server order number (lets any device ask "what's new since X?")
  */
 export const TYPES = ['products', 'customers', 'invoices', 'expenses', 'payments', 'stockMoves', 'settings'];
+const IMMUTABLE = ['invoices', 'payments', 'stockMoves'];   // sale history: can be added, never deleted
 const RID = /^[A-Za-z]+_[A-Za-z0-9]{1,24}$/;
 const MAX_RECORDS = 40;
 const MAX_DATA = 90_000;
@@ -18,6 +19,7 @@ function validate(rec) {
   if (!rec || typeof rec.rid !== 'string' || !RID.test(rec.rid)) return 'bad rid';
   if (!TYPES.includes(rec.type) || !rec.rid.startsWith(rec.type + '_')) return 'bad type';
   if (!Number.isFinite(rec.updatedAt)) return 'bad updatedAt';
+  if (rec.deleted && IMMUTABLE.includes(rec.type)) return 'sale entries cannot be deleted';
   if (JSON.stringify(rec.data || {}).length > MAX_DATA) return 'record too large';
   if (rec.image?.op === 'put') {
     const m = /^data:image\/(webp|jpeg|png);base64,/.exec(rec.image.dataUrl || '');

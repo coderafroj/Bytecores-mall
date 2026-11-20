@@ -58,14 +58,32 @@ describe('sales', () => {
     expect(on.total).toBe(rs(500));
   });
 
-  it('void restores stock, sold count and udhaar', async () => {
+  it('sale entries can never be deleted (bills, payments, stock history)', async () => {
     const { a } = await seed();
     const inv = await InvoiceRepo.createSale({ lines: [await line(a, 2, 0)], discount: null, payments: [], customer: { name: 'Sita', phone: '9876543210' }, settings });
-    await InvoiceRepo.voidInvoice(inv.id);
-    const p = await db.products.get(a);
-    expect([p.stock, p.sold]).toEqual([10, 0]);
-    expect((await db.customers.get(inv.customerId)).credit).toBe(0);
-    await expect(InvoiceRepo.voidInvoice(inv.id)).rejects.toThrow(/Already/);
+    await CustomerRepo.receivePayment(inv.customerId, rs(50));
+    await expect(db.invoices.delete(inv.id)).rejects.toThrow(/delete nahi ho sakti/);
+    await expect(db.invoices.clear()).rejects.toThrow(/delete nahi ho sakti/);
+    await expect(db.invoices.bulkDelete([inv.id])).rejects.toThrow(/delete nahi ho sakti/);
+    await expect(db.payments.clear()).rejects.toThrow(/delete nahi ho sakti/);
+    await expect(db.stockMoves.clear()).rejects.toThrow(/delete nahi ho sakti/);
+    expect(await db.invoices.count()).toBe(1);
+    expect(await db.payments.count()).toBe(1);
+    expect((await db.products.get(a)).stock).toBe(8);          // nothing was rolled back or changed
+    expect(await db.tombs.count()).toBe(0);                    // and nothing is queued to delete in the cloud
+  });
+
+  it('the cancel-bill feature no longer exists', async () => {
+    expect(InvoiceRepo.voidInvoice).toBeUndefined();
+  });
+
+  it('deleting a PRODUCT keeps its old bills intact', async () => {
+    const { a } = await seed();
+    const inv = await InvoiceRepo.createSale({ lines: [await line(a, 1, 0)], discount: null, payments: [{ method: 'CASH', amount: rs(100) }], customer: null, settings });
+    await ProductRepo.remove(a);
+    const kept = await db.invoices.get(inv.id);
+    expect(kept.lines[0].name).toBe('Cable');
+    expect(kept.total).toBe(rs(100));
   });
 });
 

@@ -46,19 +46,19 @@ export default function Home({ settings, needsPin }) {
       {backupAge > 7 && d.hasBills && (
         <Link to="/pos/settings" className="card row" style={{ background: 'var(--warn-soft)', textDecoration: 'none', color: 'inherit', marginBottom: 12 }}>
           <ShieldAlert size={20} className="warn" />
-          <div className="grow sm"><b>{Number.isFinite(backupAge) ? `Last backup ${Math.floor(backupAge)} days ago` : 'No backup taken yet'}</b><div className="xs mute">Your data lives on this device. Tap to download a backup.</div></div>
+          <div className="grow sm"><b>{Number.isFinite(backupAge) ? `Pichhla backup ${Math.floor(backupAge)} din pehle ka hai` : 'Abhi tak backup nahi liya'}</b><div className="xs mute">Data is device par hai. Backup download karne ke liye yahan dabao.</div></div>
         </Link>
       )}
 
-      <Link to="/pos/bill" className="btn pri block" style={{ minHeight: 60, fontSize: 17, textDecoration: 'none' }}><ScanLine size={20} /> Start new bill</Link>
+      <Link to="/pos/bill" className="btn pri block" style={{ minHeight: 60, fontSize: 17, textDecoration: 'none' }}><ScanLine size={20} /> Naya bill banao</Link>
 
-      <div className="sec-title">Today</div>
+      <div className="sec-title">Aaj</div>
       <div className="grid g2 md4">
-        <div className="card stat"><div className="xs mute">Sales</div><div className="v num">{Money.format(sum.revenue)}</div>
-          <span className={`d ${change.revenue >= 0 ? 'good' : 'bad'}`}>{change.revenue >= 0 ? '▲' : '▼'} {Math.abs(change.revenue).toFixed(0)}% vs yesterday</span></div>
-        <div className="card stat"><div className="xs mute">Profit</div><div className="v num good">{Money.format(sum.profit)}</div><span className="d mute">after expenses {Money.format(sum.profit - exp)}</span></div>
-        <div className="card stat"><div className="xs mute">Bills</div><div className="v num">{sum.bills}</div><span className="d mute">{sum.items} items sold</span></div>
-        <Link to="/pos/customers" className="card stat" style={{ textDecoration: 'none', color: 'inherit' }}><div className="xs mute">Udhaar to collect</div><div className="v num warn">{Money.format(udhaar)}</div><span className="d mute">{udhaarCount} customers</span></Link>
+        <div className="card stat"><div className="xs mute">Bikri</div><div className="v num">{Money.format(sum.revenue)}</div>
+          <span className={`d ${change.revenue >= 0 ? 'good' : 'bad'}`}>{change.revenue >= 0 ? '▲' : '▼'} {Math.abs(change.revenue).toFixed(0)}% kal se</span></div>
+        <div className="card stat"><div className="xs mute">Munafa</div><div className="v num good">{Money.format(sum.profit)}</div><span className="d mute">kharche ke baad {Money.format(sum.profit - exp)}</span></div>
+        <div className="card stat"><div className="xs mute">Bill</div><div className="v num">{sum.bills}</div><span className="d mute">{sum.items} samaan bika</span></div>
+        <Link to="/pos/customers" className="card stat" style={{ textDecoration: 'none', color: 'inherit' }}><div className="xs mute">Udhaar to collect</div><div className="v num warn">{Money.format(udhaar)}</div><span className="d mute">{udhaarCount} customer</span></Link>
       </div>
 
       <div className="grid g3" style={{ marginTop: 10 }}>
@@ -69,16 +69,16 @@ export default function Home({ settings, needsPin }) {
 
       {(health.out.length > 0 || health.low.length > 0) && (
         <>
-          <div className="sec-title">Needs attention</div>
+          <div className="sec-title">Dhyaan dene wali baatein</div>
           <Link to="/pos/stock" className="card row" style={{ textDecoration: 'none', color: 'inherit' }}>
             <TriangleAlert size={20} className="warn" />
-            <div className="grow sm"><b>{health.out.length} out of stock · {health.low.length} running low</b>
+            <div className="grow sm"><b>{health.out.length} khatam · {health.low.length} kam bacha hai</b>
               <div className="xs mute trunc">{[...health.out, ...health.low].slice(0, 4).map((p) => p.name).join(', ')}</div></div>
           </Link>
         </>
       )}
 
-      <div className="sec-title">Recent bills</div>
+      <div className="sec-title">Haal ke bill</div>
       <div className="list">
         {recent.map((i) => (
           <Link to="/pos/bills" key={i.id} className="item" style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -86,7 +86,7 @@ export default function Home({ settings, needsPin }) {
             <b className="num">{Money.format(i.total)}</b>
           </Link>
         ))}
-        {!recent.length && <div className="empty card">No bills yet. Your first sale will show up here.</div>}
+        {!recent.length && <div className="empty card">Abhi koi bill nahi. Pehli bikri yahan dikhegi.</div>}
       </div>
     </>
   );

@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { toast } from 'sonner';
-import { Search, Printer, MessageCircle, Undo2 } from 'lucide-react';
+import { Search, Printer, MessageCircle } from 'lucide-react';
 import { db } from '../data/db';
-import { InvoiceRepo } from '../data/repositories';
 import { Money } from '../domain/money';
 import { Sheet } from './common';
 import { fmtDate, fmtTime } from './utils';
@@ -16,11 +14,6 @@ export default function Bills({ settings }) {
   const [sel, setSel] = useState(null);
   const t = q.trim().toLowerCase();
   const list = invoices.filter((i) => !t || i.number.toLowerCase().includes(t) || (i.customer?.name || '').toLowerCase().includes(t) || (i.customer?.phone || '').includes(t));
-
-  const voidBill = async (inv) => {
-    if (!window.confirm(`Cancel ${inv.number}? Stock will be returned and any udhaar reversed.`)) return;
-    try { await InvoiceRepo.voidInvoice(inv.id); toast.success('Bill cancelled, stock restored'); setSel(null); } catch (e) { toast.error(e.message); }
-  };
 
   return (
     <>
@@ -46,10 +39,10 @@ export default function Bills({ settings }) {
           footer={<div className="grid g2">
             <button className="btn" onClick={() => window.print()}><Printer size={16} /> Print</button>
             <a className="btn" target="_blank" rel="noreferrer" href={whatsappLink(sel.customer?.phone, receiptText(sel, settings))}><MessageCircle size={16} /> Share</a>
-            {sel.status !== 'void' && <button className="btn bad block" style={{ gridColumn: '1/-1' }} onClick={() => voidBill(sel)}><Undo2 size={16} /> Cancel / return bill</button>}
           </div>}>
           <Receipt inv={sel} s={settings} />
           <p className="xs mute">Profit on this bill: {Money.format(sel.profit)}</p>
+          <p className="xs mute">Sale ki entry hamesha record mein rehti hai; use delete ya cancel nahi kiya ja sakta.</p>
         </Sheet>
       )}
     </>

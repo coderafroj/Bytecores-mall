@@ -68,6 +68,14 @@ npm run reset:appwrite -- --scope=everything --dry-run   # just list what would 
 It lists what will be deleted (with record/file counts) and makes you type the Project ID first. No undo.
 `everything` also deletes the online store's products / orders / feedback / users data; Auth users, Functions and Teams are untouched.
 
+## Sale entries are permanent
+Nobody (owner or staff) can delete or cancel a bill, payment or stock-history entry:
+- no "cancel bill" / "erase data" buttons; the data layer refuses deletes of `invoices`, `payments`, `stockMoves`;
+- the cloud server refuses to mark them deleted;
+- "Restore backup" works only on an empty device (it could otherwise hide sales).
+Deleting a *product* never touches its old bills. To fix a stock mistake, edit the stock in **Stock** (it is logged as an adjustment).
+Staff safety needs PINs: **Settings > Malik PIN first, then Staff PIN**. Without a PIN every user is the owner.
+
 ## Data & speed
 - Money is integer paise. GST is OFF by default (Settings). Prices are GST-inclusive when ON.
 - Photos: 256px WebP/JPEG (~10 KB). Search = one O(n) pass; reports use indexed date ranges.

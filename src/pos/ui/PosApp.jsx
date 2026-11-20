@@ -38,6 +38,12 @@ function PinLock({ ownerHash, staffHash, onOpen }) {
       else { setBad(true); navigator.vibrate?.(120); setTimeout(() => setPin(''), 350); }
     }
   };
+  // laptop: type the PIN on the keyboard too
+  useEffect(() => {
+    const k = (e) => { if (/^[0-9]$/.test(e.key)) press(e.key); else if (e.key === 'Backspace') setPin((p) => p.slice(0, -1)); };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  });
   return (
     <div className="lock">
       <div style={{ textAlign: 'center' }}>

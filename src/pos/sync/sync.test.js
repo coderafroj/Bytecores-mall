@@ -205,3 +205,20 @@ describe('first sync uploads everything already on the device', () => {
     expect(cloud.docs.has(`products_${a}`) && cloud.docs.has(`products_${b}`)).toBe(true);
   });
 });
+
+describe('sale history is append-only in the cloud too', () => {
+  it('the server refuses to mark a bill, payment or stock entry as deleted, but still accepts normal saves', async () => {
+    const server = createPosServer({ api: cloud.api });
+    const r = await server.handle({ action: 'push', device: 'x', records: [
+      { rid: 'invoices_1', type: 'invoices', updatedAt: 5, data: { number: 'BM-00001' } },
+      { rid: 'invoices_1', type: 'invoices', updatedAt: 9, deleted: true, data: {} },
+      { rid: 'payments_1', type: 'payments', updatedAt: 9, deleted: true, data: {} },
+      { rid: 'stockMoves_1', type: 'stockMoves', updatedAt: 9, deleted: true, data: {} },
+      { rid: 'products_1', type: 'products', updatedAt: 9, deleted: true, data: {} },
+    ] });
+    expect(r.json.results.map((x) => x.ok)).toEqual([true, false, false, false, true]);
+    expect(r.json.results[1].error).toMatch(/cannot be deleted/);
+    expect(JSON.parse(cloud.docs.get('invoices_1').data).number).toBe('BM-00001');   // still there
+    expect(cloud.docs.get('invoices_1').deleted).toBe(false);
+  });
+});

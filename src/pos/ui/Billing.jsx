@@ -152,7 +152,7 @@ export default function Billing({ settings, role }) {
       {!cart.length ? (
         <div className="empty"><ShoppingBag size={34} /><div className="b" style={{ marginTop: 6 }}>Samaan ki photo dabao</div><div className="xs">ya barcode scan karo</div></div>
       ) : (
-        <div style={{ overflow: 'auto', maxHeight: 'calc(100dvh - 330px)' }}>
+        <div className="cart-lines">
           {calc.lines.map((l) => {
             const img = imgOf(byId.get(l.productId));
             return (
@@ -183,7 +183,7 @@ export default function Billing({ settings, role }) {
         </div>
       )}
 
-      <div className="col" style={{ marginTop: 12 }}>
+      <div className="col cart-foot" style={{ marginTop: 12 }}>
         {owner && cart.length > 0 && (
           <div className="row">
             <div className="chips" style={{ flex: 'none' }}>
@@ -392,7 +392,7 @@ function PaySheet({ calc, lines, discount, settings, onClose, onDone }) {
           <div className="xs mute">Kul rakam</div>
           <div className="total-big num" style={{ fontSize: 52 }}>{Money.format(total)}</div>
         </div>
-        <div className="chips" style={{ justifyContent: 'center' }}>
+        <div className="chips" style={{ justifyContent: 'safe center' }}>
           {METHODS.map(([k, l]) => <button key={k} className={`chip cash-chip ${method === k ? 'on' : ''}`} onClick={() => setMethod(k)}>{l}</button>)}
         </div>
 
@@ -419,7 +419,7 @@ function PaySheet({ calc, lines, discount, settings, onClose, onDone }) {
 
         <div className="grid g2" style={{ marginTop: 12 }}>
           <Field label={method === 'UDHAAR' ? 'Customer ka naam' : 'Naam (optional)'}><input className="inp" value={name} onChange={(e) => setName(e.target.value)} /></Field>
-          <Field label={method === 'UDHAAR' ? 'Mobile number (zaroori)' : 'Mobile (WhatsApp bill ke liye)'}><input className="inp num" inputMode="tel" maxLength={13} value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
+          <Field label={method === 'UDHAAR' ? 'Mobile number (zaroori)' : 'Mobile / WhatsApp'}><input className="inp num" inputMode="tel" maxLength={13} value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
         </div>
       </div>
     </Sheet>

@@ -59,6 +59,8 @@ let lastTs = 0;
 /** Strictly increasing millisecond stamp: no two rows on this device ever tie. */
 export const nextTs = () => (lastTs = Math.max(Date.now(), lastTs + 1));
 export const SYNCED = ['products', 'customers', 'invoices', 'expenses', 'payments', 'stockMoves', 'settings'];
+/** Sale history can be added to, never removed. Only the sync engine (isRemote) may touch these deletions. */
+export const APPEND_ONLY = ['invoices', 'payments', 'stockMoves'];
 export const LOCAL_ONLY_SETTINGS = new Set(['pinHash', 'staffPinHash', 'lastBackupAt']);
 export const ridOf = (table, pk) => `${table}_${pk}`;
 
@@ -69,6 +71,7 @@ for (const name of SYNCED) {
   t.hook('updating', function (mods, pk, obj, tx) { if (!tx?.isRemote) return { updatedAt: nextTs() }; });
   t.hook('deleting', function (pk, obj, tx) {
     if (tx?.isRemote) return;
+    if (APPEND_ONLY.includes(name)) throw new Error('Sale ki entry delete nahi ho sakti');
     // outside the caller's transaction (tombs is not in its scope)
     this.onsuccess = () => { Dexie.ignoreTransaction(() => db.tombs.put({ rid: ridOf(name, pk), table: name, pk, updatedAt: nextTs() })).catch(() => {}); };
   });

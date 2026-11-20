@@ -3,7 +3,8 @@ import { toast } from 'sonner';
 import { Download, Upload, Lock, ShieldCheck, Cloud } from 'lucide-react';
 import { sync } from '../sync/engine';
 import { useSyncState } from './useSync';
-import { SettingsRepo, BackupService, wipeAllData } from '../data/repositories';
+import { SettingsRepo, BackupService } from '../data/repositories';
+import { db } from '../data/db';
 import { Field } from './common';
 import { downloadFile, sha256 } from './utils';
 
@@ -33,12 +34,10 @@ export default function Settings({ settings }) {
     await BackupService.markBackedUp(); toast.success('Backup downloaded. Keep it on Google Drive / WhatsApp too.');
   };
   const restore = async (file) => {
-    if (!window.confirm('Restore will REPLACE all data on this device with the backup. Continue?')) return;
+    if (!window.confirm('Restore is device ka data backup se badal dega. Chalu karein?')) return;
+    // a restore replaces what is on the device, which could hide sales, so it is only for a new/empty device
+    if ((await db.invoices.count()) > 0) { toast.error('Restore sirf naye / khaali device par ho sakta hai, kyunki isse bills hat sakte hain. Naye laptop par login karoge to data cloud se apne aap aa jata hai.'); return; }
     try { await BackupService.importAll(JSON.parse(await file.text())); toast.success('Backup restored'); } catch (e) { toast.error(e.message); }
-  };
-  const wipe = async () => {
-    if (window.prompt('Is device ka saara data mit jayega (cloud copy safe rehti hai aur sync par wapas aa jayegi). Confirm karne ke liye DELETE likho.') !== 'DELETE') return;
-    await wipeAllData(); localStorage.removeItem('pos_draft_v1'); localStorage.removeItem('pos_held_v1'); toast.success('All data erased');
   };
   const persist = async () => { const ok = await navigator.storage?.persist?.(); setPersisted(!!ok); toast[ok ? 'success' : 'error'](ok ? 'Storage is now protected from auto-cleanup' : 'Browser refused. Install the app to home screen first.'); };
 
@@ -114,10 +113,6 @@ export default function Settings({ settings }) {
         <div className="xs mute">{settings.lastBackupAt ? `Last backup: ${new Date(settings.lastBackupAt).toLocaleString('en-IN')}` : 'No backup taken yet'}</div>
       </div>
 
-      <div className="card col" style={{ borderColor: 'var(--bad)' }}>
-        <b className="bad">Danger zone</b>
-        <button className="btn bad" onClick={wipe}>Is device ka data mitao</button>
-      </div>
     </div>
   );
 }

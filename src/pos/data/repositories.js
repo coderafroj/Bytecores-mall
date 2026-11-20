@@ -198,27 +198,6 @@ export class InvoiceRepo {
     });
   }
 
-  /** Cancel a bill: puts stock back and reverses any customer credit. */
-  static async voidInvoice(id) {
-    return db.transaction('rw', db.products, db.invoices, db.customers, db.stockMoves, async () => {
-      const inv = await db.invoices.get(id);
-      if (!inv) throw new Error('Invoice not found');
-      if (inv.status === 'void') throw new Error('Already cancelled');
-      for (const l of inv.lines.filter((x) => !x.custom)) {
-        const p = await db.products.get(l.productId);
-        if (p) await db.products.update(l.productId, { stock: p.stock + l.qty, sold: Math.max(0, (p.sold || 0) - l.qty) });
-        await db.stockMoves.add({
-          productId: l.productId, type: 'return', qty: l.qty, costPrice: l.costPrice,
-          note: `Cancelled ${inv.number}`, invoiceId: id, createdAt: now(),
-        });
-      }
-      if (inv.customerId && inv.due > 0) {
-        const c = await db.customers.get(inv.customerId);
-        if (c) await db.customers.update(inv.customerId, { credit: Math.max(0, c.credit - inv.due) });
-      }
-      await db.invoices.update(id, { status: 'void', voidedAt: now() });
-    });
-  }
 }
 
 /* ---------------- Expenses ---------------- */

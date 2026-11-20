@@ -180,8 +180,8 @@ function ProductForm({ initial, categories, gst, onClose }) {
             <span className="b num">{Money.format(profit)} ({margin.toFixed(0)}% margin)</span>
           </div>
         )}
-        <div className="grid g3">
-          {gst ? <Field label="GST %"><select className="inp" value={p.gstRate} onChange={(e) => set('gstRate')(Number(e.target.value))}>{GST.map((g) => <option key={g} value={g}>{g}%</option>)}</select></Field> : <div />}
+        <div className={`grid ${gst ? "g3" : "g2"}`}>
+          {gst ? <Field label="GST %"><select className="inp" value={p.gstRate} onChange={(e) => set('gstRate')(Number(e.target.value))}>{GST.map((g) => <option key={g} value={g}>{g}%</option>)}</select></Field>  : null}
           <Field label="Stock"><input className="inp num" inputMode="decimal" value={p.stock} onChange={(e) => set('stock')(e.target.value)} /></Field>
           <Field label="Low alert"><input className="inp num" inputMode="numeric" value={p.lowStockAt} onChange={(e) => set('lowStockAt')(e.target.value)} /></Field>
         </div>
